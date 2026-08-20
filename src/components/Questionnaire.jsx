@@ -91,7 +91,7 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
   };
 
   const currentParam = currentStep > 0 ? PARAM_DEFINITIONS[currentStep - 1] : null;
-  const progressPercent = Math.round(((currentStep + 1) / totalSteps) * 100);
+  const progressPercent = currentStep === 0 ? 0 : Math.round((currentStep / (totalSteps - 1)) * 100);
 
   return (
     <div className="questionnaire-wizard">
