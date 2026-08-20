@@ -9,14 +9,14 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
   const [region, setRegion] = useState('all');
   const [type, setType] = useState('all');
 
-  // Initialize all 11 rating parameters to DEFAULT score 3 (Active, ignoreParams = false)
+  // Initialize all 11 rating parameters to null (No number selected by default)
   const initialRatings = PARAM_DEFINITIONS.reduce((acc, p) => {
-    acc[p.id] = 3;
+    acc[p.id] = null;
     return acc;
   }, {});
 
   const initialIgnoreParams = PARAM_DEFINITIONS.reduce((acc, p) => {
-    acc[p.id] = false; // DEFAULT IS ACTIVE SCORE 3!
+    acc[p.id] = true; // Default is ignored until a number or preference is clicked
     return acc;
   }, {});
 
@@ -26,7 +26,7 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
   const totalSteps = PARAM_DEFINITIONS.length + 1; // 12 steps total
   const timerRef = useRef(null);
 
-  // Smooth 600ms Auto-Advance timer function
+  // Smooth Auto-Advance timer function (200ms snappy response)
   const triggerAutoAdvance = (updatedRatings = ratings, updatedIgnore = ignoreParams) => {
     if (timerRef.current) clearTimeout(timerRef.current);
 
@@ -55,16 +55,19 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
     setRatings(nextRatings);
     setIgnoreParams(nextIgnore);
 
-    // Auto-advance to next question after 600ms
+    // Auto-advance to next question after 200ms
     triggerAutoAdvance(nextRatings, nextIgnore);
   };
 
   const handleSetIndifferent = (paramId) => {
+    const nextRatings = { ...ratings, [paramId]: null };
     const nextIgnore = { ...ignoreParams, [paramId]: true };
+
+    setRatings(nextRatings);
     setIgnoreParams(nextIgnore);
 
-    // Auto-advance to next question after 600ms
-    triggerAutoAdvance(ratings, nextIgnore);
+    // Auto-advance to next question after 200ms
+    triggerAutoAdvance(nextRatings, nextIgnore);
   };
 
   const handleNext = () => {
@@ -159,7 +162,7 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
         </div>
       )}
 
-      {/* STEPS 1..11: The 11 Parameters (Compact One-Screen Layout) */}
+      {/* STEPS 1..11: The 11 Parameters (No score pressed by default) */}
       {currentStep > 0 && currentParam && (
         <div className="glass-card" style={{ animation: 'fadeIn 0.3s', textAlign: 'center', padding: '1.5rem 1.2rem', marginBottom: '1rem' }}>
           <div className="brand-badge" style={{ marginBottom: '0.8rem', fontSize: '0.8rem', padding: '0.25rem 0.75rem' }}>
@@ -170,7 +173,7 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
             {currentParam.question || currentParam.label}
           </h2>
 
-          {/* 1 to 5 Score Buttons Grid (Default score is 3) */}
+          {/* 1 to 5 Score Buttons Grid (No number pressed by default) */}
           <div style={{ margin: '0 auto', maxWidth: 600 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 600 }}>
               <span>1 - {currentParam.minLabel}</span>
