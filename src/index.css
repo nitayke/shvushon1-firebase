@@ -1,4 +1,44 @@
-@import url('https://fonts.googleapis.com/css2?family=David+Libre:wght@400;500;700&family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap');
+/* Custom Local Fonts from User ZIP Archives (Yiddishkeit by AlefAlefAlef + Frank Ruhl Libre) */
+@font-face {
+  font-family: 'Yiddishkeit';
+  src: url('/fonts/Yiddishkeit/YiddishkeitAlefAlefAlef-Bold.woff') format('woff'),
+       url('/fonts/Yiddishkeit/YiddishkeitAlefAlefAlef-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Frank Ruhl Libre';
+  src: url('/fonts/FrankRuhlLibre/Frank_Ruhl_Libre/FrankRuhlLibre-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Frank Ruhl Libre';
+  src: url('/fonts/FrankRuhlLibre/Frank_Ruhl_Libre/FrankRuhlLibre-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Frank Ruhl Libre';
+  src: url('/fonts/FrankRuhlLibre/Frank_Ruhl_Libre/FrankRuhlLibre-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Frank Ruhl Libre';
+  src: url('/fonts/FrankRuhlLibre/Frank_Ruhl_Libre/FrankRuhlLibre-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
   --bg-main: #111317;
@@ -11,8 +51,8 @@
   --primary-accent-hover: #343b49;
   --gold-accent: #b47828;
   --success-color: #10b981;
-  --font-heading: 'David Libre', Georgia, serif;
-  --font-body: 'M PLUS Rounded 1c', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-heading: 'Yiddishkeit', 'Frank Ruhl Libre', Georgia, serif;
+  --font-body: 'Frank Ruhl Libre', Georgia, serif;
   --radius-lg: 12px;
   --radius-md: 8px;
   --radius-sm: 4px;
@@ -32,7 +72,7 @@
 
 h1, h2, h3, h4, .app-title, .section-title {
   font-family: var(--font-heading);
-  letter-spacing: -0.01em;
+  letter-spacing: 0.01em;
 }
 
 button, .chip-card, a {
@@ -134,7 +174,7 @@ body {
 }
 
 .section-title {
-  font-size: 1.3rem;
+  font-size: 1.35rem;
   font-weight: 700;
   margin-bottom: 1.1rem;
   display: flex;
