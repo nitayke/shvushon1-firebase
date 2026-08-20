@@ -30,6 +30,8 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [hasTriggeredLoad, setHasTriggeredLoad] = useState(false);
 
+  const [resetKey, setResetKey] = useState(0);
+
   // Helper navigation functions
   const navigateToAdmin = (e) => {
     if (e) e.preventDefault();
@@ -45,6 +47,7 @@ export default function App() {
     setUserPreferences(null);
     setResults([]);
     setViewState('questionnaire');
+    setResetKey(prev => prev + 1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -161,6 +164,7 @@ export default function App() {
           <>
             {view === 'questionnaire' && (
               <Questionnaire
+                key={resetKey}
                 onStartQuiz={loadYeshivot}
                 onCalculateMatches={handleCalculateMatches}
                 onRequestAddYeshiva={() => setIsRequestModalOpen(true)}
