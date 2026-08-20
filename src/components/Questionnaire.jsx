@@ -123,7 +123,7 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
           <p>
             השאלון הינו המלצה כללית בלבד ואינו מהווה תחליף לשיחה עם הר"מ/המחנך בענייןבחירת הישיבה/המכינה.
           </p>
-          <p style={{ fontWeight: 700, color: '#10b981', fontSize: '1.1rem', marginTop: '0.2rem' }}>
+          <p style={{ fontWeight: 700, color: '#f3f4f6', fontSize: '1.05rem', marginTop: '0.2rem' }}>
             בהצלחה!
           </p>
         </div>
@@ -131,9 +131,9 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
         <button
           onClick={() => setIsStarted(true)}
           className="btn-primary"
-          style={{ fontSize: '1.1rem', padding: '0.8rem 2.2rem', borderRadius: 12, boxShadow: '0 4px 20px rgba(99, 102, 241, 0.4)' }}
+          style={{ fontSize: '1.05rem', padding: '0.75rem 2rem', borderRadius: 10 }}
         >
-          <Play style={{ width: 18, height: 18, fill: 'currentColor' }} />
+          <Play style={{ width: 16, height: 16, fill: 'currentColor' }} />
           התחל
         </button>
 
