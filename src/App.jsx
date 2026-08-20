@@ -27,7 +27,8 @@ export default function App() {
   const [userPreferences, setUserPreferences] = useState(null);
   const [results, setResults] = useState([]);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [hasTriggeredLoad, setHasTriggeredLoad] = useState(false);
 
   // Helper navigation functions
   const navigateToAdmin = (e) => {
@@ -35,6 +36,7 @@ export default function App() {
     window.history.pushState({ view: 'admin' }, '', '/admin');
     setViewState('admin');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (!hasTriggeredLoad) loadYeshivot();
   };
 
   const navigateToHome = (e) => {
@@ -62,8 +64,10 @@ export default function App() {
     return () => window.removeEventListener('popstate', handleUrlSync);
   }, []);
 
-  // Fetch Yeshivot list on load
+  // Fetch Yeshivot list function (triggered on "התחל" or when entering Admin/Results)
   const loadYeshivot = async () => {
+    if (hasTriggeredLoad && yeshivotList.length > 0) return;
+    setHasTriggeredLoad(true);
     setLoading(true);
     try {
       const data = await getYeshivotDB();
@@ -75,13 +79,31 @@ export default function App() {
     }
   };
 
+  // If opening directly on admin or results view, load immediately
   useEffect(() => {
-    loadYeshivot();
+    const initialView = getInitialView();
+    if (initialView === 'admin' || initialView === 'results') {
+      loadYeshivot();
+    }
   }, []);
 
-  const handleCalculateMatches = (preferences) => {
+  const handleCalculateMatches = async (preferences) => {
     setUserPreferences(preferences);
-    const matches = calculateKNNMatches(preferences, yeshivotList, 3);
+    // Ensure yeshivot data is loaded before calculating matches
+    let listToUse = yeshivotList;
+    if (listToUse.length === 0) {
+      setLoading(true);
+      try {
+        listToUse = await getYeshivotDB();
+        setYeshivotList(listToUse);
+        setHasTriggeredLoad(true);
+      } catch (err) {
+        console.error("Error fetching yeshivot on finish:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    const matches = calculateKNNMatches(preferences, listToUse, 3);
     setResults(matches);
     navigateToResults();
   };
@@ -128,7 +150,7 @@ export default function App() {
 
       {/* Main View Router */}
       <main>
-        {loading ? (
+        {loading && view !== 'questionnaire' ? (
           <div className="glass-card" style={{ textAlign: 'center', padding: '3rem' }}>
             <h3 style={{ fontSize: '1.3rem', color: '#cbd5e1', marginBottom: '0.5rem' }}>
               טוען נתוני ישיבות/מכינות מהמאגר...
@@ -139,6 +161,7 @@ export default function App() {
           <>
             {view === 'questionnaire' && (
               <Questionnaire
+                onStartQuiz={loadYeshivot}
                 onCalculateMatches={handleCalculateMatches}
                 onRequestAddYeshiva={() => setIsRequestModalOpen(true)}
               />

@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { PARAM_DEFINITIONS, REGIONS, TYPES } from '../knn';
 import { MapPin, GraduationCap, ChevronRight, ChevronLeft, Check, PlusCircle, RotateCcw, Play } from 'lucide-react';
 
-export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva }) {
+export default function Questionnaire({ onStartQuiz, onCalculateMatches, onRequestAddYeshiva }) {
   const [isStarted, setIsStarted] = useState(false);
   // Step 0: Type & Region. Steps 1..11: The 11 parameters. Total 12 steps.
   const [currentStep, setCurrentStep] = useState(0);
@@ -125,7 +125,10 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
         </div>
 
         <button
-          onClick={() => setIsStarted(true)}
+          onClick={() => {
+            setIsStarted(true);
+            if (onStartQuiz) onStartQuiz();
+          }}
           className="btn-primary"
           style={{ fontSize: '1.05rem', padding: '0.75rem 2rem', borderRadius: 8 }}
         >
