@@ -101,13 +101,13 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
 
   if (!isStarted) {
     return (
-      <div className="glass-card" style={{ textAlign: 'center', padding: '1.8rem 1.25rem', animation: 'fadeIn 0.3s' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '1rem', color: '#f3f4f6' }}>
+      <div className="glass-card" style={{ textAlign: 'center', padding: '2rem 1.25rem', animation: 'fadeIn 0.3s' }}>
+        <h1 style={{ fontSize: '2.1rem', fontWeight: 700, marginBottom: '1.1rem', color: '#111827' }}>
           ברוכים הבאים ל"שבושון"
         </h1>
 
-        <div style={{ color: '#9ca3af', fontSize: '0.95rem', lineHeight: 1.65, maxWidth: 620, margin: '0 auto 1.4rem auto', display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
-          <p style={{ fontWeight: 600, color: '#e5e7eb', fontSize: '1.05rem' }}>
+        <div style={{ color: '#374151', fontSize: '1rem', lineHeight: 1.65, maxWidth: 620, margin: '0 auto 1.5rem auto', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+          <p style={{ fontWeight: 700, color: '#1f2937', fontSize: '1.08rem' }}>
             שמיניסט יקר! לפניך שאלון שבו תוכל לגלות איזו ישיבה/מכינה מתאימה לך.
           </p>
           <p>
@@ -119,7 +119,7 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
           <p>
             השאלון הינו המלצה כללית בלבד ואינו מהווה תחליף לשיחה עם הר"מ/המחנך בעניין בחירת הישיבה/המכינה.
           </p>
-          <p style={{ fontWeight: 700, color: '#f3f4f6', fontSize: '1.05rem', marginTop: '0.2rem' }}>
+          <p style={{ fontWeight: 700, color: '#111827', fontSize: '1.1rem', marginTop: '0.2rem' }}>
             בהצלחה!
           </p>
         </div>
@@ -130,13 +130,13 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
             if (onStartQuiz) onStartQuiz();
           }}
           className="btn-primary"
-          style={{ fontSize: '1.05rem', padding: '0.75rem 2rem', borderRadius: 8 }}
+          style={{ fontSize: '1.05rem', padding: '0.75rem 2.2rem', borderRadius: 8 }}
         >
           <Play style={{ width: 16, height: 16, fill: 'currentColor' }} />
           התחל
         </button>
 
-        <div style={{ fontSize: '0.8rem', color: '#9ca3af', marginTop: '1.2rem' }}>
+        <div style={{ fontSize: '0.82rem', color: '#6b7280', marginTop: '1.3rem', fontWeight: 500 }}>
           *השאלון מבוסס על מידע שנאסף מביינישים, תלמידים ובוגרי ישיבות ומכינות רבים, וממשיך להתעדכן באופן שוטף מתשובות ודיווחים של תלמידים כיום.
         </div>
       </div>
@@ -147,26 +147,26 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
     <div className="questionnaire-wizard">
       {/* Top Progress Bar - Compact Padding */}
       <div className="glass-card" style={{ padding: '0.75rem 1.25rem', marginBottom: '1rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', fontSize: '0.85rem', fontWeight: 600 }}>
-          <span style={{ color: '#1f1c19' }}>שאלה {currentStep + 1} מתוך {totalSteps}</span>
-          <span style={{ color: '#6b635b' }}>{progressPercent}% הושלמו</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', fontSize: '0.88rem', fontWeight: 700 }}>
+          <span style={{ color: '#111827' }}>שאלה {currentStep + 1} מתוך {totalSteps}</span>
+          <span style={{ color: '#4b5563' }}>{progressPercent}% הושלמו</span>
         </div>
-        <div style={{ height: 5, background: '#e5decb', borderRadius: 999, overflow: 'hidden' }}>
-          <div style={{ width: `${progressPercent}%`, height: '100%', background: '#6e441f', transition: 'width 0.3s ease' }} />
+        <div style={{ height: 6, background: '#e5decb', borderRadius: 999, overflow: 'hidden' }}>
+          <div style={{ width: `${progressPercent}%`, height: '100%', background: '#52341d', transition: 'width 0.3s ease' }} />
         </div>
       </div>
 
       {/* STEP 0: Institution Type & Region */}
       {currentStep === 0 && (
-        <div className="glass-card" style={{ animation: 'fadeIn 0.3s', padding: '1.25rem' }}>
-          <h2 className="section-title" style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>
+        <div className="glass-card" style={{ animation: 'fadeIn 0.3s', padding: '1.35rem' }}>
+          <h2 className="section-title" style={{ fontSize: '1.35rem', marginBottom: '1rem', color: '#111827' }}>
             סוג המוסד והאזור הגאוגרפי
           </h2>
 
           {/* Yeshiva Type Selection */}
-          <div style={{ marginBottom: '1.2rem' }}>
-            <label style={{ display: 'block', fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.6rem' }}>
-              <GraduationCap style={{ display: 'inline', width: 18, height: 18, marginLeft: 6, color: '#6e441f' }} />
+          <div style={{ marginBottom: '1.3rem' }}>
+            <label style={{ display: 'block', fontWeight: 700, fontSize: '0.98rem', marginBottom: '0.6rem', color: '#1f2937' }}>
+              <GraduationCap style={{ display: 'inline', width: 18, height: 18, marginLeft: 6, color: '#52341d' }} />
               איזה סוג מוסד תורני אתה מחפש?
             </label>
             <div className="chips-grid">
@@ -175,7 +175,7 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
                   key={t.id}
                   className={`chip-card ${type === t.id ? 'selected' : ''}`}
                   onClick={() => setType(t.id)}
-                  style={{ padding: '0.7rem', fontSize: '0.95rem' }}
+                  style={{ padding: '0.75rem', fontSize: '0.98rem' }}
                 >
                   {t.label}
                 </div>
@@ -185,8 +185,8 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
 
           {/* Region Chip Selection */}
           <div style={{ marginBottom: '0.5rem' }}>
-            <label style={{ display: 'block', fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.6rem' }}>
-              <MapPin style={{ display: 'inline', width: 18, height: 18, marginLeft: 6, color: '#6e441f' }} />
+            <label style={{ display: 'block', fontWeight: 700, fontSize: '0.98rem', marginBottom: '0.6rem', color: '#1f2937' }}>
+              <MapPin style={{ display: 'inline', width: 18, height: 18, marginLeft: 6, color: '#52341d' }} />
               אזור גאוגרפי מועדף
             </label>
             <div className="chips-grid">
@@ -195,7 +195,7 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
                   key={r.id}
                   className={`chip-card ${region === r.id ? 'selected' : ''}`}
                   onClick={() => setRegion(r.id)}
-                  style={{ padding: '0.65rem', fontSize: '0.9rem' }}
+                  style={{ padding: '0.7rem', fontSize: '0.92rem' }}
                 >
                   {r.label}
                 </div>
@@ -207,14 +207,14 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
 
       {/* STEPS 1..11: The 11 Parameters (100% Neutral, NO DEFAULT SELECTIONS) */}
       {currentStep > 0 && currentParam && (
-        <div className="glass-card" style={{ animation: 'fadeIn 0.3s', textAlign: 'center', padding: '1.5rem 1.2rem', marginBottom: '1rem' }}>
-          <h2 style={{ fontSize: '1.35rem', fontWeight: 700, marginBottom: '1.2rem', color: '#1f1c19', lineHeight: 1.35 }}>
+        <div className="glass-card" style={{ animation: 'fadeIn 0.3s', textAlign: 'center', padding: '1.6rem 1.25rem', marginBottom: '1rem' }}>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '1.2rem', color: '#111827', lineHeight: 1.35 }}>
             {currentParam.question || currentParam.label}
           </h2>
 
           {/* 1 to 5 Score Buttons Grid (Nothing pressed by default) */}
           <div style={{ margin: '0 auto', maxWidth: 600 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.82rem', color: '#6b635b', fontWeight: 600 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#4b5563', fontWeight: 700 }}>
               <span>1 - {currentParam.minLabel}</span>
               <span>5 - {currentParam.maxLabel}</span>
             </div>
@@ -228,9 +228,9 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
                     type="button"
                     onClick={() => handleSelectScore(currentParam.id, score)}
                     style={{
-                      background: isSelected ? '#6e441f' : '#f0e8dc',
-                      color: isSelected ? '#ffffff' : '#1f1c19',
-                      border: isSelected ? '2px solid #543316' : '2px solid #ded5c5',
+                      background: isSelected ? '#52341d' : '#ede5d7',
+                      color: isSelected ? '#ffffff' : '#1f2937',
+                      border: isSelected ? '2px solid #3f2411' : '2px solid #d9ccb9',
                       padding: '0.85rem 0.2rem',
                       borderRadius: 8,
                       fontSize: '1.3rem',
@@ -247,17 +247,18 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
           </div>
 
           {/* Small, Discreet "לא משנה לי" Option at the Bottom (Unselected by default) */}
-          <div style={{ marginTop: '1.1rem', textAlign: 'center' }}>
+          <div style={{ marginTop: '1.2rem', textAlign: 'center' }}>
             <button
               type="button"
               onClick={() => handleSetIndifferent(currentParam.id)}
               style={{
-                background: ignoreParams[currentParam.id] ? '#e8ded0' : '#f0e8dc',
-                border: ignoreParams[currentParam.id] ? '2px solid #6e441f' : '1px solid #ded5c5',
-                color: ignoreParams[currentParam.id] ? '#1f1c19' : '#6b635b',
-                fontSize: '0.82rem',
+                background: ignoreParams[currentParam.id] ? '#52341d' : '#ede5d7',
+                border: ignoreParams[currentParam.id] ? '2px solid #3f2411' : '1px solid #d9ccb9',
+                color: ignoreParams[currentParam.id] ? '#ffffff' : '#4b5563',
+                fontSize: '0.85rem',
+                fontWeight: 600,
                 cursor: 'pointer',
-                padding: '0.35rem 0.85rem',
+                padding: '0.4rem 0.9rem',
                 borderRadius: 999,
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -277,13 +278,13 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
         <button
           onClick={handlePrev}
           className="btn-secondary"
-          style={{ padding: '0.55rem 1.1rem', fontSize: '0.9rem' }}
+          style={{ padding: '0.6rem 1.2rem', fontSize: '0.92rem' }}
         >
           <ChevronRight style={{ width: 16, height: 16 }} />
           הקודם
         </button>
 
-        <button onClick={handleNext} className="btn-primary" style={{ padding: '0.55rem 1.3rem', fontSize: '0.9rem' }}>
+        <button onClick={handleNext} className="btn-primary" style={{ padding: '0.65rem 1.4rem', fontSize: '0.95rem' }}>
           {currentStep === totalSteps - 1 ? (
             <>
               <Check style={{ width: 16, height: 16 }} />

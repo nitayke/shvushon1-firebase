@@ -40,17 +40,17 @@
   font-display: swap;
 }
 
-/* Light Theme: Delicate Cream, Espresso Brown & Deep Black Charcoal */
+/* Light Theme: Crisp High-Contrast Parchment Cream & Dark Espresso Charcoal */
 :root {
-  --bg-main: #f7f3ec;
+  --bg-main: #f3ede2;
   --bg-card: #ffffff;
-  --bg-card-hover: #fcfaf6;
-  --border-color: #e5decb;
-  --text-primary: #1f1c19;
-  --text-secondary: #6b635b;
-  --primary-accent: #6e441f;
-  --primary-accent-hover: #543316;
-  --gold-accent: #a66e38;
+  --bg-card-hover: #fbf9f5;
+  --border-color: #e2d9c8;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --primary-accent: #52341d;
+  --primary-accent-hover: #3f2411;
+  --gold-accent: #b47828;
   --success-color: #059669;
   --font-display: 'Yiddishkeit', 'Frank Ruhl Libre', serif;
   --font-body: 'Frank Ruhl Libre', Georgia, serif;
@@ -65,7 +65,7 @@
   padding: 0;
   font-family: var(--font-body);
   scrollbar-width: thin;
-  scrollbar-color: #c9bfad #f7f3ec;
+  scrollbar-color: #c4b69f #f3ede2;
   -webkit-tap-highlight-color: transparent !important;
   -webkit-touch-callout: none;
   touch-action: manipulation;
@@ -105,17 +105,17 @@ button:active, .chip-card:active {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f7f3ec;
+  background: #f3ede2;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c9bfad;
+  background: #c4b69f;
   border-radius: 999px;
-  border: 2px solid #f7f3ec;
+  border: 2px solid #f3ede2;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a89d89;
+  background: #a89981;
 }
 
 body {
@@ -141,7 +141,7 @@ body {
 .app-title {
   font-size: 2.2rem;
   font-weight: 700;
-  color: #1f1c19;
+  color: #111827;
   font-family: var(--font-display);
 }
 
@@ -154,19 +154,19 @@ body {
   font-family: var(--font-body);
 }
 
-/* Clean Elegant Light Ivory Card */
+/* Clean High-Contrast Ivory Card */
 .glass-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
   margin-bottom: 1.2rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
   transition: border-color 0.15s ease;
 }
 
 .glass-card:hover {
-  border-color: #d1c6b2;
+  border-color: #d4c7b2;
 }
 
 .section-title {
@@ -176,21 +176,21 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #1f1c19;
+  color: #111827;
   font-family: var(--font-body);
 }
 
-/* Buttons - Warm Espresso Brown & Black Design */
+/* Buttons - High Contrast Dark Espresso & Sand */
 .btn-primary {
-  background: #6e441f;
+  background: #52341d;
   color: #ffffff;
-  border: 1px solid #543316;
+  border: 1px solid #3f2411;
   padding: 0.7rem 1.4rem;
   font-size: 0.98rem;
   font-weight: 700;
   border-radius: var(--radius-md);
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(110, 68, 31, 0.2);
+  box-shadow: 0 2px 6px rgba(82, 52, 29, 0.25);
   transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
@@ -200,16 +200,16 @@ body {
 }
 
 .btn-primary:hover {
-  background: #543316;
+  background: #3f2411;
 }
 
 .btn-secondary {
-  background: #f0e8dc;
-  color: #1f1c19;
-  border: 1px solid #ded5c5;
+  background: #ede5d7;
+  color: #111827;
+  border: 1px solid #d9ccb9;
   padding: 0.65rem 1.2rem;
   font-size: 0.92rem;
-  font-weight: 600;
+  font-weight: 700;
   border-radius: var(--radius-md);
   cursor: pointer;
   box-shadow: none;
@@ -221,14 +221,14 @@ body {
 }
 
 .btn-secondary:hover {
-  background: #e4dacb;
-  border-color: #c9bda9;
+  background: #e2d7c5;
+  border-color: #c4b49d;
 }
 
 .btn-gold {
-  background: #a66e38;
+  background: #b47828;
   color: #ffffff;
-  border: 1px solid #8c5a2b;
+  border: 1px solid #94601c;
   padding: 0.7rem 1.4rem;
   font-size: 0.95rem;
   font-weight: 700;
@@ -243,7 +243,7 @@ body {
 }
 
 .btn-gold:hover {
-  background: #8c5a2b;
+  background: #94601c;
 }
 
 /* Chip Cards Grid */
@@ -254,38 +254,38 @@ body {
 }
 
 .chip-card {
-  background: #f0e8dc;
-  border: 2px solid #ded5c5;
+  background: #ede5d7;
+  border: 2px solid #d9ccb9;
   border-radius: var(--radius-md);
   padding: 0.85rem 0.6rem;
   text-align: center;
   cursor: pointer;
   transition: all 0.15s ease;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.98rem;
-  color: #1f1c19;
+  color: #111827;
   font-family: var(--font-body);
 }
 
 .chip-card:hover {
-  border-color: #a89d89;
-  background: #e8dfd1;
+  border-color: #a8977e;
+  background: #e3d9c7;
 }
 
 .chip-card.selected {
-  background: #6e441f;
-  border: 2px solid #543316;
+  background: #52341d;
+  border: 2px solid #3f2411;
   color: #ffffff;
   font-weight: 700;
 }
 
 /* Sliders */
 .slider-group {
-  background: #f7f3ec;
+  background: #f8f4ec;
   padding: 0.9rem;
   border-radius: var(--radius-md);
   margin-bottom: 0.9rem;
-  border: 1px solid #e5decb;
+  border: 1px solid #e2d9c8;
 }
 
 .slider-header {
@@ -296,20 +296,20 @@ body {
 }
 
 .slider-title {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.95rem;
-  color: #1f1c19;
+  color: #111827;
   font-family: var(--font-body);
 }
 
 .slider-value-badge {
-  background: #e8ded0;
-  color: #6e441f;
+  background: #ede5d7;
+  color: #52341d;
   padding: 0.15rem 0.65rem;
   border-radius: 9999px;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 0.88rem;
-  border: 1px solid #8c5a2b;
+  border: 1px solid #52341d;
   font-family: var(--font-body);
 }
 
@@ -328,7 +328,7 @@ body {
   width: 100%;
   height: 5px;
   border-radius: 999px;
-  background: #ded5c5;
+  background: #d9ccb9;
   outline: none;
 }
 
@@ -338,7 +338,7 @@ body {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #6e441f;
+  background: #52341d;
   cursor: pointer;
   transition: transform 0.1s ease;
 }
@@ -357,11 +357,12 @@ body {
 .custom-select-trigger {
   width: 100%;
   background: #ffffff;
-  border: 1px solid #ded5c5;
+  border: 1px solid #d9ccb9;
   color: var(--text-primary);
   padding: 0.75rem 0.9rem;
   border-radius: var(--radius-md);
   font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -371,7 +372,7 @@ body {
 }
 
 .custom-select-trigger:hover, .custom-select-trigger.active {
-  border-color: #6e441f;
+  border-color: #52341d;
 }
 
 .custom-select-dropdown {
@@ -380,12 +381,12 @@ body {
   left: 0;
   right: 0;
   background: #ffffff;
-  border: 1px solid #ded5c5;
+  border: 1px solid #d9ccb9;
   border-radius: var(--radius-md);
   max-height: 240px;
   overflow-y: auto;
   z-index: 100;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
 }
 
 .custom-select-option {
@@ -395,19 +396,19 @@ body {
   align-items: center;
   justify-content: space-between;
   font-size: 0.92rem;
-  color: #6b635b;
+  color: #374151;
   transition: background 0.1s ease;
   font-family: var(--font-body);
 }
 
 .custom-select-option:hover {
-  background: #f7f3ec;
-  color: #1f1c19;
+  background: #f8f4ec;
+  color: #111827;
 }
 
 .custom-select-option.selected {
-  background: #f0e8dc;
-  color: #6e441f;
+  background: #ede5d7;
+  color: #52341d;
   font-weight: 700;
 }
 
@@ -418,7 +419,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.65);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -428,32 +429,33 @@ body {
 
 .modal-content {
   background: #ffffff;
-  border: 1px solid #e5decb;
+  border: 1px solid #e2d9c8;
   border-radius: var(--radius-lg);
   max-width: 620px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
   padding: 1.5rem;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
 
 /* Input Fields */
 .input-field {
   width: 100%;
   background: #ffffff;
-  border: 1px solid #ded5c5;
+  border: 1px solid #d9ccb9;
   color: var(--text-primary);
   padding: 0.7rem 0.9rem;
   border-radius: var(--radius-sm);
   font-size: 0.95rem;
+  font-weight: 600;
   margin-bottom: 0.9rem;
   outline: none;
   font-family: var(--font-body);
 }
 
 .input-field:focus {
-  border-color: #6e441f;
+  border-color: #52341d;
 }
 
 /* Match Score Badge */
@@ -463,7 +465,7 @@ body {
   color: #047857;
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 0.9rem;
   font-family: var(--font-body);
 }
@@ -471,7 +473,7 @@ body {
 /* Yeshiva Result Card */
 .yeshiva-result-card {
   background: #ffffff;
-  border: 1px solid #e5decb;
+  border: 1px solid #e2d9c8;
   border-radius: var(--radius-md);
   padding: 1.1rem;
   margin-bottom: 0.85rem;
@@ -482,7 +484,7 @@ body {
 }
 
 .yeshiva-result-card:hover {
-  border-color: #8c5a2b;
+  border-color: #52341d;
 }
 
 .tag {
@@ -491,8 +493,8 @@ body {
   border-radius: 4px;
   font-size: 0.82rem;
   font-weight: 600;
-  background: #f0e8dc;
-  color: #6b635b;
+  background: #ede5d7;
+  color: #4b5563;
   font-family: var(--font-body);
 }
 
