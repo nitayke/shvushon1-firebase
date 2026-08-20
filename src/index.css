@@ -24,6 +24,19 @@
   font-family: 'Heebo', -apple-system, BlinkMacSystemFont, sans-serif;
   scrollbar-width: thin;
   scrollbar-color: #475569 #0f172a;
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+
+button, .chip-card, a {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+button:active, .chip-card:active {
+  transform: scale(0.95) !important;
+  transition: transform 0.05s ease !important;
 }
 
 /* Custom Solid Sleek Scrollbar */
