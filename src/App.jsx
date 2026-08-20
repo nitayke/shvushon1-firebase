@@ -88,16 +88,18 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* Top App Header */}
-      <header className="app-header">
-        <h1 className="app-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}>
-          <Compass style={{ width: 44, height: 44, color: '#818cf8' }} />
-          <span>שבושון - מבחן התאמה לישיבות ומכינות</span>
+      {/* Top App Header - Ultra Compact During Questionnaire for Zero-Scroll Mobile UI */}
+      <header className="app-header" style={{ marginBottom: view === 'questionnaire' ? '0.8rem' : '2.2rem' }}>
+        <h1 className="app-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: view === 'questionnaire' ? '1.5rem' : undefined }}>
+          <Compass style={{ width: view === 'questionnaire' ? 26 : 44, height: view === 'questionnaire' ? 26 : 44, color: '#818cf8' }} />
+          <span>שבושון{view === 'questionnaire' ? '' : ' - מבחן התאמה לישיבות ומכינות'}</span>
         </h1>
 
-        <p className="app-subtitle">
-          שמיניסט יקר! דרג את העדפותיך וגלה מהן הישיבות והמכינות המתאימות ביותר עבורך, בהתבסס על נתונים שנאספו מתלמידים ומתעדכנים בזמן אמת במאגר.
-        </p>
+        {view !== 'questionnaire' && (
+          <p className="app-subtitle">
+            שמיניסט יקר! דרג את העדפותיך וגלה מהן הישיבות והמכינות המתאימות ביותר עבורך, בהתבסס על נתונים שנאספו מתלמידים ומתעדכנים בזמן אמת במאגר.
+          </p>
+        )}
       </header>
 
       {/* Main View Router */}
@@ -138,16 +140,16 @@ export default function App() {
       </main>
 
       {/* Bottom Footer Action Links */}
-      <footer style={{ marginTop: '3.5rem', padding: '1.5rem 0', textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
-        <div style={{ display: 'flex', gap: '0.8rem', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', marginBottom: '0.8rem' }}>
+      <footer style={{ marginTop: view === 'questionnaire' ? '1.5rem' : '3.5rem', padding: '1.2rem 0', textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+        <div style={{ display: 'flex', gap: '0.8rem', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', marginBottom: '0.6rem' }}>
           {view !== 'admin' ? (
             <>
               <button
                 onClick={() => setIsRequestModalOpen(true)}
                 className="btn-secondary"
-                style={{ fontSize: '0.85rem', padding: '0.45rem 1rem' }}
+                style={{ fontSize: '0.82rem', padding: '0.4rem 0.9rem' }}
               >
-                <PlusCircle style={{ width: 15, height: 15 }} />
+                <PlusCircle style={{ width: 14, height: 14 }} />
                 בקשה להוספת ישיבה / מכינה
               </button>
 
@@ -156,8 +158,8 @@ export default function App() {
                 onClick={navigateToAdmin}
                 className="btn-secondary"
                 style={{ 
-                  fontSize: '0.85rem', 
-                  padding: '0.45rem 1rem', 
+                  fontSize: '0.82rem', 
+                  padding: '0.4rem 0.9rem', 
                   opacity: 0.7, 
                   textDecoration: 'none', 
                   display: 'inline-flex', 
@@ -165,7 +167,7 @@ export default function App() {
                   gap: '0.4rem' 
                 }}
               >
-                <Shield style={{ width: 15, height: 15 }} />
+                <Shield style={{ width: 14, height: 14 }} />
                 ממשק ניהול
               </a>
             </>
@@ -188,7 +190,7 @@ export default function App() {
           )}
         </div>
 
-        <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
+        <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
           © שבושון - מערכת להתאמת ישיבות ומכינות
         </div>
       </footer>
