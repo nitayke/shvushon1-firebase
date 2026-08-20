@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { PARAM_DEFINITIONS, REGIONS, TYPES } from '../knn';
-import { MapPin, GraduationCap, Sparkles, ChevronRight, ChevronLeft, Check, PlusCircle, RotateCcw, Play } from 'lucide-react';
+import { MapPin, GraduationCap, ChevronRight, ChevronLeft, Check, PlusCircle, RotateCcw, Play } from 'lucide-react';
 
 export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva }) {
   const [isStarted, setIsStarted] = useState(false);
@@ -101,17 +101,13 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
 
   if (!isStarted) {
     return (
-      <div className="glass-card" style={{ textAlign: 'center', padding: '2rem 1.25rem', animation: 'fadeIn 0.3s' }}>
-        <div className="brand-badge" style={{ marginBottom: '1rem', fontSize: '0.85rem', padding: '0.3rem 0.9rem' }}>
-          <Sparkles style={{ width: 14, height: 14 }} /> מבחן התאמה לישיבה/מכינה
-        </div>
-
-        <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '1.2rem', color: '#f8fafc' }}>
+      <div className="glass-card" style={{ textAlign: 'center', padding: '1.8rem 1.25rem', animation: 'fadeIn 0.3s' }}>
+        <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '1rem', color: '#f3f4f6' }}>
           ברוכים הבאים ל"שבושון"
         </h1>
 
-        <div style={{ color: '#cbd5e1', fontSize: '0.95rem', lineHeight: 1.65, maxWidth: 620, margin: '0 auto 1.5rem auto', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-          <p style={{ fontWeight: 600, color: '#a5b4fc', fontSize: '1.05rem' }}>
+        <div style={{ color: '#9ca3af', fontSize: '0.95rem', lineHeight: 1.65, maxWidth: 620, margin: '0 auto 1.4rem auto', display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
+          <p style={{ fontWeight: 600, color: '#e5e7eb', fontSize: '1.05rem' }}>
             שמיניסט יקר! לפניך שאלון שבו תוכל לגלות איזו ישיבה/מכינה מתאימה לך.
           </p>
           <p>
@@ -121,7 +117,7 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
             השאלון אינו ח"ו מדרג ישיבות ומכינות אלא עובד על בסיס התאמה אישית.
           </p>
           <p>
-            השאלון הינו המלצה כללית בלבד ואינו מהווה תחליף לשיחה עם הר"מ/המחנך בענייןבחירת הישיבה/המכינה.
+            השאלון הינו המלצה כללית בלבד ואינו מהווה תחליף לשיחה עם הר"מ/המחנך בעניין בחירת הישיבה/המכינה.
           </p>
           <p style={{ fontWeight: 700, color: '#f3f4f6', fontSize: '1.05rem', marginTop: '0.2rem' }}>
             בהצלחה!
@@ -131,13 +127,13 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
         <button
           onClick={() => setIsStarted(true)}
           className="btn-primary"
-          style={{ fontSize: '1.05rem', padding: '0.75rem 2rem', borderRadius: 10 }}
+          style={{ fontSize: '1.05rem', padding: '0.75rem 2rem', borderRadius: 8 }}
         >
           <Play style={{ width: 16, height: 16, fill: 'currentColor' }} />
           התחל
         </button>
 
-        <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '1.2rem' }}>
+        <div style={{ fontSize: '0.78rem', color: '#6b7280', marginTop: '1.2rem' }}>
           *השאלון מבוסס על מידע שנאסף מביינישים, תלמידים ובוגרי ישיבות ומכינות רבים.
         </div>
       </div>
@@ -149,21 +145,17 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
       {/* Top Progress Bar - Compact Padding */}
       <div className="glass-card" style={{ padding: '0.75rem 1.25rem', marginBottom: '1rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', fontSize: '0.85rem', fontWeight: 600 }}>
-          <span style={{ color: '#f59e0b' }}>שאלה {currentStep + 1} מתוך {totalSteps}</span>
-          <span style={{ color: '#a3a6b4' }}>{progressPercent}% הושלמו</span>
+          <span style={{ color: '#e5e7eb' }}>שאלה {currentStep + 1} מתוך {totalSteps}</span>
+          <span style={{ color: '#9ca3af' }}>{progressPercent}% הושלמו</span>
         </div>
-        <div style={{ height: 6, background: 'rgba(255, 255, 255, 0.1)', borderRadius: 999, overflow: 'hidden' }}>
-          <div style={{ width: `${progressPercent}%`, height: '100%', background: 'linear-gradient(90deg, #d97706 0%, #f59e0b 100%)', transition: 'width 0.3s ease' }} />
+        <div style={{ height: 5, background: '#262a36', borderRadius: 999, overflow: 'hidden' }}>
+          <div style={{ width: `${progressPercent}%`, height: '100%', background: '#b47828', transition: 'width 0.3s ease' }} />
         </div>
       </div>
 
       {/* STEP 0: Institution Type & Region */}
       {currentStep === 0 && (
         <div className="glass-card" style={{ animation: 'fadeIn 0.3s', padding: '1.25rem' }}>
-          <div className="brand-badge" style={{ marginBottom: '0.8rem', fontSize: '0.8rem', padding: '0.25rem 0.75rem' }}>
-            <Sparkles style={{ width: 13, height: 13 }} /> שלב 1: העדפות כלליות
-          </div>
-
           <h2 className="section-title" style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>
             סוג המוסד והאזור הגאוגרפי
           </h2>
@@ -171,7 +163,7 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
           {/* Yeshiva Type Selection */}
           <div style={{ marginBottom: '1.2rem' }}>
             <label style={{ display: 'block', fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.6rem' }}>
-              <GraduationCap style={{ display: 'inline', width: 18, height: 18, marginLeft: 6, color: '#f59e0b' }} />
+              <GraduationCap style={{ display: 'inline', width: 18, height: 18, marginLeft: 6, color: '#b47828' }} />
               איזה סוג מוסד תורני אתה מחפש?
             </label>
             <div className="chips-grid">
@@ -191,7 +183,7 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
           {/* Region Chip Selection */}
           <div style={{ marginBottom: '0.5rem' }}>
             <label style={{ display: 'block', fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.6rem' }}>
-              <MapPin style={{ display: 'inline', width: 18, height: 18, marginLeft: 6, color: '#d97706' }} />
+              <MapPin style={{ display: 'inline', width: 18, height: 18, marginLeft: 6, color: '#b47828' }} />
               אזור גאוגרפי מועדף
             </label>
             <div className="chips-grid">
@@ -213,17 +205,13 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
       {/* STEPS 1..11: The 11 Parameters (100% Neutral, NO DEFAULT SELECTIONS) */}
       {currentStep > 0 && currentParam && (
         <div className="glass-card" style={{ animation: 'fadeIn 0.3s', textAlign: 'center', padding: '1.5rem 1.2rem', marginBottom: '1rem' }}>
-          <div className="brand-badge" style={{ marginBottom: '0.8rem', fontSize: '0.8rem', padding: '0.25rem 0.75rem' }}>
-            מאפיין {currentStep} מתוך 11
-          </div>
-
-          <h2 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '1.2rem', color: '#f8fafc', lineHeight: 1.35 }}>
+          <h2 style={{ fontSize: '1.35rem', fontWeight: 700, marginBottom: '1.2rem', color: '#f3f4f6', lineHeight: 1.35 }}>
             {currentParam.question || currentParam.label}
           </h2>
 
           {/* 1 to 5 Score Buttons Grid (Nothing pressed by default) */}
           <div style={{ margin: '0 auto', maxWidth: 600 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 600 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.82rem', color: '#9ca3af', fontWeight: 600 }}>
               <span>1 - {currentParam.minLabel}</span>
               <span>5 - {currentParam.maxLabel}</span>
             </div>
@@ -237,11 +225,11 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
                     type="button"
                     onClick={() => handleSelectScore(currentParam.id, score)}
                     style={{
-                      background: isSelected ? 'linear-gradient(135deg, #d97706 0%, #b45309 100%)' : 'rgba(255, 255, 255, 0.05)',
-                      color: isSelected ? '#ffffff' : '#fbf8f3',
-                      border: isSelected ? '2px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.1)',
+                      background: isSelected ? '#343b49' : '#1e212b',
+                      color: isSelected ? '#ffffff' : '#e5e7eb',
+                      border: isSelected ? '2px solid #6b7280' : '1px solid #2e3342',
                       padding: '0.85rem 0.2rem',
-                      borderRadius: 12,
+                      borderRadius: 8,
                       fontSize: '1.3rem',
                       fontWeight: 800,
                       cursor: 'pointer',
@@ -261,9 +249,9 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
               type="button"
               onClick={() => handleSetIndifferent(currentParam.id)}
               style={{
-                background: ignoreParams[currentParam.id] ? 'rgba(217, 119, 6, 0.22)' : 'rgba(255, 255, 255, 0.04)',
-                border: ignoreParams[currentParam.id] ? '1px solid #d97706' : '1px solid rgba(255, 255, 255, 0.1)',
-                color: ignoreParams[currentParam.id] ? '#f59e0b' : '#a3a6b4',
+                background: ignoreParams[currentParam.id] ? '#2d3342' : '#1e212b',
+                border: ignoreParams[currentParam.id] ? '1px solid #6b7280' : '1px solid #2e3342',
+                color: ignoreParams[currentParam.id] ? '#ffffff' : '#9ca3af',
                 fontSize: '0.82rem',
                 cursor: 'pointer',
                 padding: '0.35rem 0.85rem',
@@ -274,7 +262,7 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
                 transition: 'all 0.2s ease'
               }}
             >
-              {ignoreParams[currentParam.id] && <Check style={{ width: 13, height: 13, color: '#c084fc' }} />}
+              {ignoreParams[currentParam.id] && <Check style={{ width: 13, height: 13, color: '#ffffff' }} />}
               לא משנה לי (ללא העדפה בנושא זה)
             </button>
           </div>
