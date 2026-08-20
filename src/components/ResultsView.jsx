@@ -53,7 +53,7 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
                `אזור: ${REGION_TRANSLATIONS[requestData.region] || requestData.region}\n\n` +
                `פרמטרים מוצעים:\n${paramsList}\n\n` +
                `הערות: הוגש ע"י תלמיד כיום בשאלון\n\n` +
-               `קישור לפתיחת ממשק הניהול: ${window.location.origin}/?admin=true`
+               `קישור לפתיחת ממשק הניהול: ${window.location.origin}/admin`
     };
 
     try {
@@ -109,7 +109,6 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
         localStorage.removeItem(LOCAL_SURVEY_SAVED_KEY + '_is_new_req');
       }
 
-      // Save submission persistence in localStorage!
       localStorage.setItem(LOCAL_SURVEY_SAVED_KEY, 'true');
       setSubmissionSaved(true);
     } catch (err) {
@@ -209,7 +208,7 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
         ) : (
           <div>
             <label style={{ display: 'block', fontWeight: 700, fontSize: '1.05rem', marginBottom: '0.8rem' }}>
-              האם את/ה לומד/ת כרגע בישיבה / מכינה?
+              האם אתה לומד כרגע בישיבה / מכינה?
             </label>
 
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.2rem' }}>
@@ -231,21 +230,21 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
 
             {isCurrentStudent === false && (
               <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '1rem', borderRadius: 8, color: '#94a3b8', fontSize: '0.9rem' }}>
-                תודה! מכיוון שאינך לומד כרגע בישיבה, תשובותייך לא ישמרו ב-DB כדי להבטיח שאך ורק דיווחים של ביינישים ותלמידים יעדכנו את הנתונים המפוקחים.
+                תודה! מכיוון שאינך לומד כרגע בישיבה, תשובותיך לא ישמרו ב-DB כדי להבטיח שאך ורק דיווחים של ביינישים ותלמידים יעדכנו את הנתונים המפוקחים.
               </div>
             )}
 
             {isCurrentStudent === true && (
               <form onSubmit={handleStudentSubmit} style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '1.25rem', borderRadius: 12, border: '1px solid rgba(99, 102, 241, 0.3)', animation: 'fadeIn 0.3s' }}>
                 <label style={{ display: 'block', fontWeight: 700, fontSize: '1rem', marginBottom: '0.4rem', color: '#f8fafc' }}>
-                  באיזו ישיבה / מכינה את/ה לומד/ת כיום? *
+                  באיזו ישיבה / מכינה אתה לומד כיום? *
                 </label>
                 
                 <AutocompleteYeshivaSelect
                   yeshivotList={yeshivotList}
                   value={selectedYeshivaName}
                   onChange={(val) => setSelectedYeshivaName(val)}
-                  placeholder="הקלד/י חיפוש שם ישיבה..."
+                  placeholder="הקלד חיפוש שם ישיבה..."
                 />
 
                 {selectedYeshivaName === 'other' && (
@@ -265,7 +264,7 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
                 <div style={{ background: 'rgba(30, 41, 59, 0.6)', padding: '1rem', borderRadius: 12, marginBottom: '1.2rem', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem', fontWeight: 700, color: '#a5b4fc', marginBottom: '0.8rem' }}>
                     <Edit2 style={{ width: 16, height: 16 }} />
-                    עדכן/דייק את 11 הפרמטרים עבור הישיבה שלך (הכול במסך אחד):
+                    דייק את 11 הפרמטרים עבור הישיבה שלך (הכול במסך אחד):
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '0.75rem' }}>

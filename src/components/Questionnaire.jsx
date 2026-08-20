@@ -9,14 +9,14 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
   const [region, setRegion] = useState('all');
   const [type, setType] = useState('all');
 
-  // Initialize all 11 rating parameters to 3, but DEFAULT ignoreParams to TRUE for ALL ("לא משנה לי")
+  // Initialize all 11 rating parameters to DEFAULT score 3 (Active, ignoreParams = false)
   const initialRatings = PARAM_DEFINITIONS.reduce((acc, p) => {
     acc[p.id] = 3;
     return acc;
   }, {});
 
   const initialIgnoreParams = PARAM_DEFINITIONS.reduce((acc, p) => {
-    acc[p.id] = true; // DEFAULT IS "לא משנה לי"!
+    acc[p.id] = false; // DEFAULT IS ACTIVE SCORE 3!
     return acc;
   }, {});
 
@@ -121,7 +121,7 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
           <div style={{ marginBottom: '1.8rem' }}>
             <label style={{ display: 'block', fontWeight: 700, fontSize: '1.05rem', marginBottom: '0.8rem' }}>
               <GraduationCap style={{ display: 'inline', width: 20, height: 20, marginLeft: 6, color: '#a855f7' }} />
-              איזה סוג מוסד תורני את/ה מחפש/ת?
+              איזה סוג מוסד תורני אתה מחפש?
             </label>
             <div className="chips-grid">
               {TYPES.map(t => (
@@ -170,30 +170,8 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
             {currentParam.question || currentParam.label}
           </h2>
 
-          {/* Indifferent Default Option Button */}
-          <div style={{ marginBottom: '2rem' }}>
-            <button
-              type="button"
-              onClick={() => handleSetIndifferent(currentParam.id)}
-              className={`chip-card ${ignoreParams[currentParam.id] ? 'selected' : ''}`}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.75rem 1.8rem',
-                fontSize: '1.1rem',
-                borderRadius: 999,
-                border: ignoreParams[currentParam.id] ? '2px solid #a855f7' : '1px solid var(--border-color)',
-                background: ignoreParams[currentParam.id] ? 'rgba(168, 85, 247, 0.25)' : 'rgba(255, 255, 255, 0.05)'
-              }}
-            >
-              {ignoreParams[currentParam.id] && <Check style={{ width: 18, height: 18, color: '#a855f7' }} />}
-              לא משנה לי (ברירת מחדל)
-            </button>
-          </div>
-
-          {/* 1 to 5 Score Buttons Grid */}
-          <div style={{ margin: '0 auto 2rem auto', maxWidth: 650 }}>
+          {/* 1 to 5 Score Buttons Grid (Default score is 3) */}
+          <div style={{ margin: '0 auto', maxWidth: 650 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.6rem', fontSize: '0.88rem', color: '#cbd5e1', fontWeight: 600 }}>
               <span>1 - {currentParam.minLabel}</span>
               <span>5 - {currentParam.maxLabel}</span>
@@ -224,6 +202,30 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
                 );
               })}
             </div>
+          </div>
+
+          {/* Small, Discreet "לא משנה לי" Option at the Bottom */}
+          <div style={{ marginTop: '1.8rem', textAlign: 'center' }}>
+            <button
+              type="button"
+              onClick={() => handleSetIndifferent(currentParam.id)}
+              style={{
+                background: ignoreParams[currentParam.id] ? 'rgba(168, 85, 247, 0.2)' : 'rgba(255, 255, 255, 0.04)',
+                border: ignoreParams[currentParam.id] ? '1px solid #a855f7' : '1px solid rgba(255, 255, 255, 0.1)',
+                color: ignoreParams[currentParam.id] ? '#c084fc' : '#94a3b8',
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                padding: '0.45rem 1rem',
+                borderRadius: 999,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              {ignoreParams[currentParam.id] && <Check style={{ width: 14, height: 14, color: '#c084fc' }} />}
+              לא משנה לי (ללא העדפה בנושא זה)
+            </button>
           </div>
         </div>
       )}

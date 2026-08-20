@@ -1,13 +1,13 @@
 /**
- * Advanced Weighted KNN Matching Engine for Shvushon 2.0
- * Includes Uniform Answer Easter Egg Edge Cases from Shvushon 1
+ * Advanced Weighted KNN Matching Engine for Shvushon
+ * Includes Uniform Answer Easter Egg Edge Cases from Shvushon 1 (Only when ALL 11 parameters are identical and active)
  */
 
 export const PARAM_DEFINITIONS = [
   { 
     id: 'overall_size', 
     label: 'גודל הישיבה הכולל', 
-    question: 'איזה גודל ישיבה את/ה מחפש/ת?', 
+    question: 'איזה גודל ישיבה אתה מחפש?', 
     minLabel: 'קטנה', 
     maxLabel: 'גדולה',
     type: 'preference'
@@ -23,7 +23,7 @@ export const PARAM_DEFINITIONS = [
   { 
     id: 'gemara', 
     label: 'לימוד גמרא', 
-    question: 'איזה דגש את/ה מחפש/ת על לימוד גמרא?', 
+    question: 'איזה דגש אתה מחפש על לימוד גמרא?', 
     minLabel: 'דגש נמוך / משולב', 
     maxLabel: 'דגש מרכזי ואינטנסיבי',
     type: 'preference'
@@ -31,7 +31,7 @@ export const PARAM_DEFINITIONS = [
   { 
     id: 'chassidut', 
     label: 'חסידות', 
-    question: 'כמה דגש את/ה מחפש/ת על חסידות (לימוד, אווירה ורגש)?', 
+    question: 'כמה דגש אתה מחפש על חסידות (לימוד, אווירה ורגש)?', 
     minLabel: 'ללא דגש חסידי', 
     maxLabel: 'דגש חסידי חזק והתוועדויות',
     type: 'preference'
@@ -39,7 +39,7 @@ export const PARAM_DEFINITIONS = [
   { 
     id: 'tanach', 
     label: 'לימוד תנ"ך', 
-    question: 'כמה דגש את/ה מחפש/ת על לימוד תנ"ך?', 
+    question: 'כמה דגש אתה מחפש על לימוד תנ"ך?', 
     minLabel: 'בסיסי', 
     maxLabel: 'לימוד תנ"ך מורחב ומעמיק',
     type: 'preference'
@@ -47,7 +47,7 @@ export const PARAM_DEFINITIONS = [
   { 
     id: 'emunah', 
     label: 'לימוד אמונה', 
-    question: 'כמה דגש את/ה מחפש/ת על לימוד אמונה ומחשבת ישראל?', 
+    question: 'כמה דגש אתה מחפש על לימוד אמונה ומחשבת ישראל?', 
     minLabel: 'בסיסי', 
     maxLabel: 'עיסוק מורחב ומעמיק באמונה',
     type: 'preference'
@@ -55,9 +55,9 @@ export const PARAM_DEFINITIONS = [
   { 
     id: 'rav_kook', 
     label: 'לימוד הרב קוק', 
-    question: 'כמה דגש את/ה מחפש/ת על לימוד תורת הרב קוק והרצי"ה?', 
+    question: 'כמה דגש אתה מחפש על לימוד תורת הרב קוק והרצי"ה?', 
     minLabel: 'ללא דגש מיוחד', 
-    maxLabel: 'לימוד מעמיק בגישת הקו/הרב קוק',
+    maxLabel: 'לימוד מעמיק בתורת הרב קוק',
     type: 'preference'
   },
   { 
@@ -79,7 +79,7 @@ export const PARAM_DEFINITIONS = [
   { 
     id: 'liberalism', 
     label: 'ליברליות', 
-    question: 'לאיזה סגנון רוחני ופתיחות מחשבתית את/ה מתחבר/ת?', 
+    question: 'לאיזה סגנון רוחני ופתיחות מחשבתית אתה מתחבר?', 
     minLabel: 'שמרני ומסורתי', 
     maxLabel: 'ליברלי ופתוח',
     type: 'preference'
@@ -87,7 +87,7 @@ export const PARAM_DEFINITIONS = [
   { 
     id: 'karviut', 
     label: 'קרביוּת', 
-    question: 'איזה דגש את/ה מחפש/ת על אווירה צבאית, הכנה לקרבי וסיירות?', 
+    question: 'איזה דגש אתה מחפש על אווירה צבאית, הכנה לקרבי וסיירות?', 
     minLabel: 'ללא דגש צבאי', 
     maxLabel: 'אווירה צבאית והכנה מורחבת',
     type: 'preference'
@@ -124,58 +124,50 @@ export const TYPE_TRANSLATIONS = {
 };
 
 /**
- * Advanced Weighted KNN Distance Matching Algorithm + Uniform Answer Edge Cases
+ * Advanced Weighted KNN Distance Matching Algorithm + Strict Uniform Answer Edge Cases
  */
 export const calculateKNNMatches = (userPreferences, yeshivotList, k = 3) => {
   const { region, type, ratings, ignoreParams = {} } = userPreferences;
 
-  // Extract active numerical answers
-  const activeValues = PARAM_DEFINITIONS
-    .filter(p => !ignoreParams[p.id])
-    .map(p => Number(ratings[p.id]) || 3);
+  // Strict Easter Egg check: Trigger ONLY if ALL 11 parameters are rated (none ignored) AND all 11 ratings are 100% identical!
+  const hasIgnoredParams = PARAM_DEFINITIONS.some(p => ignoreParams[p.id]);
+  const allRatings = PARAM_DEFINITIONS.map(p => Number(ratings[p.id]) || 3);
+  const allIdentical = allRatings.every(val => val === allRatings[0]);
 
-  // Helper: check if all active elements are equal
-  const allEqual = (arr) => {
-    if (arr.length === 0) return null;
-    return arr.every(val => val === arr[0]) ? arr[0] : -1;
-  };
+  if (!hasIgnoredParams && allIdentical) {
+    const val = allRatings[0];
+    if (val === 1) {
+      return [{
+        id: 'tsahal',
+        name: 'צבא ההגנה לישראל',
+        type: 'all',
+        region: 'all',
+        matchScore: 100,
+        isEasterEgg: true
+      }];
+    }
 
-  const uniformVal = allEqual(activeValues);
+    if ([2, 3, 4].includes(val)) {
+      return [{
+        id: 'chevron',
+        name: 'חברון החדשה',
+        type: 'all',
+        region: 'all',
+        matchScore: 100,
+        isEasterEgg: true
+      }];
+    }
 
-  // EDGE CASE 1: Empty answers or all answers equal 1 -> "צבא ההגנה לישראל"
-  if (uniformVal === 1 || activeValues.length === 0) {
-    return [{
-      id: 'tsahal',
-      name: 'צבא ההגנה לישראל',
-      type: 'all',
-      region: 'all',
-      matchScore: 100,
-      isEasterEgg: true
-    }];
-  }
-
-  // EDGE CASE 2: All answers equal 2, 3, or 4 -> "חברון החדשה"
-  if ([2, 3, 4].includes(uniformVal)) {
-    return [{
-      id: 'chevron',
-      name: 'חברון החדשה',
-      type: 'all',
-      region: 'all',
-      matchScore: 100,
-      isEasterEgg: true
-    }];
-  }
-
-  // EDGE CASE 3: All answers equal 5 -> "פוניבז'"
-  if (uniformVal === 5) {
-    return [{
-      id: 'ponovezh',
-      name: "פוניבז'",
-      type: 'all',
-      region: 'all',
-      matchScore: 100,
-      isEasterEgg: true
-    }];
+    if (val === 5) {
+      return [{
+        id: 'ponovezh',
+        name: "פוניבז'",
+        type: 'all',
+        region: 'all',
+        matchScore: 100,
+        isEasterEgg: true
+      }];
+    }
   }
 
   // ADVANCED KNN MINKOWSKI DISTANCE ENGINE
