@@ -134,7 +134,7 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
         </button>
 
         <div style={{ fontSize: '0.8rem', color: '#9ca3af', marginTop: '1.2rem' }}>
-          *השאלון מבוסס על מידע שנאסף מביינישים, תלמידים ובוגרי ישיבות ומכינות רבים, וממשיך להתעדכן כל הזמן בזמן אמת.
+          *השאלון מבוסס על מידע שנאסף מביינישים, תלמידים ובוגרי ישיבות ומכינות רבים, וממשיך להתעדכן באופן שוטף מתשובות ודיווחים של תלמידים כיום.
         </div>
       </div>
     );
