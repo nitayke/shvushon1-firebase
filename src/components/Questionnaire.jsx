@@ -149,11 +149,11 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
       {/* Top Progress Bar - Compact Padding */}
       <div className="glass-card" style={{ padding: '0.75rem 1.25rem', marginBottom: '1rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', fontSize: '0.85rem', fontWeight: 600 }}>
-          <span style={{ color: '#a5b4fc' }}>שאלה {currentStep + 1} מתוך {totalSteps}</span>
-          <span style={{ color: '#94a3b8' }}>{progressPercent}% הושלמו</span>
+          <span style={{ color: '#f59e0b' }}>שאלה {currentStep + 1} מתוך {totalSteps}</span>
+          <span style={{ color: '#a3a6b4' }}>{progressPercent}% הושלמו</span>
         </div>
         <div style={{ height: 6, background: 'rgba(255, 255, 255, 0.1)', borderRadius: 999, overflow: 'hidden' }}>
-          <div style={{ width: `${progressPercent}%`, height: '100%', background: 'linear-gradient(90deg, #6366f1 0%, #a855f7 100%)', transition: 'width 0.3s ease' }} />
+          <div style={{ width: `${progressPercent}%`, height: '100%', background: 'linear-gradient(90deg, #d97706 0%, #f59e0b 100%)', transition: 'width 0.3s ease' }} />
         </div>
       </div>
 
@@ -171,7 +171,7 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
           {/* Yeshiva Type Selection */}
           <div style={{ marginBottom: '1.2rem' }}>
             <label style={{ display: 'block', fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.6rem' }}>
-              <GraduationCap style={{ display: 'inline', width: 18, height: 18, marginLeft: 6, color: '#a855f7' }} />
+              <GraduationCap style={{ display: 'inline', width: 18, height: 18, marginLeft: 6, color: '#f59e0b' }} />
               איזה סוג מוסד תורני אתה מחפש?
             </label>
             <div className="chips-grid">
@@ -191,7 +191,7 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
           {/* Region Chip Selection */}
           <div style={{ marginBottom: '0.5rem' }}>
             <label style={{ display: 'block', fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.6rem' }}>
-              <MapPin style={{ display: 'inline', width: 18, height: 18, marginLeft: 6, color: '#6366f1' }} />
+              <MapPin style={{ display: 'inline', width: 18, height: 18, marginLeft: 6, color: '#d97706' }} />
               אזור גאוגרפי מועדף
             </label>
             <div className="chips-grid">
@@ -237,9 +237,9 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
                     type="button"
                     onClick={() => handleSelectScore(currentParam.id, score)}
                     style={{
-                      background: isSelected ? 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)' : 'rgba(255, 255, 255, 0.06)',
-                      color: isSelected ? '#ffffff' : '#f1f5f9',
-                      border: isSelected ? '2px solid #c7d2fe' : '1px solid rgba(255, 255, 255, 0.12)',
+                      background: isSelected ? 'linear-gradient(135deg, #d97706 0%, #b45309 100%)' : 'rgba(255, 255, 255, 0.05)',
+                      color: isSelected ? '#ffffff' : '#fbf8f3',
+                      border: isSelected ? '2px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.1)',
                       padding: '0.85rem 0.2rem',
                       borderRadius: 12,
                       fontSize: '1.3rem',
@@ -261,9 +261,9 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
               type="button"
               onClick={() => handleSetIndifferent(currentParam.id)}
               style={{
-                background: ignoreParams[currentParam.id] ? 'rgba(168, 85, 247, 0.25)' : 'rgba(255, 255, 255, 0.04)',
-                border: ignoreParams[currentParam.id] ? '1px solid #a855f7' : '1px solid rgba(255, 255, 255, 0.1)',
-                color: ignoreParams[currentParam.id] ? '#c084fc' : '#94a3b8',
+                background: ignoreParams[currentParam.id] ? 'rgba(217, 119, 6, 0.22)' : 'rgba(255, 255, 255, 0.04)',
+                border: ignoreParams[currentParam.id] ? '1px solid #d97706' : '1px solid rgba(255, 255, 255, 0.1)',
+                color: ignoreParams[currentParam.id] ? '#f59e0b' : '#a3a6b4',
                 fontSize: '0.82rem',
                 cursor: 'pointer',
                 padding: '0.35rem 0.85rem',

@@ -124,7 +124,7 @@ export default function App() {
             fontSize: view === 'questionnaire' ? '1.5rem' : undefined 
           }}
         >
-          <Compass style={{ width: view === 'questionnaire' ? 26 : 44, height: view === 'questionnaire' ? 26 : 44, color: '#818cf8' }} />
+          <Compass style={{ width: view === 'questionnaire' ? 26 : 44, height: view === 'questionnaire' ? 26 : 44, color: '#f59e0b' }} />
           <span>שבושון{view === 'questionnaire' ? '' : ' - מבחן התאמה לישיבות ומכינות'}</span>
         </h1>
 
