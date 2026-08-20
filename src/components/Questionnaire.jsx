@@ -227,7 +227,7 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
                     style={{
                       background: isSelected ? '#343b49' : '#1e212b',
                       color: isSelected ? '#ffffff' : '#e5e7eb',
-                      border: isSelected ? '2px solid #6b7280' : '1px solid #2e3342',
+                      border: isSelected ? '2px solid #6b7280' : '2px solid #2e3342',
                       padding: '0.85rem 0.2rem',
                       borderRadius: 8,
                       fontSize: '1.3rem',

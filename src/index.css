@@ -41,8 +41,7 @@ button, .chip-card, a {
 }
 
 button:active, .chip-card:active {
-  transform: scale(0.97) !important;
-  transition: transform 0.05s ease !important;
+  filter: brightness(1.2);
 }
 
 /* Custom Sleek Scrollbar */
@@ -221,7 +220,7 @@ body {
 
 .chip-card {
   background: #1e212b;
-  border: 1px solid #2e3342;
+  border: 2px solid #2e3342;
   border-radius: var(--radius-md);
   padding: 0.85rem;
   text-align: center;
