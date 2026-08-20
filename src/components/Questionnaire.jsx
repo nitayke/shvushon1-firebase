@@ -45,7 +45,7 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
           return prev;
         }
       });
-    }, 200);
+    }, 400);
   };
 
   const handleSelectScore = (paramId, score) => {
