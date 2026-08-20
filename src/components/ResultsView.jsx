@@ -46,8 +46,8 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
 
     const emailPayload = {
       to: adminEmail,
-      subject: `[שבושון] בקשה להוספת ישיבה חדשה (מתלמיד כיום): ${requestData.yeshiva_name}`,
-      message: `התקבלה בקשה חדשה להוספת ישיבה למערכת ע"י תלמיד כיום:\n\n` +
+      subject: `[שבושון] בקשה להוספת ישיבה/מכינה חדשה (מתלמיד כיום): ${requestData.yeshiva_name}`,
+      message: `התקבלה בקשה חדשה להוספת ישיבה/מכינה למערכת ע"י תלמיד כיום:\n\n` +
                `שם המוסד: ${requestData.yeshiva_name}\n` +
                `סוג: ${TYPE_TRANSLATIONS[requestData.type] || requestData.type}\n` +
                `אזור: ${REGION_TRANSLATIONS[requestData.region] || requestData.region}\n\n` +
@@ -173,7 +173,7 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
       <div className="glass-card" style={{ borderColor: 'rgba(99, 102, 241, 0.4)', background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(49, 46, 129, 0.4) 100%)' }}>
         <h2 className="section-title" style={{ color: '#a5b4fc' }}>
           <HelpCircle className="w-6 h-6 text-indigo-400" />
-          לומד כרגע בישיבה? עזור לנו לשפר ולדייק את הנתונים!
+          לומד כרגע בישיבה/מכינה? עזור לנו לשפר ולדייק את הנתונים!
         </h2>
         <p style={{ color: '#cbd5e1', marginBottom: '1.2rem', lineHeight: 1.6 }}>
           כדי ששאלון שבושון יהיה המדויק ביותר עבור השמיניסטים הבאים, אנו אוספים ושומרים במאגר אך ורק תשובות של משתתפים הלומדים כיום בישיבות ובמכינות.
@@ -184,10 +184,10 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
             {isNewYeshivaRequest ? (
               <div style={{ background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10b981', padding: '1.2rem', borderRadius: 12, color: '#34d399', textAlign: 'center' }}>
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '0.4rem' }}>
-                  ✓ הבקשה להוספת ישיבה חדשה נרשמה ונשלחה לאדמין!
+                  ✓ הבקשה להוספת ישיבה/מכינה חדשה נרשמה ונשלחה לאדמין!
                 </h3>
                 <p style={{ color: '#cbd5e1', fontSize: '0.92rem', marginBottom: '0.8rem' }}>
-                  תודה רבה! הבקשה להוספת הישיבה שלך נשמרה במאגר ונשלחה במייל לאדמין (nitayke1@gmail.com) לאישור.
+                  תודה רבה! הבקשה להוספת הישיבה/מכינה שלך נשמרה במאגר ונשלחה במייל לאדמין (nitayke1@gmail.com) לאישור.
                 </p>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', color: '#a5b4fc' }}>
                   <MailCheck style={{ width: 16, height: 16 }} />
@@ -208,7 +208,7 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
         ) : (
           <div>
             <label style={{ display: 'block', fontWeight: 700, fontSize: '1.05rem', marginBottom: '0.8rem' }}>
-              האם אתה לומד כרגע בישיבה / מכינה?
+              האם אתה לומד כרגע בישיבה/מכינה?
             </label>
 
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.2rem' }}>
@@ -217,7 +217,7 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
                 className={`chip-card ${isCurrentStudent === true ? 'selected' : ''}`}
                 onClick={() => setIsCurrentStudent(true)}
               >
-                כן, אני לומד בישיבה כיום
+                כן, אני לומד בישיבה/מכינה כיום
               </button>
               <button
                 type="button"
@@ -230,21 +230,21 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
 
             {isCurrentStudent === false && (
               <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '1rem', borderRadius: 8, color: '#94a3b8', fontSize: '0.9rem' }}>
-                תודה! מכיוון שאינך לומד כרגע בישיבה, תשובותיך לא ישמרו ב-DB כדי להבטיח שאך ורק דיווחים של ביינישים ותלמידים יעדכנו את הנתונים המפוקחים.
+                תודה! מכיוון שאינך לומד כרגע בישיבה/מכינה, תשובותיך לא ישמרו ב-DB כדי להבטיח שאך ורק דיווחים של ביינישים ותלמידים יעדכנו את הנתונים המפוקחים.
               </div>
             )}
 
             {isCurrentStudent === true && (
               <form onSubmit={handleStudentSubmit} style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '1.25rem', borderRadius: 12, border: '1px solid rgba(99, 102, 241, 0.3)', animation: 'fadeIn 0.3s' }}>
                 <label style={{ display: 'block', fontWeight: 700, fontSize: '1rem', marginBottom: '0.4rem', color: '#f8fafc' }}>
-                  באיזו ישיבה / מכינה אתה לומד כיום? *
+                  באיזו ישיבה/מכינה אתה לומד כיום? *
                 </label>
                 
                 <AutocompleteYeshivaSelect
                   yeshivotList={yeshivotList}
                   value={selectedYeshivaName}
                   onChange={(val) => setSelectedYeshivaName(val)}
-                  placeholder="הקלד חיפוש שם ישיבה..."
+                  placeholder="הקלד חיפוש שם ישיבה/מכינה..."
                 />
 
                 {selectedYeshivaName === 'other' && (
@@ -252,7 +252,7 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
                     <input
                       type="text"
                       className="input-field"
-                      placeholder="הקלד את שם הישיבה החדשה שלך..."
+                      placeholder="הקלד את שם הישיבה/המכינה החדשה שלך..."
                       value={customYeshivaInput}
                       onChange={(e) => setCustomYeshivaInput(e.target.value)}
                       required
@@ -264,7 +264,7 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
                 <div style={{ background: 'rgba(30, 41, 59, 0.6)', padding: '1rem', borderRadius: 12, marginBottom: '1.2rem', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem', fontWeight: 700, color: '#a5b4fc', marginBottom: '0.8rem' }}>
                     <Edit2 style={{ width: 16, height: 16 }} />
-                    דייק את 11 הפרמטרים עבור הישיבה שלך (הכול במסך אחד):
+                    דייק את 11 הפרמטרים עבור הישיבה/מכינה שלך (הכול במסך אחד):
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '0.75rem' }}>
@@ -298,7 +298,7 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
                     style={{ width: 18, height: 18, cursor: 'pointer' }}
                   />
                   <label htmlFor="reflects_cb" style={{ cursor: 'pointer', fontSize: '0.95rem' }}>
-                    הנתונים שהכנסתי כרגע בשאלון משקפים את הישיבה שלי וברצוני לתרום אותם לשיפור המערכת
+                    הנתונים שהכנסתי כרגע בשאלון משקפים את הישיבה/מכינה שלי וברצוני לתרום אותם לשיפור המערכת
                   </label>
                 </div>
 

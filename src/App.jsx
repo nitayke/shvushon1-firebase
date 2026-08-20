@@ -107,7 +107,7 @@ export default function App() {
         {loading ? (
           <div className="glass-card" style={{ textAlign: 'center', padding: '3rem' }}>
             <h3 style={{ fontSize: '1.3rem', color: '#cbd5e1', marginBottom: '0.5rem' }}>
-              טוען נתוני ישיבות מהמאגר...
+              טוען נתוני ישיבות/מכינות מהמאגר...
             </h3>
             <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>אנא המתן מספר שניות</p>
           </div>

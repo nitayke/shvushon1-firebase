@@ -6,8 +6,8 @@
 export const PARAM_DEFINITIONS = [
   { 
     id: 'overall_size', 
-    label: 'גודל הישיבה הכולל', 
-    question: 'איזה גודל ישיבה אתה מחפש?', 
+    label: 'גודל הישיבה/מכינה הכולל', 
+    question: 'איזה גודל ישיבה/מכינה אתה מחפש?', 
     minLabel: 'קטנה', 
     maxLabel: 'גדולה',
     type: 'preference'

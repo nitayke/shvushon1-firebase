@@ -53,56 +53,55 @@ export default function AdminDashboard({ onExitAdmin }) {
       setSubmissions(subs);
       setYeshivot(yeshList);
     } catch (err) {
-      console.error("Load admin data error:", err);
+      console.error("Error loading admin data:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('admin') === 'true') {
-      setIsAuthenticated(true);
-      loadAdminData();
-    }
-  }, []);
-
   const handleApproveRequest = async (request) => {
     setLoading(true);
     try {
-      await approveYeshivaRequestDB(request);
-      setMsg(`הישיבה "${request.yeshiva_name}" אושרה ונוספה בהצלחה למאגר הישיבות!`);
+      const added = await approveYeshivaRequestDB(request);
+      setMsg(`✓ הישיבה/מכינה "${added.name}" אושרה ונוספה למאגר הראשי בהצלחה!`);
       await loadAdminData();
     } catch (err) {
-      console.error("Approve request error:", err);
+      console.error("Error approving request:", err);
+      setMsg("שגיאה באישור הבקשה.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleRejectRequest = async (request) => {
-    if (!window.confirm(`האם למחוק ולסרב לבקשת הוספת הישיבה "${request.yeshiva_name}"?`)) return;
+    if (!window.confirm(`האם אתה בטוח שברצונך לסרב ולמחוק את הבקשה להוספת "${request.yeshiva_name}"?`)) {
+      return;
+    }
     setLoading(true);
     try {
       await deleteYeshivaRequestDB(request.id);
-      setMsg(`הבקשה להוספת "${request.yeshiva_name}" נדחתה ונמחקה מהמערכת.`);
+      setMsg(`✓ הבקשה להוספת "${request.yeshiva_name}" נדחתה ונמחקה.`);
       await loadAdminData();
     } catch (err) {
-      console.error("Delete request error:", err);
+      console.error("Error deleting request:", err);
+      setMsg("שגיאה במחיקת הבקשה.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteSubmission = async (submission) => {
-    if (!window.confirm(`האם למחוק את דיווח התלמיד עבור הישיבה "${submission.yeshiva_name}"?`)) return;
+    if (!window.confirm(`האם אתה בטוח שברצונך למחוק את הדיווח של התלמיד עבור "${submission.yeshiva_name}"?`)) {
+      return;
+    }
     setLoading(true);
     try {
       await deleteStudentSubmissionDB(submission.id);
-      setMsg(`דיווח התלמיד עבור "${submission.yeshiva_name}" נמחק בהצלחה.`);
+      setMsg(`✓ הדיווח עבור "${submission.yeshiva_name}" נמחק מהמאגר.`);
       await loadAdminData();
     } catch (err) {
-      console.error("Delete submission error:", err);
+      console.error("Error deleting submission:", err);
+      setMsg("שגיאה במחיקת הדיווח.");
     } finally {
       setLoading(false);
     }
@@ -111,25 +110,12 @@ export default function AdminDashboard({ onExitAdmin }) {
   const handleRecalculateAverages = async () => {
     setLoading(true);
     try {
-      const updated = await recalculateYeshivaAveragesDB();
-      setYeshivot(updated);
-      setMsg(`ממוצעי הישיבות חודשו ועודכנו במאגר בהצלחה על סמך ${submissions.length} דיווחי תלמידים!`);
-    } catch (err) {
-      console.error("Recalculate error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteYeshiva = async (id, name) => {
-    if (!window.confirm(`האם אתה בטוח שברצונך למחוק את הישיבה "${name}"?`)) return;
-    setLoading(true);
-    try {
-      await deleteYeshivaDB(id);
-      setMsg(`הישיבה "${name}" נמחקה בהצלחה.`);
+      await recalculateYeshivaAveragesDB();
+      setMsg("✓ ממוצעי הדירוגים של כל הישיבות/מכינות עודכנו ושוקללו במאגר לפי כל דיווחי התלמידים!");
       await loadAdminData();
     } catch (err) {
-      console.error("Delete error:", err);
+      console.error("Error recalculating averages:", err);
+      setMsg("שגיאה בשקלול הממוצעים.");
     } finally {
       setLoading(false);
     }
@@ -137,53 +123,80 @@ export default function AdminDashboard({ onExitAdmin }) {
 
   const handleSaveEditingYeshiva = async (e) => {
     e.preventDefault();
-    if (!editingYeshiva) return;
+    if (!editingYeshiva.name) return;
+
     setLoading(true);
     try {
       await saveYeshivaDB(editingYeshiva);
-      setMsg(`הישיבה "${editingYeshiva.name}" עודכנה בהצלחה!`);
+      setMsg(`✓ הישיבה/מכינה "${editingYeshiva.name}" שנערכה נשמרה במאגר.`);
       setEditingYeshiva(null);
       await loadAdminData();
     } catch (err) {
-      console.error("Save yeshiva error:", err);
+      console.error("Error saving yeshiva:", err);
+      setMsg("שגיאה בשמירת הישיבה/מכינה.");
     } finally {
       setLoading(false);
     }
   };
 
-  const typeOptions = TYPES.filter(t => t.id !== 'all').map(t => ({ value: t.id, label: t.label }));
-  const regionOptions = REGIONS.filter(r => r.id !== 'all').map(r => ({ value: r.id, label: r.label }));
+  const handleDeleteYeshiva = async (yeshivaId, yeshivaName) => {
+    if (!window.confirm(`האם אתה בטוח שברצונך למחוק את הישיבה/מכינה "${yeshivaName}" מהמאגר הראשי?`)) {
+      return;
+    }
+    setLoading(true);
+    try {
+      await deleteYeshivaDB(yeshivaId);
+      setMsg(`✓ הישיבה/מכינה "${yeshivaName}" נמחקה מהמאגר.`);
+      await loadAdminData();
+    } catch (err) {
+      console.error("Error deleting yeshiva:", err);
+      setMsg("שגיאה במחיקת הישיבה/מכינה.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const regionOptions = REGIONS.map(r => ({ value: r.id, label: r.label }));
+  const typeOptions = TYPES.filter(t => t.id !== 'all').map(t => ({ value: t.id, label: t.label }));
+
+  // Password Screen
   if (!isAuthenticated) {
     return (
-      <div className="glass-card" style={{ maxWidth: 450, margin: '4rem auto', textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', padding: '1rem', borderRadius: '50%', background: 'rgba(99, 102, 241, 0.2)', color: '#6366f1', marginBottom: '1rem' }}>
-          <Lock style={{ width: 40, height: 40 }} />
+      <div className="glass-card" style={{ maxWidth: 450, margin: '2rem auto', textAlign: 'center', animation: 'fadeIn 0.3s' }}>
+        <div style={{ display: 'inline-flex', padding: '0.8rem', borderRadius: '50%', background: 'rgba(99, 102, 241, 0.2)', color: '#818cf8', marginBottom: '1rem' }}>
+          <Lock style={{ width: 36, height: 36 }} />
         </div>
-        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '0.5rem' }}>
-          כניסה לממשק הניהול של שבושון
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.5rem' }}>
+          כניסה לממשק ניהול
         </h2>
-        <p style={{ color: '#94a3b8', marginBottom: '1.5rem', fontSize: '0.95rem' }}>
-          ממשק זה מיועד לאדמין בלבד לצפייה בבקשות, דיווחי תלמידים וניהול המאגר.
+        <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+          הזן סיסמת אדמין לניהול מאגר הישיבות והמכינות
         </p>
 
         <form onSubmit={handleLogin}>
           <input
             type="password"
             className="input-field"
-            placeholder="הכנס סיסמת אדמין"
+            placeholder="סיסמת אדמין"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            style={{ textAlign: 'center', fontSize: '1.1rem', letterSpacing: 2 }}
+            autoFocus
             required
           />
-          {authError && <div style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '1rem' }}>{authError}</div>}
+
+          {authError && (
+            <div style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '1rem', fontWeight: 600 }}>
+              {authError}
+            </div>
+          )}
 
           <div style={{ display: 'flex', gap: '0.8rem', justifyContent: 'center' }}>
             <button type="button" onClick={onExitAdmin} className="btn-secondary">
-              חזרה לאתר
+              חזרה
             </button>
             <button type="submit" className="btn-primary">
-              התחבר לאדמין
+              כניסה למערכת
             </button>
           </div>
         </form>
@@ -196,7 +209,7 @@ export default function AdminDashboard({ onExitAdmin }) {
       {/* Admin Header */}
       <div className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-          <ShieldCheck className="w-8 h-8 text-emerald-400" />
+          <ShieldCheck style={{ width: 32, height: 32, color: '#10b981' }} />
           <div>
             <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0 }}>ממשק ניהול שבושון</h1>
             <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>מחובר לניהול המאגר הראשי</span>
@@ -229,7 +242,7 @@ export default function AdminDashboard({ onExitAdmin }) {
           onClick={() => setActiveTab('requests')}
         >
           <Inbox style={{ width: 18, height: 18 }} />
-          בקשות להוספת ישיבה ({requests.length})
+          בקשות להוספת ישיבה/מכינה ({requests.length})
         </button>
 
         <button
@@ -245,7 +258,7 @@ export default function AdminDashboard({ onExitAdmin }) {
           onClick={() => setActiveTab('yeshivot')}
         >
           <Database style={{ width: 18, height: 18 }} />
-          ניהול מאגר הישיבות ({yeshivot.length})
+          ניהול מאגר הישיבות והמכינות ({yeshivot.length})
         </button>
       </div>
 
@@ -254,7 +267,7 @@ export default function AdminDashboard({ onExitAdmin }) {
         <div className="glass-card">
           <h2 className="section-title">
             <Inbox className="w-5 h-5 text-indigo-400" />
-            בקשות שהוגשו ע"י משתמשים להוספת ישיבות חדשות
+            בקשות שהוגשו ע"י משתמשים להוספת ישיבות/מכינות חדשות
           </h2>
 
           {requests.length === 0 ? (
@@ -308,7 +321,7 @@ export default function AdminDashboard({ onExitAdmin }) {
                 {req.ratings && (
                   <div style={{ marginTop: '0.8rem', background: 'rgba(15, 23, 42, 0.4)', padding: '0.8rem', borderRadius: 8 }}>
                     <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#a5b4fc', marginBottom: 4 }}>
-                      פרמטרים שהציע המשתמש עבור הישיבה:
+                      פרמטרים שהציע המשתמש עבור הישיבה/מכינה:
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.4rem', fontSize: '0.8rem' }}>
                       {PARAM_DEFINITIONS.map(p => (
@@ -402,7 +415,7 @@ export default function AdminDashboard({ onExitAdmin }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h2 className="section-title" style={{ margin: 0 }}>
               <Database className="w-5 h-5 text-purple-400" />
-              ניהול מאגר הישיבות
+              ניהול מאגר הישיבות והמכינות
             </h2>
 
             <button
@@ -417,12 +430,12 @@ export default function AdminDashboard({ onExitAdmin }) {
               className="btn-primary"
             >
               <Plus style={{ width: 18, height: 18 }} />
-              הוסף ישיבה ידנית
+              הוסף ישיבה/מכינה ידנית
             </button>
           </div>
 
           {yeshivot.length === 0 ? (
-            <p style={{ color: '#94a3b8' }}>אין ישיבות במאגר.</p>
+            <p style={{ color: '#94a3b8' }}>אין ישיבות/מכינות במאגר.</p>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
               {yeshivot.map(y => (
@@ -471,7 +484,7 @@ export default function AdminDashboard({ onExitAdmin }) {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
           <div className="glass-card" style={{ maxWidth: 650, width: '100%', maxHeight: '90vh', overflowY: 'auto', background: '#0f172a', border: '1px solid rgba(99, 102, 241, 0.4)' }}>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1.2rem' }}>
-              {editingYeshiva.name ? `עריכת ישיבה: ${editingYeshiva.name}` : 'הוספת ישיבה חדשה למאגר'}
+              {editingYeshiva.name ? `עריכת ישיבה/מכינה: ${editingYeshiva.name}` : 'הוספת ישיבה/מכינה חדשה למאגר'}
             </h2>
 
             <form onSubmit={handleSaveEditingYeshiva}>

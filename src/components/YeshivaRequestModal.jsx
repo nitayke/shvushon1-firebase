@@ -170,7 +170,7 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin }) {
                   opacity: 0.7 
                 }}
               >
-                (אדמין? לחץ כאן לממשק הניהול לאישור הישיבה)
+                (אדמין? לחץ כאן לממשק הניהול לאישור הישיבה/מכינה)
               </button>
             </div>
           </div>
@@ -178,7 +178,7 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin }) {
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: '1rem' }}>
               <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>
-                שם הישיבה / המכינה *
+                שם הישיבה/מכינה *
               </label>
               <input
                 type="text"
@@ -213,7 +213,7 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin }) {
             {/* Ratings Sliders for the 11 Parameters */}
             <div style={{ background: 'rgba(15, 23, 42, 0.4)', padding: '1rem', borderRadius: 12, marginBottom: '1.2rem' }}>
               <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.8rem', color: '#a5b4fc' }}>
-                הצע דירוג (1-5) ל-11 הפרמטרים של הישיבה:
+                הצע דירוג (1-5) ל-11 הפרמטרים של הישיבה/מכינה:
               </h4>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.8rem' }}>

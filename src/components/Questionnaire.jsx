@@ -249,7 +249,7 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
           {currentStep === totalSteps - 1 ? (
             <>
               <Check style={{ width: 16, height: 16 }} />
-              חשב התאמה לישיבות
+              חשב התאמה לישיבות/מכינות
             </>
           ) : (
             <>

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, Check, X, ChevronDown } from 'lucide-react';
 
-export default function AutocompleteYeshivaSelect({ yeshivotList = [], value, onChange, placeholder = "הקלד/בחר שם ישיבה..." }) {
+export default function AutocompleteYeshivaSelect({ yeshivotList = [], value, onChange, placeholder = "הקלד/בחר שם ישיבה/מכינה..." }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const containerRef = useRef(null);
@@ -11,7 +11,7 @@ export default function AutocompleteYeshivaSelect({ yeshivotList = [], value, on
     if (!value) {
       setSearchQuery('');
     } else if (value === 'other') {
-      setSearchQuery('אחר (ישיבה שאינה ברשימה)');
+      setSearchQuery('אחר (ישיבה/מכינה שאינה ברשימה)');
     } else {
       setSearchQuery(value);
     }
@@ -36,7 +36,7 @@ export default function AutocompleteYeshivaSelect({ yeshivotList = [], value, on
   const handleSelect = (name) => {
     onChange(name);
     if (name === 'other') {
-      setSearchQuery('אחר (ישיבה שאינה ברשימה)');
+      setSearchQuery('אחר (ישיבה/מכינה שאינה ברשימה)');
     } else {
       setSearchQuery(name);
     }
@@ -117,13 +117,13 @@ export default function AutocompleteYeshivaSelect({ yeshivotList = [], value, on
             onClick={() => handleSelect('other')}
             style={{ color: '#fbbf24', fontWeight: 600, borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}
           >
-            <span>+ אחר (ישיבה שאינה ברשימה)</span>
+            <span>+ אחר (ישיבה/מכינה שאינה ברשימה)</span>
             {value === 'other' && <Check style={{ width: 16, height: 16, color: '#fbbf24' }} />}
           </div>
 
           {filteredYeshivot.length === 0 ? (
             <div style={{ padding: '0.8rem 1rem', color: '#94a3b8', fontSize: '0.9rem', textAlign: 'center' }}>
-              לא נמצאה ישיבה בשם זה. לחץ על "אחר" להקלדת שם ישיבה חדשה.
+              לא נמצאה ישיבה/מכינה בשם זה. לחץ על "אחר" להקלדת שם ישיבה/מכינה חדשה.
             </div>
           ) : (
             filteredYeshivot.map((y) => {
