@@ -9,14 +9,14 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
   const [region, setRegion] = useState('all');
   const [type, setType] = useState('all');
 
-  // Initialize all 11 rating parameters to null (No number selected by default)
+  // Initialize all 11 rating parameters to null (NOTHING SELECTED BY DEFAULT)
   const initialRatings = PARAM_DEFINITIONS.reduce((acc, p) => {
     acc[p.id] = null;
     return acc;
   }, {});
 
   const initialIgnoreParams = PARAM_DEFINITIONS.reduce((acc, p) => {
-    acc[p.id] = true; // Default is ignored until a number or preference is clicked
+    acc[p.id] = false; // Default is FALSE - Nothing is selected or ignored by default!
     return acc;
   }, {});
 
@@ -26,7 +26,7 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
   const totalSteps = PARAM_DEFINITIONS.length + 1; // 12 steps total
   const timerRef = useRef(null);
 
-  // Smooth Auto-Advance timer function (200ms snappy response)
+  // Smooth Auto-Advance timer function (400ms delay so user can see selection)
   const triggerAutoAdvance = (updatedRatings = ratings, updatedIgnore = ignoreParams) => {
     if (timerRef.current) clearTimeout(timerRef.current);
 
@@ -55,7 +55,7 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
     setRatings(nextRatings);
     setIgnoreParams(nextIgnore);
 
-    // Auto-advance to next question after 200ms
+    // Auto-advance to next question after 400ms
     triggerAutoAdvance(nextRatings, nextIgnore);
   };
 
@@ -66,7 +66,7 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
     setRatings(nextRatings);
     setIgnoreParams(nextIgnore);
 
-    // Auto-advance to next question after 200ms
+    // Auto-advance to next question after 400ms
     triggerAutoAdvance(nextRatings, nextIgnore);
   };
 
@@ -162,7 +162,7 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
         </div>
       )}
 
-      {/* STEPS 1..11: The 11 Parameters (No score pressed by default) */}
+      {/* STEPS 1..11: The 11 Parameters (100% Neutral, NO DEFAULT SELECTIONS) */}
       {currentStep > 0 && currentParam && (
         <div className="glass-card" style={{ animation: 'fadeIn 0.3s', textAlign: 'center', padding: '1.5rem 1.2rem', marginBottom: '1rem' }}>
           <div className="brand-badge" style={{ marginBottom: '0.8rem', fontSize: '0.8rem', padding: '0.25rem 0.75rem' }}>
@@ -173,7 +173,7 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
             {currentParam.question || currentParam.label}
           </h2>
 
-          {/* 1 to 5 Score Buttons Grid (No number pressed by default) */}
+          {/* 1 to 5 Score Buttons Grid (Nothing pressed by default) */}
           <div style={{ margin: '0 auto', maxWidth: 600 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 600 }}>
               <span>1 - {currentParam.minLabel}</span>
@@ -207,13 +207,13 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
             </div>
           </div>
 
-          {/* Small, Discreet "לא משנה לי" Option at the Bottom */}
+          {/* Small, Discreet "לא משנה לי" Option at the Bottom (Unselected by default) */}
           <div style={{ marginTop: '1.1rem', textAlign: 'center' }}>
             <button
               type="button"
               onClick={() => handleSetIndifferent(currentParam.id)}
               style={{
-                background: ignoreParams[currentParam.id] ? 'rgba(168, 85, 247, 0.2)' : 'rgba(255, 255, 255, 0.04)',
+                background: ignoreParams[currentParam.id] ? 'rgba(168, 85, 247, 0.25)' : 'rgba(255, 255, 255, 0.04)',
                 border: ignoreParams[currentParam.id] ? '1px solid #a855f7' : '1px solid rgba(255, 255, 255, 0.1)',
                 color: ignoreParams[currentParam.id] ? '#c084fc' : '#94a3b8',
                 fontSize: '0.82rem',
