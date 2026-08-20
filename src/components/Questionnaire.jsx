@@ -148,11 +148,11 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
       {/* Top Progress Bar - Compact Padding */}
       <div className="glass-card" style={{ padding: '0.75rem 1.25rem', marginBottom: '1rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', fontSize: '0.85rem', fontWeight: 600 }}>
-          <span style={{ color: '#e5e7eb' }}>שאלה {currentStep + 1} מתוך {totalSteps}</span>
-          <span style={{ color: '#9ca3af' }}>{progressPercent}% הושלמו</span>
+          <span style={{ color: '#1f1c19' }}>שאלה {currentStep + 1} מתוך {totalSteps}</span>
+          <span style={{ color: '#6b635b' }}>{progressPercent}% הושלמו</span>
         </div>
-        <div style={{ height: 5, background: '#262a36', borderRadius: 999, overflow: 'hidden' }}>
-          <div style={{ width: `${progressPercent}%`, height: '100%', background: '#b47828', transition: 'width 0.3s ease' }} />
+        <div style={{ height: 5, background: '#e5decb', borderRadius: 999, overflow: 'hidden' }}>
+          <div style={{ width: `${progressPercent}%`, height: '100%', background: '#6e441f', transition: 'width 0.3s ease' }} />
         </div>
       </div>
 
@@ -166,7 +166,7 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
           {/* Yeshiva Type Selection */}
           <div style={{ marginBottom: '1.2rem' }}>
             <label style={{ display: 'block', fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.6rem' }}>
-              <GraduationCap style={{ display: 'inline', width: 18, height: 18, marginLeft: 6, color: '#b47828' }} />
+              <GraduationCap style={{ display: 'inline', width: 18, height: 18, marginLeft: 6, color: '#6e441f' }} />
               איזה סוג מוסד תורני אתה מחפש?
             </label>
             <div className="chips-grid">
@@ -186,7 +186,7 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
           {/* Region Chip Selection */}
           <div style={{ marginBottom: '0.5rem' }}>
             <label style={{ display: 'block', fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.6rem' }}>
-              <MapPin style={{ display: 'inline', width: 18, height: 18, marginLeft: 6, color: '#b47828' }} />
+              <MapPin style={{ display: 'inline', width: 18, height: 18, marginLeft: 6, color: '#6e441f' }} />
               אזור גאוגרפי מועדף
             </label>
             <div className="chips-grid">
@@ -208,13 +208,13 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
       {/* STEPS 1..11: The 11 Parameters (100% Neutral, NO DEFAULT SELECTIONS) */}
       {currentStep > 0 && currentParam && (
         <div className="glass-card" style={{ animation: 'fadeIn 0.3s', textAlign: 'center', padding: '1.5rem 1.2rem', marginBottom: '1rem' }}>
-          <h2 style={{ fontSize: '1.35rem', fontWeight: 700, marginBottom: '1.2rem', color: '#f3f4f6', lineHeight: 1.35 }}>
+          <h2 style={{ fontSize: '1.35rem', fontWeight: 700, marginBottom: '1.2rem', color: '#1f1c19', lineHeight: 1.35 }}>
             {currentParam.question || currentParam.label}
           </h2>
 
           {/* 1 to 5 Score Buttons Grid (Nothing pressed by default) */}
           <div style={{ margin: '0 auto', maxWidth: 600 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.82rem', color: '#9ca3af', fontWeight: 600 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.82rem', color: '#6b635b', fontWeight: 600 }}>
               <span>1 - {currentParam.minLabel}</span>
               <span>5 - {currentParam.maxLabel}</span>
             </div>
@@ -228,9 +228,9 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
                     type="button"
                     onClick={() => handleSelectScore(currentParam.id, score)}
                     style={{
-                      background: isSelected ? '#343b49' : '#1e212b',
-                      color: isSelected ? '#ffffff' : '#e5e7eb',
-                      border: isSelected ? '2px solid #6b7280' : '2px solid #2e3342',
+                      background: isSelected ? '#6e441f' : '#f0e8dc',
+                      color: isSelected ? '#ffffff' : '#1f1c19',
+                      border: isSelected ? '2px solid #543316' : '2px solid #ded5c5',
                       padding: '0.85rem 0.2rem',
                       borderRadius: 8,
                       fontSize: '1.3rem',
@@ -252,9 +252,9 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
               type="button"
               onClick={() => handleSetIndifferent(currentParam.id)}
               style={{
-                background: ignoreParams[currentParam.id] ? '#2d3342' : '#1e212b',
-                border: ignoreParams[currentParam.id] ? '1px solid #6b7280' : '1px solid #2e3342',
-                color: ignoreParams[currentParam.id] ? '#ffffff' : '#9ca3af',
+                background: ignoreParams[currentParam.id] ? '#e8ded0' : '#f0e8dc',
+                border: ignoreParams[currentParam.id] ? '2px solid #6e441f' : '1px solid #ded5c5',
+                color: ignoreParams[currentParam.id] ? '#1f1c19' : '#6b635b',
                 fontSize: '0.82rem',
                 cursor: 'pointer',
                 padding: '0.35rem 0.85rem',

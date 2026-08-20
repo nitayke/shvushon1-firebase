@@ -126,7 +126,7 @@ export default function App() {
             margin: 0
           }}
         >
-          <Compass style={{ width: 22, height: 22, color: '#b47828' }} />
+          <Compass style={{ width: 22, height: 22, color: '#6e441f' }} />
           <span>שבושון</span>
         </h1>
 
