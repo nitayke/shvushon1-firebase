@@ -15,7 +15,7 @@ export const PARAM_DEFINITIONS = [
   { 
     id: 'conditions', 
     label: 'תנאים פיזיים', 
-    question: 'כמה חשוב לך התנאים (אוכל, פנימיות וכד\')?', 
+    question: 'כמה חשוב לך התנאים (אוכל, פנימיות וכדומה)?', 
     minLabel: 'לא חשוב בכלל', 
     maxLabel: 'חשוב מאוד (תנאים מעולים)',
     type: 'importance' // Automatic Target = 5, User Answer = Dynamic Weight
@@ -55,7 +55,7 @@ export const PARAM_DEFINITIONS = [
   { 
     id: 'rav_kook', 
     label: 'לימוד הרב קוק', 
-    question: 'כמה דגש אתה מחפש על לימוד תורת הרב קוק והרצי"ה?', 
+    question: 'כמה דגש אתה מחפש על לימוד תורת הרב קוק?', 
     minLabel: 'ללא דגש מיוחד', 
     maxLabel: 'לימוד מעמיק בתורת הרב קוק',
     type: 'preference'
