@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { PARAM_DEFINITIONS, REGIONS, TYPES } from '../knn';
-import { MapPin, GraduationCap, Sparkles, ChevronRight, ChevronLeft, Check, PlusCircle, RotateCcw } from 'lucide-react';
+import { MapPin, GraduationCap, Sparkles, ChevronRight, ChevronLeft, Check, PlusCircle, RotateCcw, Play } from 'lucide-react';
 
 export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva }) {
+  const [isStarted, setIsStarted] = useState(false);
   // Step 0: Type & Region. Steps 1..11: The 11 parameters. Total 12 steps.
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -90,11 +91,58 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
 
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1);
+    } else {
+      setIsStarted(false);
     }
   };
 
   const currentParam = currentStep > 0 ? PARAM_DEFINITIONS[currentStep - 1] : null;
   const progressPercent = currentStep === 0 ? 0 : Math.round((currentStep / (totalSteps - 1)) * 100);
+
+  if (!isStarted) {
+    return (
+      <div className="glass-card" style={{ textAlign: 'center', padding: '2rem 1.25rem', animation: 'fadeIn 0.3s' }}>
+        <div className="brand-badge" style={{ marginBottom: '1rem', fontSize: '0.85rem', padding: '0.3rem 0.9rem' }}>
+          <Sparkles style={{ width: 14, height: 14 }} /> מבחן התאמה לישיבה/מכינה
+        </div>
+
+        <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '1.2rem', color: '#f8fafc' }}>
+          ברוכים הבאים ל"שבושון"
+        </h1>
+
+        <div style={{ color: '#cbd5e1', fontSize: '0.95rem', lineHeight: 1.65, maxWidth: 620, margin: '0 auto 1.5rem auto', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+          <p style={{ fontWeight: 600, color: '#a5b4fc', fontSize: '1.05rem' }}>
+            שמיניסט יקר! לפניך שאלון שבו תוכל לגלות איזו ישיבה/מכינה מתאימה לך.
+          </p>
+          <p>
+            ישנם 11 מאפיינים. עליך לדרג מ-1 עד 5 כל מאפיין - כמה חשוב לך שיהיה בישיבה/מכינה.
+          </p>
+          <p>
+            השאלון אינו ח"ו מדרג ישיבות ומכינות אלא עובד על בסיס התאמה אישית.
+          </p>
+          <p>
+            השאלון הינו המלצה כללית בלבד ואינו מהווה תחליף לשיחה עם הר"מ/המחנך בענייןבחירת הישיבה/המכינה.
+          </p>
+          <p style={{ fontWeight: 700, color: '#10b981', fontSize: '1.1rem', marginTop: '0.2rem' }}>
+            בהצלחה!
+          </p>
+        </div>
+
+        <button
+          onClick={() => setIsStarted(true)}
+          className="btn-primary"
+          style={{ fontSize: '1.1rem', padding: '0.8rem 2.2rem', borderRadius: 12, boxShadow: '0 4px 20px rgba(99, 102, 241, 0.4)' }}
+        >
+          <Play style={{ width: 18, height: 18, fill: 'currentColor' }} />
+          התחל
+        </button>
+
+        <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '1.2rem' }}>
+          *השאלון מבוסס על מידע שנאסף מביינישים, תלמידים ובוגרי ישיבות ומכינות רבים.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="questionnaire-wizard">
@@ -237,9 +285,8 @@ export default function Questionnaire({ onCalculateMatches, onRequestAddYeshiva 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button
           onClick={handlePrev}
-          disabled={currentStep === 0}
           className="btn-secondary"
-          style={{ opacity: currentStep === 0 ? 0.4 : 1, cursor: currentStep === 0 ? 'not-allowed' : 'pointer', padding: '0.55rem 1.1rem', fontSize: '0.9rem' }}
+          style={{ padding: '0.55rem 1.1rem', fontSize: '0.9rem' }}
         >
           <ChevronRight style={{ width: 16, height: 16 }} />
           הקודם
