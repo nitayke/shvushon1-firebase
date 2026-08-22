@@ -186,6 +186,10 @@ export const calculateKNNMatches = (userPreferences, yeshivotList, k = 3) => {
   };
 
   const scoredYeshivot = yeshivotList.map(yeshiva => {
+    // HYBRID COSINE-EUCLIDEAN SIMILARITY ENGINE
+    let dotProduct = 0;
+    let normU = 0;
+    let normV = 0;
     let weightedDistSq = 0;
     let totalWeight = 0;
 
@@ -194,35 +198,36 @@ export const calculateKNNMatches = (userPreferences, yeshivotList, k = 3) => {
 
       const userVal = Number(ratings[param.id]) || 3;
       const yeshivaVal = Number(yeshiva.ratings ? yeshiva.ratings[param.id] : 3) || 3;
-
       const weight = paramWeights[param.id] || 1.0;
+
+      // Cosine Similarity components
+      dotProduct += weight * userVal * yeshivaVal;
+      normU += weight * userVal * userVal;
+      normV += weight * yeshivaVal * yeshivaVal;
+
+      // Normalized Euclidean Distance components
       const normDiff = (userVal - yeshivaVal) / 4.0;
       weightedDistSq += weight * (normDiff * normDiff);
       totalWeight += weight;
     });
 
-    // Penalty for Type mismatch
-    let typePenalty = 0;
-    if (type && type !== 'all' && yeshiva.type !== type) {
-      typePenalty = 0.35;
-    }
+    const cosineSim = (normU > 0 && normV > 0) ? (dotProduct / (Math.sqrt(normU) * Math.sqrt(normV))) : 1.0;
+    const rmsDistance = totalWeight > 0 ? Math.sqrt(weightedDistSq / totalWeight) : 0;
 
-    // Penalty for Region mismatch
-    let regionPenalty = 0;
-    if (region && region !== 'all' && yeshiva.region !== region) {
-      regionPenalty = 0.25;
-    }
+    // Penalty for Type & Region mismatch
+    const typePenalty = (type && type !== 'all' && yeshiva.type !== type) ? 0.35 : 0;
+    const regionPenalty = (region && region !== 'all' && yeshiva.region !== region) ? 0.25 : 0;
+    const totalPenalty = typePenalty + regionPenalty;
 
-    // Normalized RMS Distance
-    const baseDistance = totalWeight > 0 ? Math.sqrt(weightedDistSq / totalWeight) : 0;
-    const finalDistance = baseDistance + typePenalty + regionPenalty;
+    // Hybrid Distance metric: 85% Euclidean accuracy + 15% Cosine angular alignment
+    let rawDistance = (0.85 * rmsDistance) + (0.15 * (1 - Math.min(1.0, cosineSim))) + totalPenalty;
+    const hybridDistance = Math.abs(rawDistance) < 1e-6 ? 0 : rawDistance;
 
-    // Exponential match score calculation: exact match (finalDistance === 0) returns 100%
     let matchScore;
-    if (finalDistance === 0) {
+    if (hybridDistance === 0) {
       matchScore = 100;
     } else {
-      let matchFactor = Math.exp(-1.8 * finalDistance);
+      let matchFactor = Math.exp(-1.8 * hybridDistance);
       matchScore = Math.round(matchFactor * 100);
       matchScore = Math.max(18, Math.min(99, matchScore));
     }
@@ -233,7 +238,7 @@ export const calculateKNNMatches = (userPreferences, yeshivotList, k = 3) => {
       type: yeshiva.type,
       region: yeshiva.region,
       matchScore,
-      distance: finalDistance
+      distance: hybridDistance
     };
   });
 
