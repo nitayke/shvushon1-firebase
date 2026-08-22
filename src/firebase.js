@@ -90,6 +90,7 @@ export const getYeshivotDB = async () => {
 export const saveStudentSubmissionDB = async (submission) => {
   const dataToSave = {
     ...submission,
+    processed: false,
     created_at: new Date().toISOString()
   };
 
@@ -241,10 +242,13 @@ export const recalculateYeshivaAveragesDB = async () => {
     getStudentSubmissionsDB()
   ]);
 
-  if (submissionsList.length === 0) return yeshivotList;
+  // Filter only UNPROCESSED submissions (whose averages have not yet been incorporated)
+  const pendingSubs = submissionsList.filter(s => s.processed !== true);
+
+  if (pendingSubs.length === 0) return yeshivotList;
 
   const grouped = {};
-  submissionsList.forEach(sub => {
+  pendingSubs.forEach(sub => {
     const name = sub.yeshiva_name;
     if (!grouped[name]) grouped[name] = [];
     grouped[name].push(sub);
@@ -267,16 +271,44 @@ export const recalculateYeshivaAveragesDB = async () => {
       });
 
       const newRatings = { ...targetYeshiva.ratings };
+      const currentCount = targetYeshiva.submissions_count || 1;
+      const totalCount = currentCount + count;
+
       Object.keys(paramSums).forEach(paramKey => {
-        newRatings[paramKey] = Number((paramSums[paramKey] / count).toFixed(1));
+        const oldSum = (targetYeshiva.ratings[paramKey] || 3) * currentCount;
+        const newSum = oldSum + paramSums[paramKey];
+        newRatings[paramKey] = Number((newSum / totalCount).toFixed(1));
       });
 
       targetYeshiva.ratings = newRatings;
-      targetYeshiva.submissions_count = (targetYeshiva.submissions_count || 1) + count;
+      targetYeshiva.submissions_count = totalCount;
 
       await saveYeshivaDB(targetYeshiva);
     }
   }
+
+  // Mark all processed submissions as processed: true in Firestore & LocalStorage
+  if (isFirebaseConfigured && db) {
+    try {
+      for (const sub of pendingSubs) {
+        if (sub.id && !sub.id.startsWith('sub_')) {
+          await setDoc(doc(db, "student_submissions", sub.id), { processed: true }, { merge: true });
+        }
+      }
+    } catch (err) {
+      console.error("Firestore mark processed submissions error:", err);
+    }
+  }
+
+  // Update LocalStorage cache as well
+  const allSubmissions = JSON.parse(localStorage.getItem(LOCAL_SUBMISSIONS_KEY) || '[]');
+  const updatedLocal = allSubmissions.map(s => {
+    if (pendingSubs.some(p => p.id === s.id || (p.yeshiva_name === s.yeshiva_name && p.created_at === s.created_at))) {
+      return { ...s, processed: true };
+    }
+    return s;
+  });
+  localStorage.setItem(LOCAL_SUBMISSIONS_KEY, JSON.stringify(updatedLocal));
 
   return updatedYeshivot;
 };

@@ -20,6 +20,7 @@ export default function AdminDashboard({ onExitAdmin }) {
   const [authError, setAuthError] = useState('');
 
   const [activeTab, setActiveTab] = useState('requests'); // requests, submissions, yeshivot
+  const [submissionFilter, setSubmissionFilter] = useState('pending'); // 'pending' or 'all'
   const [requests, setRequests] = useState([]);
   const [submissions, setSubmissions] = useState([]);
   const [yeshivot, setYeshivot] = useState([]);
@@ -370,75 +371,113 @@ export default function AdminDashboard({ onExitAdmin }) {
       )}
 
       {/* TAB 2: STUDENT SUBMISSIONS & RECALCULATE */}
-      {activeTab === 'submissions' && (
-        <div className="glass-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-            <div>
-              <h2 className="section-title" style={{ margin: 0 }}>
-                <Users className="w-5 h-5 text-emerald-400" />
-                תשובות שנאספו מתלמידים כיום
-              </h2>
-              <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginTop: 4 }}>
-                רק תשובות של ביינישים ותלמידים נשמרות כאן במאגר
-              </p>
+      {activeTab === 'submissions' && (() => {
+        const pendingSubmissions = submissions.filter(s => s.processed !== true);
+        const displayedSubmissions = submissionFilter === 'pending' ? pendingSubmissions : submissions;
+
+        return (
+          <div className="glass-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <h2 className="section-title" style={{ margin: 0, color: '#111827' }}>
+                  <Users className="w-5 h-5 text-emerald-600" />
+                  תשובות שנאספו מתלמידים כיום
+                </h2>
+                <p style={{ color: '#4b5563', fontSize: '0.9rem', marginTop: 4 }}>
+                  מציג דיווחי תלמידים מאומתים ({pendingSubmissions.length} תשובות ממתינות לעדכון ממוצעים)
+                </p>
+              </div>
+
+              <button
+                onClick={handleRecalculateAverages}
+                disabled={loading || pendingSubmissions.length === 0}
+                className="btn-gold"
+              >
+                <RefreshCw style={{ width: 18, height: 18 }} />
+                {pendingSubmissions.length > 0 
+                  ? `עדכן ממוצעים במאגר (${pendingSubmissions.length} תשובות חדשות)` 
+                  : 'כל התשובות כבר עודכנו במאגר ✓'}
+              </button>
             </div>
 
-            <button
-              onClick={handleRecalculateAverages}
-              disabled={loading || submissions.length === 0}
-              className="btn-gold"
-            >
-              <RefreshCw style={{ width: 18, height: 18 }} />
-              עדכן ממוצעים במאגר לפי כל הדיווחים
-            </button>
-          </div>
+            {/* Filter Toggle Buttons */}
+            <div style={{ display: 'flex', gap: '0.6rem', marginBottom: '1.2rem' }}>
+              <button
+                type="button"
+                className={`btn-secondary ${submissionFilter === 'pending' ? 'btn-primary' : ''}`}
+                onClick={() => setSubmissionFilter('pending')}
+                style={{ fontSize: '0.85rem', padding: '0.4rem 0.9rem' }}
+              >
+                ⏳ תשובות שעוד לא עודכנו במאגר ({pendingSubmissions.length})
+              </button>
+              <button
+                type="button"
+                className={`btn-secondary ${submissionFilter === 'all' ? 'btn-primary' : ''}`}
+                onClick={() => setSubmissionFilter('all')}
+                style={{ fontSize: '0.85rem', padding: '0.4rem 0.9rem' }}
+              >
+                📜 כל הדיווחים ({submissions.length})
+              </button>
+            </div>
 
-          {submissions.length === 0 ? (
-            <p style={{ color: '#94a3b8' }}>טרם התקבלו דיווחי תלמידים כיום במערכת.</p>
-          ) : (
-            submissions.map((sub, idx) => (
-              <div key={sub.id || idx} className="yeshiva-result-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem' }}>
-                  <div>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0 }}>{sub.yeshiva_name}</h3>
-                    <div style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: 4 }}>
-                      תאריך: {new Date(sub.created_at).toLocaleDateString('he-IL')}
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                    <span style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', padding: '0.3rem 0.7rem', borderRadius: 999, fontSize: '0.8rem', fontWeight: 700 }}>
-                      תלמיד מאומת ✓
-                    </span>
-
-                    <button
-                      onClick={() => handleDeleteSubmission(sub)}
-                      disabled={loading}
-                      className="btn-secondary"
-                      style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.4)', padding: '0.4rem 0.8rem', fontSize: '0.82rem' }}
-                    >
-                      <Trash2 style={{ width: 14, height: 14 }} />
-                      סרב ומחק דיווח
-                    </button>
-                  </div>
-                </div>
-
-                {sub.ratings && (
-                  <div style={{ marginTop: '0.8rem', background: 'rgba(15, 23, 42, 0.4)', padding: '0.8rem', borderRadius: 8 }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.4rem', fontSize: '0.8rem' }}>
-                      {PARAM_DEFINITIONS.map(p => (
-                        <div key={p.id} style={{ color: '#cbd5e1' }}>
-                          {p.label}: <strong>{sub.ratings[p.id] || 3}</strong>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+            {displayedSubmissions.length === 0 ? (
+              <div style={{ padding: '1.5rem', textAlign: 'center', color: '#4b5563', background: '#f8f4ec', borderRadius: 8 }}>
+                {submissionFilter === 'pending' 
+                  ? '✓ כל תשובות התלמידים במערכת כבר חושבו ועודכנו בממוצעי הישיבות/מכינות!' 
+                  : 'טרם התקבלו דיווחי תלמידים כיום במערכת.'}
               </div>
-            ))
-          )}
-        </div>
-      )}
+            ) : (
+              displayedSubmissions.map((sub, idx) => (
+                <div key={sub.id || idx} className="yeshiva-result-card">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: 4 }}>
+                        <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: '#111827' }}>{sub.yeshiva_name}</h3>
+                        {sub.processed === true ? (
+                          <span className="tag" style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0' }}>עודכן במאגר ✓</span>
+                        ) : (
+                          <span className="tag" style={{ background: '#fef3c7', color: '#b45309', border: '1px solid #fde68a' }}>חדש - ממתין לעדכון ⏳</span>
+                        )}
+                      </div>
+                      <div style={{ color: '#4b5563', fontSize: '0.85rem' }}>
+                        תאריך דיווח: {new Date(sub.created_at || Date.now()).toLocaleDateString('he-IL')}
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                      <span style={{ background: '#ecfdf5', color: '#047857', padding: '0.3rem 0.7rem', borderRadius: 999, fontSize: '0.8rem', fontWeight: 700 }}>
+                        תלמיד מאומת ✓
+                      </span>
+
+                      <button
+                        onClick={() => handleDeleteSubmission(sub)}
+                        disabled={loading}
+                        className="btn-secondary"
+                        style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.4)', padding: '0.4rem 0.8rem', fontSize: '0.82rem' }}
+                      >
+                        <Trash2 style={{ width: 14, height: 14 }} />
+                        מחק דיווח
+                      </button>
+                    </div>
+                  </div>
+
+                  {sub.ratings && (
+                    <div style={{ marginTop: '0.8rem', background: '#f8f4ec', padding: '0.8rem', borderRadius: 8, border: '1px solid #e2d9c8' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.4rem', fontSize: '0.82rem' }}>
+                        {PARAM_DEFINITIONS.map(p => (
+                          <div key={p.id} style={{ color: '#374151' }}>
+                            {p.label}: <strong>{sub.ratings[p.id] || 3}</strong>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        );
+      })()}
 
       {/* TAB 3: MANAGE YESHIVOT */}
       {activeTab === 'yeshivot' && (
