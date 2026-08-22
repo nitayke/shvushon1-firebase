@@ -30,14 +30,36 @@ export default function AdminDashboard({ onExitAdmin }) {
   // Editing state for yeshivot
   const [editingYeshiva, setEditingYeshiva] = useState(null);
 
-  const handleLogin = (e) => {
+  const hashPassword = async (text) => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(text);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  };
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (password === 'Nitayke1') {
-      setIsAuthenticated(true);
-      setAuthError('');
-      loadAdminData();
-    } else {
-      setAuthError('סיסמה שגויה!');
+    setLoading(true);
+    try {
+      const inputHash = await hashPassword(password);
+      const envPassword = import.meta.env.VITE_ADMIN_PASSWORD;
+      const targetHash = import.meta.env.VITE_ADMIN_PASSWORD_HASH || "5f45c21f1598a41efcd1361add2bdba667629eb09f2ec9d819d915e0efc2310d";
+
+      const isValid = (envPassword && password === envPassword) || (inputHash === targetHash);
+
+      if (isValid) {
+        setIsAuthenticated(true);
+        setAuthError('');
+        await loadAdminData();
+      } else {
+        setAuthError('סיסמה שגויה!');
+      }
+    } catch (err) {
+      console.error("Login verification error:", err);
+      setAuthError('שגיאה באימות סיסמה');
+    } finally {
+      setLoading(false);
     }
   };
 
