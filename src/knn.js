@@ -18,7 +18,7 @@ export const PARAM_DEFINITIONS = [
     question: 'כמה חשוב לך התנאים (אוכל, פנימיות וכדומה)?', 
     minLabel: 'לא חשוב בכלל', 
     maxLabel: 'חשוב מאוד (תנאים מעולים)',
-    type: 'importance' // Automatic Target = 5, User Answer = Dynamic Weight
+    type: 'preference'
   },
   { 
     id: 'gemara', 
@@ -66,7 +66,7 @@ export const PARAM_DEFINITIONS = [
     question: 'כמה חשוב לך החברתיות והגיבוש?', 
     minLabel: 'לא חשוב בכלל', 
     maxLabel: 'חשוב מאוד (חברתיות וגיבוש חזק)',
-    type: 'importance' // Automatic Target = 5, User Answer = Dynamic Weight
+    type: 'preference'
   },
   { 
     id: 'personal_relation', 
@@ -74,7 +74,7 @@ export const PARAM_DEFINITIONS = [
     question: 'כמה חשוב לך יחס אישי וקשר קרוב עם הצוות?', 
     minLabel: 'לא חשוב בכלל', 
     maxLabel: 'חשוב מאוד (קשר אישי וליווי)',
-    type: 'importance' // Automatic Target = 5, User Answer = Dynamic Weight
+    type: 'preference'
   },
   { 
     id: 'liberalism', 
@@ -195,17 +195,8 @@ export const calculateKNNMatches = (userPreferences, yeshivotList, k = 3) => {
       const userVal = Number(ratings[param.id]) || 3;
       const yeshivaVal = Number(yeshiva.ratings ? yeshiva.ratings[param.id] : 3) || 3;
 
-      let targetVal = userVal;
-      let weight = paramWeights[param.id] || 1.0;
-
-      // Target = 5 logic for "How important is it to you" parameters
-      if (param.type === 'importance') {
-        targetVal = 5.0;
-        const dynamicWeightMultiplier = [0, 0.2, 0.6, 1.2, 1.8, 2.6][userVal] || 1.2;
-        weight = weight * dynamicWeightMultiplier;
-      }
-
-      const normDiff = (targetVal - yeshivaVal) / 4.0;
+      const weight = paramWeights[param.id] || 1.0;
+      const normDiff = (userVal - yeshivaVal) / 4.0;
       weightedDistSq += weight * (normDiff * normDiff);
       totalWeight += weight;
     });
