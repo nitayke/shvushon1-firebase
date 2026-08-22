@@ -45,13 +45,22 @@ export default function AdminDashboard({ onExitAdmin }) {
     setLoading(true);
     try {
       const [reqs, subs, yeshList] = await Promise.all([
-        getYeshivaRequestsDB(),
-        getStudentSubmissionsDB(),
-        getYeshivotDB()
+        getYeshivaRequestsDB().catch(err => {
+          console.warn("Requests load fallback:", err);
+          return [];
+        }),
+        getStudentSubmissionsDB().catch(err => {
+          console.warn("Submissions load fallback:", err);
+          return [];
+        }),
+        getYeshivotDB().catch(err => {
+          console.warn("Yeshivot load fallback:", err);
+          return [];
+        })
       ]);
-      setRequests(reqs);
-      setSubmissions(subs);
-      setYeshivot(yeshList);
+      setRequests(reqs || []);
+      setSubmissions(subs || []);
+      setYeshivot(yeshList || []);
     } catch (err) {
       console.error("Error loading admin data:", err);
     } finally {

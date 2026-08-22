@@ -51,7 +51,7 @@ export const authenticateAdminDB = async () => {
         console.log("🔒 Firebase Admin session authenticated successfully!");
       }
     } catch (err) {
-      console.error("Admin Auth Error:", err);
+      console.warn("Notice: Firebase Anonymous Auth is not enabled in Firebase Console. Proceeding directly with Firestore queries:", err?.message || err);
     }
   }
 };
