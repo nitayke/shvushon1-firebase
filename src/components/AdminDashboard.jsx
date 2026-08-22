@@ -195,13 +195,13 @@ export default function AdminDashboard({ onExitAdmin }) {
   if (!isAuthenticated) {
     return (
       <div className="glass-card" style={{ maxWidth: 450, margin: '2rem auto', textAlign: 'center', animation: 'fadeIn 0.3s' }}>
-        <div style={{ display: 'inline-flex', padding: '0.8rem', borderRadius: '50%', background: 'rgba(99, 102, 241, 0.2)', color: '#818cf8', marginBottom: '1rem' }}>
+        <div style={{ display: 'inline-flex', padding: '0.8rem', borderRadius: '50%', background: '#ede5d7', color: '#52341d', marginBottom: '1rem' }}>
           <Lock style={{ width: 36, height: 36 }} />
         </div>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.5rem' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.5rem', color: '#111827' }}>
           כניסה לממשק ניהול
         </h2>
-        <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+        <p style={{ color: '#4b5563', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
           הזן סיסמת אדמין לניהול מאגר הישיבות והמכינות
         </p>
 
@@ -297,30 +297,30 @@ export default function AdminDashboard({ onExitAdmin }) {
       {/* TAB 1: YESHIVA ADDITION REQUESTS */}
       {activeTab === 'requests' && (
         <div className="glass-card">
-          <h2 className="section-title">
-            <Inbox className="w-5 h-5 text-indigo-400" />
+          <h2 className="section-title" style={{ color: '#111827' }}>
+            <Inbox className="w-5 h-5 text-amber-700" />
             בקשות שהוגשו ע"י משתמשים להוספת ישיבות/מכינות חדשות
           </h2>
 
           {requests.length === 0 ? (
-            <p style={{ color: '#94a3b8' }}>אין כרגע בקשות ממתינות במערכת.</p>
+            <p style={{ color: '#4b5563' }}>אין כרגע בקשות ממתינות במערכת.</p>
           ) : (
             requests.map(req => (
               <div key={req.id} className="yeshiva-result-card" style={{ opacity: req.status === 'approved' ? 0.6 : 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                      <h3 style={{ fontSize: '1.3rem', fontWeight: 800, margin: 0 }}>{req.yeshiva_name}</h3>
+                      <h3 style={{ fontSize: '1.3rem', fontWeight: 800, margin: 0, color: '#111827' }}>{req.yeshiva_name}</h3>
                       {req.status === 'approved' && (
-                        <span style={{ background: '#10b981', color: 'white', fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: 4, fontWeight: 700 }}>
+                        <span style={{ background: '#059669', color: 'white', fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: 4, fontWeight: 700 }}>
                           ✓ אושר ונוסף
                         </span>
                       )}
                     </div>
-                    <div style={{ color: '#94a3b8', fontSize: '0.9rem', marginTop: 4 }}>
+                    <div style={{ color: '#4b5563', fontSize: '0.9rem', marginTop: 4 }}>
                       סוג: {TYPE_TRANSLATIONS[req.type] || req.type} | אזור: {REGION_TRANSLATIONS[req.region] || req.region}
                     </div>
-                    <div style={{ color: '#64748b', fontSize: '0.82rem', marginTop: 2 }}>
+                    <div style={{ color: '#6b7280', fontSize: '0.82rem', marginTop: 2 }}>
                       אימייל מגיש: {req.submitter_email || 'לא צוין'} | הערות: {req.notes || 'אין'}
                     </div>
                   </div>
@@ -351,13 +351,13 @@ export default function AdminDashboard({ onExitAdmin }) {
                 </div>
 
                 {req.ratings && (
-                  <div style={{ marginTop: '0.8rem', background: 'rgba(15, 23, 42, 0.4)', padding: '0.8rem', borderRadius: 8 }}>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#a5b4fc', marginBottom: 4 }}>
+                  <div style={{ marginTop: '0.8rem', background: '#f8f4ec', padding: '0.8rem', borderRadius: 8, border: '1px solid #e2d9c8' }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#52341d', marginBottom: 4 }}>
                       פרמטרים שהציע המשתמש עבור הישיבה/מכינה:
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.4rem', fontSize: '0.8rem' }}>
                       {PARAM_DEFINITIONS.map(p => (
-                        <div key={p.id} style={{ color: '#cbd5e1' }}>
+                        <div key={p.id} style={{ color: '#374151' }}>
                           {p.label}: <strong>{req.ratings[p.id] || 3}</strong>
                         </div>
                       ))}
@@ -551,15 +551,15 @@ export default function AdminDashboard({ onExitAdmin }) {
 
       {/* EDIT / CREATE YESHIVA MODAL */}
       {editingYeshiva && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div className="glass-card" style={{ maxWidth: 650, width: '100%', maxHeight: '90vh', overflowY: 'auto', background: '#0f172a', border: '1px solid rgba(99, 102, 241, 0.4)' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1.2rem' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div className="glass-card" style={{ maxWidth: 650, width: '100%', maxHeight: '90vh', overflowY: 'auto', background: '#ffffff', border: '1px solid #e2d9c8' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1.2rem', color: '#111827' }}>
               {editingYeshiva.name ? `עריכת ישיבה/מכינה: ${editingYeshiva.name}` : 'הוספת ישיבה/מכינה חדשה למאגר'}
             </h2>
 
             <form onSubmit={handleSaveEditingYeshiva}>
               <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.3rem' }}>שם הישיבה / המכינה</label>
+                <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.3rem', color: '#111827' }}>שם הישיבה / המכינה</label>
                 <input
                   type="text"
                   className="input-field"
@@ -571,7 +571,7 @@ export default function AdminDashboard({ onExitAdmin }) {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.2rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.3rem' }}>סוג המוסד</label>
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.3rem', color: '#111827' }}>סוג המוסד</label>
                   <CustomSelect
                     options={typeOptions}
                     value={editingYeshiva.type}
@@ -580,7 +580,7 @@ export default function AdminDashboard({ onExitAdmin }) {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.3rem' }}>אזור גאוגרפי</label>
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.3rem', color: '#111827' }}>אזור גאוגרפי</label>
                   <CustomSelect
                     options={regionOptions}
                     value={editingYeshiva.region}
@@ -590,7 +590,7 @@ export default function AdminDashboard({ onExitAdmin }) {
               </div>
 
               {/* 11 Parameters Ratings Editors */}
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.8rem', color: '#a5b4fc' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.8rem', color: '#52341d' }}>
                 דירוגי 11 הפרמטרים במאגר (1 עד 5):
               </h3>
 

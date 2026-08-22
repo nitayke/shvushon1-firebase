@@ -104,32 +104,32 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: '#111827' }}>
             בקשה להוספת ישיבה / מכינה חדשה
           </h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer' }}>
             <X style={{ width: 24, height: 24 }} />
           </button>
         </div>
 
         {submittedRequest ? (
           <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-            <div style={{ display: 'inline-flex', padding: '1rem', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.2)', color: '#10b981', marginBottom: '1rem' }}>
+            <div style={{ display: 'inline-flex', padding: '1rem', borderRadius: '50%', background: '#ecfdf5', color: '#047857', marginBottom: '1rem' }}>
               <CheckCircle style={{ width: 48, height: 48 }} />
             </div>
-            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.5rem' }}>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.5rem', color: '#111827' }}>
               הבקשה נרשמה ונשלחה לאדמין!
             </h3>
-            <p style={{ color: '#94a3b8', marginBottom: '1.5rem', lineHeight: 1.6 }}>
+            <p style={{ color: '#4b5563', marginBottom: '1.5rem', lineHeight: 1.6 }}>
               הבקשה נשמרה במאגר ונשלחה בהצלחה הודעת דוא"ל אוטומטית לאדמין עם הפרמטרים המוצעים.
             </p>
 
-            <div style={{ background: 'rgba(99, 102, 241, 0.15)', border: '1px solid rgba(99, 102, 241, 0.3)', padding: '1rem', borderRadius: 12, marginBottom: '1.5rem', textAlign: 'right' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, color: '#a5b4fc', marginBottom: 4 }}>
+            <div style={{ background: '#f8f4ec', border: '1px solid #e2d9c8', padding: '1rem', borderRadius: 12, marginBottom: '1.5rem', textAlign: 'right' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, color: '#52341d', marginBottom: 4 }}>
                 <MailCheck style={{ width: 18, height: 18 }} />
                 סטטוס מייל אדמין:
               </div>
-              <div style={{ fontSize: '0.88rem', color: '#cbd5e1' }}>
+              <div style={{ fontSize: '0.88rem', color: '#374151' }}>
                 נשלחה התראה לאדמין (nitayke1@gmail.com). הבקשה מופיעה כעת בלשונית "בקשות" בממשק הניהול!
               </div>
             </div>
@@ -162,7 +162,7 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin }) {
                 style={{ 
                   background: 'none', 
                   border: 'none', 
-                  color: '#64748b', 
+                  color: '#6b7280', 
                   fontSize: '0.8rem', 
                   cursor: 'pointer', 
                   textDecoration: 'underline',
@@ -177,7 +177,7 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin }) {
         ) : (
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>
+              <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem', color: '#111827' }}>
                 שם הישיבה/מכינה *
               </label>
               <input
@@ -192,7 +192,7 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin }) {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
               <div>
-                <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>סוג המוסד</label>
+                <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem', color: '#111827' }}>סוג המוסד</label>
                 <CustomSelect
                   options={typeOptions}
                   value={type}
@@ -201,7 +201,7 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin }) {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>אזור גאוגרפי</label>
+                <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem', color: '#111827' }}>אזור גאוגרפי</label>
                 <CustomSelect
                   options={regionOptions}
                   value={region}
@@ -211,8 +211,8 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin }) {
             </div>
 
             {/* Ratings Sliders for the 11 Parameters */}
-            <div style={{ background: 'rgba(15, 23, 42, 0.4)', padding: '1rem', borderRadius: 12, marginBottom: '1.2rem' }}>
-              <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.8rem', color: '#a5b4fc' }}>
+            <div style={{ background: '#f8f4ec', padding: '1rem', borderRadius: 12, marginBottom: '1.2rem', border: '1px solid #e2d9c8' }}>
+              <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.8rem', color: '#52341d' }}>
                 הצע דירוג (1-5) ל-11 הפרמטרים של הישיבה/מכינה:
               </h4>
 
@@ -238,7 +238,7 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin }) {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
               <div>
-                <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>דוא"ל של המגיש (אופציונלי)</label>
+                <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem', color: '#111827' }}>דוא"ל של המגיש (אופציונלי)</label>
                 <input
                   type="email"
                   className="input-field"
@@ -249,7 +249,7 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin }) {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>הערות / פירוט נוסף</label>
+                <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem', color: '#111827' }}>הערות / פירוט נוסף</label>
                 <input
                   type="text"
                   className="input-field"

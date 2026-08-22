@@ -31,7 +31,7 @@ export default function CustomSelect({ options, value, onChange, placeholder = "
         onClick={() => setIsOpen(!isOpen)}
       >
         <span>{selectedLabel}</span>
-        <ChevronDown style={{ width: 18, height: 18, transition: 'transform 0.2s', transform: isOpen ? 'rotate(180deg)' : 'none', color: '#a5b4fc' }} />
+        <ChevronDown style={{ width: 18, height: 18, transition: 'transform 0.2s', transform: isOpen ? 'rotate(180deg)' : 'none', color: '#52341d' }} />
       </button>
 
       {isOpen && (
@@ -48,7 +48,7 @@ export default function CustomSelect({ options, value, onChange, placeholder = "
                 onClick={() => handleSelect(optVal)}
               >
                 <span>{optLabel}</span>
-                {isSelected && <Check style={{ width: 16, height: 16, color: '#a855f7' }} />}
+                {isSelected && <Check style={{ width: 16, height: 16, color: '#52341d' }} />}
               </div>
             );
           })}

@@ -57,7 +57,7 @@ export default function AutocompleteYeshivaSelect({ yeshivotList = [], value, on
           style={{ padding: '0.4rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
           onClick={() => setIsOpen(true)}
         >
-          <Search style={{ width: 18, height: 18, color: '#a5b4fc', flexShrink: 0 }} />
+          <Search style={{ width: 18, height: 18, color: '#52341d', flexShrink: 0 }} />
           
           <input
             type="text"
@@ -69,7 +69,7 @@ export default function AutocompleteYeshivaSelect({ yeshivotList = [], value, on
               padding: '0.4rem 0', 
               boxShadow: 'none', 
               fontSize: '0.95rem',
-              color: '#f8fafc',
+              color: '#111827',
               flex: 1
             }}
             placeholder={placeholder}
@@ -89,7 +89,7 @@ export default function AutocompleteYeshivaSelect({ yeshivotList = [], value, on
                 e.stopPropagation();
                 handleClear();
               }}
-              style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 2 }}
+              style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', padding: 2 }}
             >
               <X style={{ width: 16, height: 16 }} />
             </button>
@@ -101,7 +101,7 @@ export default function AutocompleteYeshivaSelect({ yeshivotList = [], value, on
               height: 18, 
               transition: 'transform 0.2s', 
               transform: isOpen ? 'rotate(180deg)' : 'none', 
-              color: '#a5b4fc',
+              color: '#52341d',
               cursor: 'pointer' 
             }} 
             onClick={() => setIsOpen(!isOpen)}
@@ -115,14 +115,14 @@ export default function AutocompleteYeshivaSelect({ yeshivotList = [], value, on
           <div
             className={`custom-select-option ${value === 'other' ? 'selected' : ''}`}
             onClick={() => handleSelect('other')}
-            style={{ color: '#fbbf24', fontWeight: 600, borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}
+            style={{ color: '#b47828', fontWeight: 700, borderBottom: '1px solid #e2d9c8' }}
           >
             <span>+ אחר (ישיבה/מכינה שאינה ברשימה)</span>
-            {value === 'other' && <Check style={{ width: 16, height: 16, color: '#fbbf24' }} />}
+            {value === 'other' && <Check style={{ width: 16, height: 16, color: '#b47828' }} />}
           </div>
 
           {filteredYeshivot.length === 0 ? (
-            <div style={{ padding: '0.8rem 1rem', color: '#94a3b8', fontSize: '0.9rem', textAlign: 'center' }}>
+            <div style={{ padding: '0.8rem 1rem', color: '#4b5563', fontSize: '0.9rem', textAlign: 'center' }}>
               לא נמצאה ישיבה/מכינה בשם זה. לחץ על "אחר" להקלדת שם ישיבה/מכינה חדשה.
             </div>
           ) : (
@@ -135,7 +135,7 @@ export default function AutocompleteYeshivaSelect({ yeshivotList = [], value, on
                   onClick={() => handleSelect(y.name)}
                 >
                   <span>{y.name}</span>
-                  {isSelected && <Check style={{ width: 16, height: 16, color: '#a855f7' }} />}
+                  {isSelected && <Check style={{ width: 16, height: 16, color: '#52341d' }} />}
                 </div>
               );
             })
