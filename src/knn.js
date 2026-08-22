@@ -217,10 +217,15 @@ export const calculateKNNMatches = (userPreferences, yeshivotList, k = 3) => {
     const baseDistance = totalWeight > 0 ? Math.sqrt(weightedDistSq / totalWeight) : 0;
     const finalDistance = baseDistance + typePenalty + regionPenalty;
 
-    // Exponential match score [18% - 99%]
-    let matchFactor = Math.exp(-1.8 * finalDistance);
-    let matchScore = Math.round(matchFactor * 98);
-    matchScore = Math.max(18, Math.min(99, matchScore));
+    // Exponential match score calculation: exact match (finalDistance === 0) returns 100%
+    let matchScore;
+    if (finalDistance === 0) {
+      matchScore = 100;
+    } else {
+      let matchFactor = Math.exp(-1.8 * finalDistance);
+      matchScore = Math.round(matchFactor * 100);
+      matchScore = Math.max(18, Math.min(99, matchScore));
+    }
 
     return {
       id: yeshiva.id,
