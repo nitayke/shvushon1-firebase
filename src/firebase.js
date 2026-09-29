@@ -212,6 +212,23 @@ export const getYeshivaRequestsDB = async () => {
   return JSON.parse(localStorage.getItem(LOCAL_REQUESTS_KEY) || '[]');
 };
 
+// 5.5 Get Contact Leads (For Admin)
+export const getContactLeadsDB = async () => {
+  await authenticateAdminDB();
+  if (isFirebaseConfigured && db) {
+    try {
+      const querySnapshot = await getDocs(collection(db, "contact_leads"));
+      const list = [];
+      querySnapshot.forEach(docSnap => list.push({ id: docSnap.id, ...docSnap.data() }));
+      // Sort newest first
+      return list.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    } catch (err) {
+      console.error("Firestore getLeads error:", err);
+    }
+  }
+  return [];
+};
+
 // 6. Approve Yeshiva Request (For Admin)
 export const approveYeshivaRequestDB = async (request) => {
   await authenticateAdminDB();

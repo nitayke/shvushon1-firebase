@@ -4,6 +4,7 @@ import {
   getYeshivotDB, 
   getYeshivaRequestsDB, 
   getStudentSubmissionsDB, 
+  getContactLeadsDB,
   approveYeshivaRequestDB, 
   recalculateYeshivaAveragesDB, 
   saveYeshivaDB, 
@@ -19,11 +20,12 @@ export default function AdminDashboard({ onExitAdmin }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authError, setAuthError] = useState('');
 
-  const [activeTab, setActiveTab] = useState('requests'); // requests, submissions, yeshivot
+  const [activeTab, setActiveTab] = useState('requests'); // requests, submissions, yeshivot, leads
   const [submissionFilter, setSubmissionFilter] = useState('pending'); // 'pending' or 'all'
   const [requests, setRequests] = useState([]);
   const [submissions, setSubmissions] = useState([]);
   const [yeshivot, setYeshivot] = useState([]);
+  const [leads, setLeads] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
@@ -67,7 +69,7 @@ export default function AdminDashboard({ onExitAdmin }) {
   const loadAdminData = async () => {
     setLoading(true);
     try {
-      const [reqs, subs, yeshList] = await Promise.all([
+      const [reqs, subs, yeshList, leadsList] = await Promise.all([
         getYeshivaRequestsDB().catch(err => {
           console.warn("Requests load fallback:", err);
           return [];
@@ -79,11 +81,16 @@ export default function AdminDashboard({ onExitAdmin }) {
         getYeshivotDB().catch(err => {
           console.warn("Yeshivot load fallback:", err);
           return [];
+        }),
+        getContactLeadsDB().catch(err => {
+          console.warn("Leads load fallback:", err);
+          return [];
         })
       ]);
       setRequests(reqs || []);
       setSubmissions(subs || []);
       setYeshivot(yeshList || []);
+      setLeads(leadsList || []);
     } catch (err) {
       console.error("Error loading admin data:", err);
     } finally {
@@ -290,7 +297,15 @@ export default function AdminDashboard({ onExitAdmin }) {
           onClick={() => setActiveTab('yeshivot')}
         >
           <Database style={{ width: 18, height: 18 }} />
-          ניהול מאגר הישיבות והמכינות ({yeshivot.length})
+          ניהול מאגר הישיבות ({yeshivot.length})
+        </button>
+
+        <button
+          className={`btn-secondary ${activeTab === 'leads' ? 'btn-primary' : ''}`}
+          onClick={() => setActiveTab('leads')}
+          style={{ background: activeTab === 'leads' ? '#52341d' : 'transparent', color: activeTab === 'leads' ? '#fff' : '#b45309', borderColor: activeTab === 'leads' ? 'transparent' : '#b45309' }}
+        >
+          לידים שיצרו קשר ({leads.length})
         </button>
       </div>
 
@@ -542,6 +557,48 @@ export default function AdminDashboard({ onExitAdmin }) {
                     <div>גודל: <strong>{y.ratings?.overall_size || 3}</strong></div>
                     <div>תנאים: <strong>{y.ratings?.conditions || 3}</strong></div>
                   </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB: Leads */}
+      {activeTab === 'leads' && (
+        <div style={{ animation: 'fadeIn 0.3s' }}>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '1rem', color: '#111827' }}>
+            לידים שיצרו קשר ({leads.length})
+          </h2>
+          {leads.length === 0 ? (
+            <div className="glass-card" style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
+              לא התקבלו לידים עד כה
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gap: '1rem' }}>
+              {leads.map(lead => (
+                <div key={lead.id} className="glass-card" style={{ padding: '1.2rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '0.6rem', marginBottom: '0.4rem' }}>
+                    <div>
+                      <strong style={{ fontSize: '1.1rem', color: '#0f172a' }}>{lead.name}</strong> - 
+                      <span style={{ color: '#059669', fontWeight: 'bold', marginLeft: '0.5rem' }}> {lead.phone}</span>
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                      {new Date(lead.created_at).toLocaleString('he-IL')}
+                    </div>
+                  </div>
+                  <div>
+                    <span style={{ color: '#475569', fontWeight: 600 }}>מוסד מבוקש:</span> {lead.yeshiva_name}
+                  </div>
+                  <div>
+                    <span style={{ color: '#475569', fontWeight: 600 }}>התאמה מובילה בשאלון:</span> {lead.top_match}
+                  </div>
+                  <details style={{ marginTop: '0.5rem', background: '#f8fafc', padding: '0.5rem', borderRadius: '4px' }}>
+                    <summary style={{ cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, color: '#3b82f6' }}>צפה בהעדפות השאלון</summary>
+                    <pre style={{ fontSize: '0.8rem', whiteSpace: 'pre-wrap', marginTop: '0.5rem', color: '#334155' }}>
+                      {JSON.stringify(lead.preferences, null, 2)}
+                    </pre>
+                  </details>
                 </div>
               ))}
             </div>
