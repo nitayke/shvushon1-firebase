@@ -663,8 +663,10 @@ export default function AdminDashboard({ onExitAdmin }) {
         // 1. Top Matches
         const matchCounts = {};
         testResults.forEach(res => {
-          const matchName = res.top_match || 'לא ידוע';
-          matchCounts[matchName] = (matchCounts[matchName] || 0) + 1;
+          const matchName = res.top_match;
+          if (matchName && matchName !== 'לא ידוע' && matchName !== 'N/A') {
+            matchCounts[matchName] = (matchCounts[matchName] || 0) + 1;
+          }
         });
         const topMatchesData = Object.entries(matchCounts)
           .map(([name, count]) => ({ name, count }))
@@ -707,9 +709,15 @@ export default function AdminDashboard({ onExitAdmin }) {
               </h3>
               <div style={{ width: '100%', height: 350 }}>
                 <ResponsiveContainer>
-                  <BarChart data={topMatchesData} layout="vertical" margin={{ top: 5, right: 30, left: 100, bottom: 5 }}>
+                  <BarChart data={topMatchesData} layout="vertical" margin={{ top: 5, right: 15, left: 10, bottom: 5 }}>
                     <XAxis type="number" />
-                    <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 12 }} />
+                    <YAxis 
+                      dataKey="name" 
+                      type="category" 
+                      width={100} 
+                      tick={{ fontSize: 11 }} 
+                      tickFormatter={(val) => val.length > 15 ? val.substring(0, 14) + '...' : val} 
+                    />
                     <Tooltip />
                     <Bar dataKey="count" fill="#3b82f6" radius={[0, 4, 4, 0]} name="מספר פעמים שהוצעה" />
                   </BarChart>
