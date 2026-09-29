@@ -203,7 +203,10 @@ export default function App() {
           {view !== 'admin' ? (
             <>
               <button
-                onClick={() => setIsRequestModalOpen(true)}
+                onClick={() => {
+                  setIsRequestModalOpen(true);
+                  if (!hasTriggeredLoad) loadYeshivot();
+                }}
                 className="btn-secondary"
                 style={{ fontSize: '0.82rem', padding: '0.4rem 0.9rem' }}
               >
