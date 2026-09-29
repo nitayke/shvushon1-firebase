@@ -4,7 +4,7 @@ import Questionnaire from './components/Questionnaire';
 import ResultsView from './components/ResultsView';
 import AdminDashboard from './components/AdminDashboard';
 import YeshivaRequestModal from './components/YeshivaRequestModal';
-import { getYeshivotDB } from './firebase';
+import { getYeshivotDB, saveTestResultDB } from './firebase';
 import { calculateKNNMatches } from './knn';
 import { Shield, PlusCircle, Compass, Home } from 'lucide-react';
 
@@ -108,6 +108,13 @@ export default function App() {
     }
     const matches = calculateKNNMatches(preferences, listToUse, 3);
     setResults(matches);
+    
+    // Log the answers and the generated matches automatically (Task B)
+    saveTestResultDB({
+      preferences,
+      top_matches: matches.map(m => ({ id: m.id, name: m.name, matchScore: m.matchScore }))
+    });
+
     navigateToResults();
   };
 
@@ -249,6 +256,7 @@ export default function App() {
       {/* Yeshiva Request Modal */}
       <YeshivaRequestModal
         isOpen={isRequestModalOpen}
+        yeshivotList={yeshivotList}
         onClose={() => setIsRequestModalOpen(false)}
         onOpenAdmin={() => {
           setIsRequestModalOpen(false);

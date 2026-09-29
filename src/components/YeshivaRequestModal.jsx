@@ -4,7 +4,7 @@ import { saveYeshivaRequestDB } from '../firebase';
 import { PARAM_DEFINITIONS, REGIONS, TYPES, REGION_TRANSLATIONS, TYPE_TRANSLATIONS } from '../knn';
 import CustomSelect from './CustomSelect';
 
-export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin }) {
+export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin, yeshivotList = [] }) {
   const [yeshivaName, setYeshivaName] = useState('');
   const [type, setType] = useState('hesder');
   const [region, setRegion] = useState('center');
@@ -23,9 +23,15 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin }) {
 
   if (!isOpen) return null;
 
+  // Check if name already exists
+  const existingMatch = yeshivotList.find(y => y.name.trim() === yeshivaName.trim());
+
   const handleRatingChange = (id, val) => {
     setRatings(prev => ({ ...prev, [id]: Number(val) }));
   };
+
+  // ... (keep generateMailtoLink etc. intact)
+  // Let's replace the form input block instead.
 
   const generateMailtoLink = (req) => {
     const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || "nitayke1@gmail.com";
@@ -186,8 +192,19 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin }) {
                 placeholder="לדוגמה: ישיבת אילון מורה"
                 value={yeshivaName}
                 onChange={(e) => setYeshivaName(e.target.value)}
+                list="existing-yeshivot"
                 required
               />
+              <datalist id="existing-yeshivot">
+                {yeshivotList.map(y => (
+                  <option key={y.id} value={y.name} />
+                ))}
+              </datalist>
+              {existingMatch && (
+                <div style={{ color: '#b91c1c', fontSize: '0.85rem', marginTop: '0.4rem', fontWeight: 600 }}>
+                  שים לב: הישיבה "{existingMatch.name}" כבר קיימת במאגר! אנא ודא שאינך מוסיף כפילות.
+                </div>
+              )}
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
