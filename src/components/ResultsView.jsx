@@ -113,16 +113,19 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
     };
 
     try {
-      const webhookUrl = import.meta.env.VITE_EMAIL_WEBHOOK_URL;
-      if (webhookUrl) {
-        await fetch(webhookUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(emailPayload)
-        });
-      }
+      await fetch(`https://formsubmit.co/ajax/${adminEmail}`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          _subject: emailPayload.subject,
+          message: emailPayload.message
+        })
+      });
     } catch (err) {
-      console.log("Lead email notification logged:", emailPayload);
+      console.log("Lead email notification error:", err);
     }
   };
 
