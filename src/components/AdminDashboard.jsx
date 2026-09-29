@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, Plus, Check, RefreshCw, Trash2, Edit3, Lock, LogOut, Inbox, Users, Database } from 'lucide-react';
+import { ShieldCheck, Plus, Check, RefreshCw, Trash2, Edit3, Lock, LogOut, Inbox, Users, Database, TrendingUp } from 'lucide-react';
 import { 
   getYeshivotDB, 
   getYeshivaRequestsDB, 
   getStudentSubmissionsDB, 
   getContactLeadsDB,
+  deleteContactLeadDB,
+  getAllTestResultsDB,
   approveYeshivaRequestDB, 
   recalculateYeshivaAveragesDB, 
   saveYeshivaDB, 
@@ -14,18 +16,21 @@ import {
 } from '../firebase';
 import { PARAM_DEFINITIONS, REGIONS, TYPES, REGION_TRANSLATIONS, TYPE_TRANSLATIONS } from '../knn';
 import CustomSelect from './CustomSelect';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line } from 'recharts';
 
 export default function AdminDashboard({ onExitAdmin }) {
   const [password, setPassword] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authError, setAuthError] = useState('');
 
-  const [activeTab, setActiveTab] = useState('requests'); // requests, submissions, yeshivot, leads
+  const [activeTab, setActiveTab] = useState('requests'); // requests, submissions, yeshivot, leads, analytics
   const [submissionFilter, setSubmissionFilter] = useState('pending'); // 'pending' or 'all'
   const [requests, setRequests] = useState([]);
   const [submissions, setSubmissions] = useState([]);
   const [yeshivot, setYeshivot] = useState([]);
   const [leads, setLeads] = useState([]);
+  const [testResults, setTestResults] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
@@ -54,7 +59,6 @@ export default function AdminDashboard({ onExitAdmin }) {
       if (isValid) {
         setIsAuthenticated(true);
         setAuthError('');
-        await loadAdminData();
       } else {
         setAuthError('סיסמה שגויה!');
       }
@@ -66,44 +70,39 @@ export default function AdminDashboard({ onExitAdmin }) {
     }
   };
 
-  const loadAdminData = async () => {
+  const loadActiveTabData = async (tabToLoad = activeTab, force = false) => {
     setLoading(true);
     try {
-      const [reqs, subs, yeshList, leadsList] = await Promise.all([
-        getYeshivaRequestsDB().catch(err => {
-          console.warn("Requests load fallback:", err);
-          return [];
-        }),
-        getStudentSubmissionsDB().catch(err => {
-          console.warn("Submissions load fallback:", err);
-          return [];
-        }),
-        getYeshivotDB().catch(err => {
-          console.warn("Yeshivot load fallback:", err);
-          return [];
-        }),
-        getContactLeadsDB().catch(err => {
-          console.warn("Leads load fallback:", err);
-          return [];
-        })
-      ]);
-      setRequests(reqs || []);
-      setSubmissions(subs || []);
-      setYeshivot(yeshList || []);
-      setLeads(leadsList || []);
+      if (tabToLoad === 'requests' && (force || requests.length === 0)) {
+        setRequests(await getYeshivaRequestsDB().catch(() => []));
+      } else if (tabToLoad === 'submissions' && (force || submissions.length === 0)) {
+        setSubmissions(await getStudentSubmissionsDB().catch(() => []));
+      } else if (tabToLoad === 'yeshivot' && (force || yeshivot.length === 0)) {
+        setYeshivot(await getYeshivotDB().catch(() => []));
+      } else if (tabToLoad === 'leads' && (force || leads.length === 0)) {
+        setLeads(await getContactLeadsDB().catch(() => []));
+      } else if (tabToLoad === 'analytics' && (force || testResults.length === 0)) {
+        setTestResults(await getAllTestResultsDB().catch(() => []));
+      }
     } catch (err) {
-      console.error("Error loading admin data:", err);
+      console.error("Error loading tab data:", err);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadActiveTabData(activeTab, false);
+    }
+  }, [activeTab, isAuthenticated]);
 
   const handleApproveRequest = async (request) => {
     setLoading(true);
     try {
       const added = await approveYeshivaRequestDB(request);
       setMsg(`✓ הישיבה/מכינה "${added.name}" אושרה ונוספה למאגר הראשי בהצלחה!`);
-      await loadAdminData();
+      await loadActiveTabData(activeTab, true);
     } catch (err) {
       console.error("Error approving request:", err);
       setMsg("שגיאה באישור הבקשה.");
@@ -120,10 +119,25 @@ export default function AdminDashboard({ onExitAdmin }) {
     try {
       await deleteYeshivaRequestDB(request.id);
       setMsg(`✓ הבקשה להוספת "${request.yeshiva_name}" נדחתה ונמחקה.`);
-      await loadAdminData();
+      await loadActiveTabData(activeTab, true);
     } catch (err) {
       console.error("Error deleting request:", err);
       setMsg("שגיאה במחיקת הבקשה.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteLead = async (lead) => {
+    if (!window.confirm(`האם אתה בטוח שברצונך למחוק את הליד של ${lead.name}?`)) return;
+    setLoading(true);
+    try {
+      await deleteContactLeadDB(lead.id);
+      setMsg(`✓ הליד של ${lead.name} נמחק בהצלחה.`);
+      await loadActiveTabData(activeTab, true);
+    } catch (err) {
+      console.error("Error deleting lead:", err);
+      setMsg("שגיאה במחיקת הליד.");
     } finally {
       setLoading(false);
     }
@@ -137,7 +151,7 @@ export default function AdminDashboard({ onExitAdmin }) {
     try {
       await deleteStudentSubmissionDB(submission.id);
       setMsg(`✓ הדיווח עבור "${submission.yeshiva_name}" נמחק מהמאגר.`);
-      await loadAdminData();
+      await loadActiveTabData(activeTab, true);
     } catch (err) {
       console.error("Error deleting submission:", err);
       setMsg("שגיאה במחיקת הדיווח.");
@@ -151,7 +165,7 @@ export default function AdminDashboard({ onExitAdmin }) {
     try {
       await recalculateYeshivaAveragesDB();
       setMsg("✓ ממוצעי הדירוגים של כל הישיבות/מכינות עודכנו ושוקללו במאגר לפי כל דיווחי התלמידים!");
-      await loadAdminData();
+      await loadActiveTabData(activeTab, true);
     } catch (err) {
       console.error("Error recalculating averages:", err);
       setMsg("שגיאה בשקלול הממוצעים.");
@@ -169,7 +183,7 @@ export default function AdminDashboard({ onExitAdmin }) {
       await saveYeshivaDB(editingYeshiva);
       setMsg(`✓ הישיבה/מכינה "${editingYeshiva.name}" שנערכה נשמרה במאגר.`);
       setEditingYeshiva(null);
-      await loadAdminData();
+      await loadActiveTabData(activeTab, true);
     } catch (err) {
       console.error("Error saving yeshiva:", err);
       setMsg("שגיאה בשמירת הישיבה/מכינה.");
@@ -186,7 +200,7 @@ export default function AdminDashboard({ onExitAdmin }) {
     try {
       await deleteYeshivaDB(yeshivaId);
       setMsg(`✓ הישיבה/מכינה "${yeshivaName}" נמחקה מהמאגר.`);
-      await loadAdminData();
+      await loadActiveTabData(activeTab, true);
     } catch (err) {
       console.error("Error deleting yeshiva:", err);
       setMsg("שגיאה במחיקת הישיבה/מכינה.");
@@ -256,7 +270,7 @@ export default function AdminDashboard({ onExitAdmin }) {
         </div>
 
         <div style={{ display: 'flex', gap: '0.8rem' }}>
-          <button onClick={loadAdminData} disabled={loading} className="btn-secondary">
+          <button onClick={() => loadActiveTabData(activeTab, true)} disabled={loading} className="btn-secondary">
             <RefreshCw style={{ width: 16, height: 16 }} />
             רענן נתונים
           </button>
@@ -281,7 +295,7 @@ export default function AdminDashboard({ onExitAdmin }) {
           onClick={() => setActiveTab('requests')}
         >
           <Inbox style={{ width: 18, height: 18 }} />
-          בקשות להוספת ישיבה/מכינה ({requests.length})
+          בקשות לישיבות חדשות
         </button>
 
         <button
@@ -289,7 +303,7 @@ export default function AdminDashboard({ onExitAdmin }) {
           onClick={() => setActiveTab('submissions')}
         >
           <Users style={{ width: 18, height: 18 }} />
-          דיווחי תלמידים כיום ({submissions.length})
+          דיווחי תלמידים כיום
         </button>
 
         <button
@@ -297,7 +311,7 @@ export default function AdminDashboard({ onExitAdmin }) {
           onClick={() => setActiveTab('yeshivot')}
         >
           <Database style={{ width: 18, height: 18 }} />
-          ניהול מאגר הישיבות ({yeshivot.length})
+          ניהול מאגר הישיבות
         </button>
 
         <button
@@ -305,7 +319,15 @@ export default function AdminDashboard({ onExitAdmin }) {
           onClick={() => setActiveTab('leads')}
           style={{ background: activeTab === 'leads' ? '#52341d' : 'transparent', color: activeTab === 'leads' ? '#fff' : '#b45309', borderColor: activeTab === 'leads' ? 'transparent' : '#b45309' }}
         >
-          לידים שיצרו קשר ({leads.length})
+          לידים שיצרו קשר
+        </button>
+
+        <button
+          className={`btn-secondary ${activeTab === 'analytics' ? 'btn-primary' : ''}`}
+          onClick={() => setActiveTab('analytics')}
+        >
+          <TrendingUp style={{ width: 18, height: 18 }} />
+          אנליטיקות ומגמות
         </button>
       </div>
 
@@ -317,7 +339,9 @@ export default function AdminDashboard({ onExitAdmin }) {
             בקשות שהוגשו ע"י משתמשים להוספת ישיבות/מכינות חדשות
           </h2>
 
-          {requests.length === 0 ? (
+          {loading && requests.length === 0 ? (
+            <p style={{ color: '#4b5563' }}>טוען נתונים...</p>
+          ) : requests.length === 0 ? (
             <p style={{ color: '#4b5563' }}>אין כרגע בקשות ממתינות במערכת.</p>
           ) : (
             requests.map(req => (
@@ -435,7 +459,11 @@ export default function AdminDashboard({ onExitAdmin }) {
               </button>
             </div>
 
-            {displayedSubmissions.length === 0 ? (
+            {loading && displayedSubmissions.length === 0 ? (
+              <div style={{ padding: '1.5rem', textAlign: 'center', color: '#4b5563', background: '#f8f4ec', borderRadius: 8 }}>
+                טוען נתונים...
+              </div>
+            ) : displayedSubmissions.length === 0 ? (
               <div style={{ padding: '1.5rem', textAlign: 'center', color: '#4b5563', background: '#f8f4ec', borderRadius: 8 }}>
                 {submissionFilter === 'pending' 
                   ? '✓ כל תשובות התלמידים במערכת כבר חושבו ועודכנו בממוצעי הישיבות/מכינות!' 
@@ -519,7 +547,9 @@ export default function AdminDashboard({ onExitAdmin }) {
             </button>
           </div>
 
-          {yeshivot.length === 0 ? (
+          {loading && yeshivot.length === 0 ? (
+            <p style={{ color: '#94a3b8' }}>טוען נתונים...</p>
+          ) : yeshivot.length === 0 ? (
             <p style={{ color: '#94a3b8' }}>אין ישיבות/מכינות במאגר.</p>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
@@ -570,7 +600,11 @@ export default function AdminDashboard({ onExitAdmin }) {
           <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '1rem', color: '#111827' }}>
             לידים שיצרו קשר ({leads.length})
           </h2>
-          {leads.length === 0 ? (
+          {loading && leads.length === 0 ? (
+            <div className="glass-card" style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
+              טוען נתונים...
+            </div>
+          ) : leads.length === 0 ? (
             <div className="glass-card" style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
               לא התקבלו לידים עד כה
             </div>
@@ -583,8 +617,19 @@ export default function AdminDashboard({ onExitAdmin }) {
                       <strong style={{ fontSize: '1.1rem', color: '#0f172a' }}>{lead.name}</strong> - 
                       <span style={{ color: '#059669', fontWeight: 'bold', marginLeft: '0.5rem' }}> {lead.phone}</span>
                     </div>
-                    <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
-                      {new Date(lead.created_at).toLocaleString('he-IL')}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                        {new Date(lead.created_at).toLocaleString('he-IL')}
+                      </span>
+                      <button
+                        onClick={() => handleDeleteLead(lead)}
+                        disabled={loading}
+                        className="btn-secondary"
+                        style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.4)', padding: '0.3rem 0.5rem' }}
+                        title="מחק ליד"
+                      >
+                        <Trash2 style={{ width: 14, height: 14 }} />
+                      </button>
                     </div>
                   </div>
                   <div>
@@ -605,6 +650,120 @@ export default function AdminDashboard({ onExitAdmin }) {
           )}
         </div>
       )}
+
+      {/* TAB: Analytics */}
+      {activeTab === 'analytics' && (() => {
+        if (loading && testResults.length === 0) {
+          return <div className="glass-card" style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>טוען נתונים...</div>;
+        }
+        if (testResults.length === 0) {
+          return <div className="glass-card" style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>אין עדיין תוצאות מבדקים.</div>;
+        }
+
+        // 1. Top Matches
+        const matchCounts = {};
+        testResults.forEach(res => {
+          const matchName = res.top_match || 'לא ידוע';
+          matchCounts[matchName] = (matchCounts[matchName] || 0) + 1;
+        });
+        const topMatchesData = Object.entries(matchCounts)
+          .map(([name, count]) => ({ name, count }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 10); // top 10
+
+        // 2. Average Parameter Preferences
+        const paramTotals = {};
+        const paramCounts = {};
+        testResults.forEach(res => {
+          if (res.preferences?.ratings) {
+            Object.entries(res.preferences.ratings).forEach(([paramId, val]) => {
+              if (val) {
+                paramTotals[paramId] = (paramTotals[paramId] || 0) + val;
+                paramCounts[paramId] = (paramCounts[paramId] || 0) + 1;
+              }
+            });
+          }
+        });
+        const paramAveragesData = PARAM_DEFINITIONS.map(p => ({
+          name: p.label,
+          avg: paramCounts[p.id] ? Number((paramTotals[p.id] / paramCounts[p.id]).toFixed(1)) : 0
+        })).sort((a, b) => b.avg - a.avg);
+
+        // 3. Regions
+        const regionCounts = {};
+        testResults.forEach(res => {
+          const region = res.preferences?.region || 'all';
+          const rName = REGION_TRANSLATIONS[region] || region;
+          regionCounts[rName] = (regionCounts[rName] || 0) + 1;
+        });
+        const regionData = Object.entries(regionCounts).map(([name, value]) => ({ name, value }));
+        const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#a855f7'];
+
+        return (
+          <div style={{ animation: 'fadeIn 0.3s', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div className="glass-card">
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '1rem', color: '#1e293b' }}>
+                10 הישיבות המובילות בתוצאות ההתאמה
+              </h3>
+              <div style={{ width: '100%', height: 350 }}>
+                <ResponsiveContainer>
+                  <BarChart data={topMatchesData} layout="vertical" margin={{ top: 5, right: 30, left: 100, bottom: 5 }}>
+                    <XAxis type="number" />
+                    <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 12 }} />
+                    <Tooltip />
+                    <Bar dataKey="count" fill="#3b82f6" radius={[0, 4, 4, 0]} name="מספר פעמים שהוצעה" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
+              <div className="glass-card">
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '1rem', color: '#1e293b' }}>
+                  ממוצע ציוני ההעדפות בשאלונים (1 עד 5)
+                </h3>
+                <div style={{ width: '100%', height: 350 }}>
+                  <ResponsiveContainer>
+                    <BarChart data={paramAveragesData} margin={{ top: 5, right: 5, left: 0, bottom: 40 }}>
+                      <XAxis dataKey="name" tick={{ fontSize: 11 }} angle={-45} textAnchor="end" />
+                      <YAxis domain={[1, 5]} />
+                      <Tooltip />
+                      <Bar dataKey="avg" fill="#10b981" radius={[4, 4, 0, 0]} name="ממוצע ציון מבוקש" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="glass-card">
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '1rem', color: '#1e293b' }}>
+                  העדפת אזורים גאוגרפיים
+                </h3>
+                <div style={{ width: '100%', height: 300 }}>
+                  <ResponsiveContainer>
+                    <PieChart>
+                      <Pie
+                        data={regionData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={true}
+                        label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {regionData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* EDIT / CREATE YESHIVA MODAL */}
       {editingYeshiva && (

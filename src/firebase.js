@@ -229,6 +229,34 @@ export const getContactLeadsDB = async () => {
   return [];
 };
 
+// 5.6 Delete Contact Lead (For Admin)
+export const deleteContactLeadDB = async (leadId) => {
+  await authenticateAdminDB();
+  if (isFirebaseConfigured && db) {
+    try {
+      await deleteDoc(doc(db, "contact_leads", leadId));
+    } catch (err) {
+      console.error("Firestore delete lead error:", err);
+    }
+  }
+};
+
+// 5.7 Get All Test Results for Analytics (For Admin)
+export const getAllTestResultsDB = async () => {
+  await authenticateAdminDB();
+  if (isFirebaseConfigured && db) {
+    try {
+      const querySnapshot = await getDocs(collection(db, "all_test_results"));
+      const list = [];
+      querySnapshot.forEach(docSnap => list.push({ id: docSnap.id, ...docSnap.data() }));
+      return list;
+    } catch (err) {
+      console.error("Firestore getTestResults error:", err);
+    }
+  }
+  return [];
+};
+
 // 6. Approve Yeshiva Request (For Admin)
 export const approveYeshivaRequestDB = async (request) => {
   await authenticateAdminDB();
