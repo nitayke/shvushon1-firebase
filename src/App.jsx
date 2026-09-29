@@ -4,9 +4,10 @@ import Questionnaire from './components/Questionnaire';
 import ResultsView from './components/ResultsView';
 import AdminDashboard from './components/AdminDashboard';
 import YeshivaRequestModal from './components/YeshivaRequestModal';
+import ContactModal from './components/ContactModal';
 import { getYeshivotDB, saveTestResultDB } from './firebase';
 import { calculateKNNMatches } from './knn';
-import { Shield, PlusCircle, Compass, Home } from 'lucide-react';
+import { Shield, PlusCircle, Compass, Home, Mail } from 'lucide-react';
 
 export default function App() {
   const getInitialView = () => {
@@ -27,6 +28,7 @@ export default function App() {
   const [userPreferences, setUserPreferences] = useState(null);
   const [results, setResults] = useState([]);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hasTriggeredLoad, setHasTriggeredLoad] = useState(false);
 
@@ -211,6 +213,15 @@ export default function App() {
                 בקשה להוספת ישיבה / מכינה
               </button>
 
+              <button
+                onClick={() => setIsContactModalOpen(true)}
+                className="btn-secondary"
+                style={{ fontSize: '0.82rem', padding: '0.4rem 0.9rem' }}
+              >
+                <Mail style={{ width: 14, height: 14 }} />
+                צור קשר
+              </button>
+
               <a
                 href="/admin"
                 onClick={navigateToAdmin}
@@ -263,6 +274,12 @@ export default function App() {
           setViewState('admin');
           window.history.pushState({ view: 'admin' }, '', '/admin');
         }}
+      />
+
+      {/* Contact Us Modal */}
+      <ContactModal
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
       />
     </div>
   );
