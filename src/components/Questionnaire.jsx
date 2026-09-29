@@ -284,19 +284,12 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
           הקודם
         </button>
 
-        <button onClick={handleNext} className="btn-primary" style={{ padding: '0.65rem 1.4rem', fontSize: '0.95rem' }}>
-          {currentStep === totalSteps - 1 ? (
-            <>
-              <Check style={{ width: 16, height: 16 }} />
-              חשב התאמה לישיבות/מכינות
-            </>
-          ) : (
-            <>
-              הבא
-              <ChevronLeft style={{ width: 16, height: 16 }} />
-            </>
-          )}
-        </button>
+        {currentStep === 0 && (
+          <button onClick={handleNext} className="btn-primary" style={{ padding: '0.65rem 1.4rem', fontSize: '0.95rem' }}>
+            הבא
+            <ChevronLeft style={{ width: 16, height: 16 }} />
+          </button>
+        )}
       </div>
     </div>
   );

@@ -233,10 +233,12 @@ export const calculateKNNMatches = (userPreferences, yeshivotList, k = 3) => {
     }
 
     return {
+      ...yeshiva,
       id: yeshiva.id,
       name: yeshiva.name,
       type: yeshiva.type,
       region: yeshiva.region,
+      has_leads: yeshiva.has_leads,
       matchScore,
       distance: hybridDistance
     };
