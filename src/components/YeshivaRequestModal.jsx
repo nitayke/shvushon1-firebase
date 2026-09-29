@@ -23,8 +23,16 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin, yesh
 
   if (!isOpen) return null;
 
-  // Check if name already exists
-  const existingMatch = yeshivotList.find(y => y.name.trim() === yeshivaName.trim());
+  // Check if name already exists (similarity check)
+  const cleanStr = (s) => (s || '').replace(/ישיבת|ישיבה|מכינת|מכינה|ההסדר|הסדר|גבוהה|שלוחת/g, '').replace(/[^א-ת]/g, '');
+  const inputClean = cleanStr(yeshivaName);
+  let existingMatch = null;
+  if (inputClean.length >= 3) {
+    existingMatch = yeshivotList.find(y => {
+      const yClean = cleanStr(y.name);
+      return yClean.includes(inputClean) || inputClean.includes(yClean);
+    });
+  }
 
   const handleRatingChange = (id, val) => {
     setRatings(prev => ({ ...prev, [id]: Number(val) }));
@@ -168,26 +176,11 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin, yesh
               <input
                 type="text"
                 className="input-field"
-                placeholder="לדוגמה: ישיבת אילון מורה"
+                placeholder="לדוגמה: ישיבת ההסדר קריית שמונה"
                 value={yeshivaName}
                 onChange={(e) => setYeshivaName(e.target.value)}
                 required
               />
-              {yeshivaName.trim() && !existingMatch && yeshivotList.some(y => y.name.includes(yeshivaName.trim())) && (
-                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, marginTop: 4, zIndex: 10, maxHeight: 150, overflowY: 'auto', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
-                  {yeshivotList.filter(y => y.name.includes(yeshivaName.trim())).map(y => (
-                    <div 
-                      key={y.id} 
-                      onClick={() => setYeshivaName(y.name)}
-                      style={{ padding: '0.6rem 1rem', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', color: '#334155' }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                    >
-                      {y.name}
-                    </div>
-                  ))}
-                </div>
-              )}
               {existingMatch && (
                 <div style={{ color: '#b91c1c', fontSize: '0.85rem', marginTop: '0.4rem', fontWeight: 600 }}>
                   שים לב: הישיבה "{existingMatch.name}" כבר קיימת במאגר! אנא ודא שאינך מוסיף כפילות.
