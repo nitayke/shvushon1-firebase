@@ -22,6 +22,17 @@ service cloud.firestore {
                     && request.resource.data.yeshiva_name.size() > 0;
       allow read, update, delete: if request.auth != null;
     }
+    // 4. Contact Leads: anyone can create, only admin can read/update/delete
+    match /contact_leads/{leadId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // 5. All Test Results: anyone can create, only admin can read/update/delete
+    match /all_test_results/{testId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
 
   }
 }

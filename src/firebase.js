@@ -6,9 +6,11 @@ import {
   addDoc, 
   doc, 
   setDoc, 
-  deleteDoc 
+  deleteDoc,
+  writeBatch
 } from "firebase/firestore";
 import { getAuth, signInAnonymously } from "firebase/auth";
+import { getAnalytics, isSupported } from "firebase/analytics";
 
 // Read Firebase keys from environment variables
 const firebaseConfig = {
@@ -36,6 +38,12 @@ if (isFirebaseConfigured) {
     app = initializeApp(firebaseConfig);
     db = getFirestore(app);
     auth = getAuth(app);
+    isSupported().then(yes => {
+      if (yes) {
+        getAnalytics(app);
+        console.log("📈 Firebase Analytics initialized successfully!");
+      }
+    });
     console.log("🔥 Live Firebase Firestore connected successfully!");
   } catch (err) {
     console.error("Firebase Initialization Error:", err);
@@ -84,6 +92,44 @@ export const getYeshivotDB = async () => {
     }
   }
   return getLocalYeshivot();
+};
+
+// 1.5 Save All Test Results (Automatic Logging)
+export const saveTestResultDB = async (testData) => {
+  const dataToSave = {
+    ...testData,
+    created_at: new Date().toISOString()
+  };
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await addDoc(collection(db, "all_test_results"), dataToSave);
+      console.log("Logged test result to Firestore!");
+    } catch (err) {
+      console.error("Firestore save test result error:", err);
+    }
+  }
+};
+
+// 1.8 Save Contact Lead (For callback)
+export const saveContactLeadDB = async (leadData) => {
+  const dataToSave = {
+    ...leadData,
+    status: 'new',
+    created_at: new Date().toISOString()
+  };
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await addDoc(collection(db, "contact_leads"), dataToSave);
+      console.log("Saved contact lead to Firestore!");
+      return true;
+    } catch (err) {
+      console.error("Firestore save lead error:", err);
+      return false;
+    }
+  }
+  return false;
 };
 
 // 2. Save Student Submission
@@ -182,12 +228,17 @@ export const approveYeshivaRequestDB = async (request) => {
     try {
       await setDoc(doc(db, "yeshivot", newYeshiva.id), newYeshiva);
       if (request.id) {
-        await setDoc(doc(doc(db, "yeshiva_requests", request.id)), { status: 'approved' }, { merge: true });
+        await deleteDoc(doc(db, "yeshiva_requests", request.id));
       }
     } catch (err) {
       console.error("Firestore approve request error:", err);
     }
   }
+
+  // Also remove from local storage if relying on it
+  let reqs = JSON.parse(localStorage.getItem(LOCAL_REQUESTS_KEY) || '[]');
+  reqs = reqs.filter(r => r.id !== request.id);
+  localStorage.setItem(LOCAL_REQUESTS_KEY, JSON.stringify(reqs));
 
   const yeshivot = await getYeshivotDB();
   yeshivot.push(newYeshiva);
@@ -255,50 +306,58 @@ export const recalculateYeshivaAveragesDB = async () => {
   });
 
   const updatedYeshivot = [...yeshivotList];
-
-  for (const [yeshivaName, subs] of Object.entries(grouped)) {
-    const targetYeshiva = updatedYeshivot.find(y => y.name === yeshivaName);
-    if (targetYeshiva) {
-      const paramSums = {};
-      const count = subs.length;
-
-      subs.forEach(s => {
-        if (s.ratings) {
-          Object.entries(s.ratings).forEach(([paramKey, score]) => {
-            paramSums[paramKey] = (paramSums[paramKey] || 0) + Number(score);
-          });
-        }
-      });
-
-      const newRatings = { ...targetYeshiva.ratings };
-      const currentCount = targetYeshiva.submissions_count || 1;
-      const totalCount = currentCount + count;
-
-      Object.keys(paramSums).forEach(paramKey => {
-        const oldSum = (targetYeshiva.ratings[paramKey] || 3) * currentCount;
-        const newSum = oldSum + paramSums[paramKey];
-        newRatings[paramKey] = Number((newSum / totalCount).toFixed(1));
-      });
-
-      targetYeshiva.ratings = newRatings;
-      targetYeshiva.submissions_count = totalCount;
-
-      await saveYeshivaDB(targetYeshiva);
-    }
-  }
-
-  // Mark all processed submissions as processed: true in Firestore & LocalStorage
+  
   if (isFirebaseConfigured && db) {
     try {
-      for (const sub of pendingSubs) {
-        if (sub.id && !sub.id.startsWith('sub_')) {
-          await setDoc(doc(db, "student_submissions", sub.id), { processed: true }, { merge: true });
+      const batch = writeBatch(db);
+      
+      for (const [yeshivaName, subs] of Object.entries(grouped)) {
+        const targetYeshiva = updatedYeshivot.find(y => y.name === yeshivaName);
+        if (targetYeshiva) {
+          const paramSums = {};
+          const count = subs.length;
+
+          subs.forEach(s => {
+            if (s.ratings) {
+              Object.entries(s.ratings).forEach(([paramKey, score]) => {
+                paramSums[paramKey] = (paramSums[paramKey] || 0) + Number(score);
+              });
+            }
+          });
+
+          const newRatings = { ...targetYeshiva.ratings };
+          const currentCount = targetYeshiva.submissions_count || 1;
+          const totalCount = currentCount + count;
+
+          Object.keys(paramSums).forEach(paramKey => {
+            const oldSum = (targetYeshiva.ratings[paramKey] || 3) * currentCount;
+            const newSum = oldSum + paramSums[paramKey];
+            newRatings[paramKey] = Number((newSum / totalCount).toFixed(1));
+          });
+
+          targetYeshiva.ratings = newRatings;
+          targetYeshiva.submissions_count = totalCount;
+
+          batch.set(doc(db, "yeshivot", targetYeshiva.id), targetYeshiva, { merge: true });
         }
       }
+
+      // Mark submissions as processed in the same batch
+      for (const sub of pendingSubs) {
+        if (sub.id && !sub.id.startsWith('sub_')) {
+          batch.set(doc(db, "student_submissions", sub.id), { processed: true }, { merge: true });
+        }
+      }
+
+      await batch.commit();
+      console.log("Batch update completed for yeshivot and submissions.");
     } catch (err) {
-      console.error("Firestore mark processed submissions error:", err);
+      console.error("Firestore batch update error:", err);
     }
   }
+
+  // Update LocalStorage cache
+  localStorage.setItem(LOCAL_YESHIVOT_KEY, JSON.stringify(updatedYeshivot));
 
   // Update LocalStorage cache as well
   const allSubmissions = JSON.parse(localStorage.getItem(LOCAL_SUBMISSIONS_KEY) || '[]');
