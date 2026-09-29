@@ -24,7 +24,7 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin, yesh
   if (!isOpen) return null;
 
   // Check if name already exists (similarity check)
-  const cleanStr = (s) => (s || '').replace(/ישיבת|ישיבה|מכינת|מכינה|ההסדר|הסדר|גבוהה|שלוחת/g, '').replace(/[^א-ת]/g, '');
+  const cleanStr = (s) => (s || '').replace(/ישיבת|ישיבה|מכינת|מכינה|ההסדר|הסדר|גבוהה|שלוחת/g, '').replace(/[^א-ת]/g, '').replace(/יי/g, 'י').replace(/וו/g, 'ו');
   const inputClean = cleanStr(yeshivaName);
   let existingMatch = null;
   if (inputClean.length >= 3) {
