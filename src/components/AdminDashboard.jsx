@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, Plus, Check, RefreshCw, Trash2, Edit3, Lock, LogOut, Inbox, Users, Database, TrendingUp } from 'lucide-react';
+import { ShieldCheck, Plus, Check, RefreshCw, Trash2, Edit3, Lock, LogOut, Inbox, Users, Database, TrendingUp, Link2, Copy } from 'lucide-react';
 import { 
   getYeshivotDB, 
   getYeshivaRequestsDB, 
   getStudentSubmissionsDB, 
-  getContactLeadsDB,
-  deleteContactLeadDB,
   getAllTestResultsDB,
   approveYeshivaRequestDB, 
   recalculateYeshivaAveragesDB, 
@@ -15,6 +13,7 @@ import {
   deleteStudentSubmissionDB
 } from '../firebase';
 import { PARAM_DEFINITIONS, REGIONS, TYPES, REGION_TRANSLATIONS, TYPE_TRANSLATIONS } from '../knn';
+import { createManagerInviteDB, getManagersDB } from '../manager';
 import CustomSelect from './CustomSelect';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { LineChart, Line } from 'recharts';
@@ -24,13 +23,14 @@ export default function AdminDashboard({ onExitAdmin }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authError, setAuthError] = useState('');
 
-  const [activeTab, setActiveTab] = useState('requests'); // requests, submissions, yeshivot, leads, analytics
+  const [activeTab, setActiveTab] = useState('requests'); // requests, submissions, yeshivot, analytics
   const [submissionFilter, setSubmissionFilter] = useState('pending'); // 'pending' or 'all'
   const [requests, setRequests] = useState([]);
   const [submissions, setSubmissions] = useState([]);
   const [yeshivot, setYeshivot] = useState([]);
-  const [leads, setLeads] = useState([]);
   const [testResults, setTestResults] = useState([]);
+  const [managers, setManagers] = useState([]);
+  const [inviteResult, setInviteResult] = useState(null); // { yeshivaName, code, url }
 
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
@@ -79,8 +79,7 @@ export default function AdminDashboard({ onExitAdmin }) {
         setSubmissions(await getStudentSubmissionsDB().catch(() => []));
       } else if (tabToLoad === 'yeshivot' && (force || yeshivot.length === 0)) {
         setYeshivot(await getYeshivotDB().catch(() => []));
-      } else if (tabToLoad === 'leads' && (force || leads.length === 0)) {
-        setLeads(await getContactLeadsDB().catch(() => []));
+        setManagers(await getManagersDB().catch(() => []));
       } else if (tabToLoad === 'analytics' && (force || testResults.length === 0)) {
         setTestResults(await getAllTestResultsDB().catch(() => []));
       }
@@ -128,21 +127,6 @@ export default function AdminDashboard({ onExitAdmin }) {
     }
   };
 
-  const handleDeleteLead = async (lead) => {
-    if (!window.confirm(`האם אתה בטוח שברצונך למחוק את הליד של ${lead.name}?`)) return;
-    setLoading(true);
-    try {
-      await deleteContactLeadDB(lead.id);
-      setMsg(`✓ הליד של ${lead.name} נמחק בהצלחה.`);
-      await loadActiveTabData(activeTab, true);
-    } catch (err) {
-      console.error("Error deleting lead:", err);
-      setMsg("שגיאה במחיקת הליד.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleDeleteSubmission = async (submission) => {
     if (!window.confirm(`האם אתה בטוח שברצונך למחוק את הדיווח של התלמיד עבור "${submission.yeshiva_name}"?`)) {
       return;
@@ -169,6 +153,20 @@ export default function AdminDashboard({ onExitAdmin }) {
     } catch (err) {
       console.error("Error recalculating averages:", err);
       setMsg("שגיאה בשקלול הממוצעים.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateInvite = async (y) => {
+    setLoading(true);
+    try {
+      const invite = await createManagerInviteDB(y, yeshivot);
+      setInviteResult({ yeshivaName: y.name, code: invite.code, url: invite.url });
+      await loadActiveTabData('yeshivot', true);
+    } catch (err) {
+      console.error('Error creating manager invite:', err);
+      setMsg('שגיאה ביצירת קישור הרשמה לאחראי.');
     } finally {
       setLoading(false);
     }
@@ -312,14 +310,6 @@ export default function AdminDashboard({ onExitAdmin }) {
         >
           <Database style={{ width: 18, height: 18 }} />
           ניהול מאגר הישיבות
-        </button>
-
-        <button
-          className={`btn-secondary ${activeTab === 'leads' ? 'btn-primary' : ''}`}
-          onClick={() => setActiveTab('leads')}
-          style={{ background: activeTab === 'leads' ? '#52341d' : 'transparent', color: activeTab === 'leads' ? '#fff' : '#b45309', borderColor: activeTab === 'leads' ? 'transparent' : '#b45309' }}
-        >
-          לידים שיצרו קשר
         </button>
 
         <button
@@ -560,10 +550,19 @@ export default function AdminDashboard({ onExitAdmin }) {
                       <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>{y.name}</h3>
                       <div style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: 2 }}>
                         {TYPE_TRANSLATIONS[y.type] || y.type} • {REGION_TRANSLATIONS[y.region] || y.region}
+                        {y.code ? ` • קוד: ${y.code}` : ''}
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: '0.4rem' }}>
+                      <button
+                        onClick={() => handleCreateInvite(y)}
+                        className="btn-secondary"
+                        style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem' }}
+                        title="יצירת קישור הרשמה חד-פעמי לאחראי שבושים"
+                      >
+                        <Link2 style={{ width: 14, height: 14 }} />
+                      </button>
                       <button
                         onClick={() => setEditingYeshiva(y)}
                         className="btn-secondary"
@@ -587,63 +586,11 @@ export default function AdminDashboard({ onExitAdmin }) {
                     <div>גודל: <strong>{y.ratings?.overall_size || 3}</strong></div>
                     <div>תנאים: <strong>{y.ratings?.conditions || 3}</strong></div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* TAB: Leads */}
-      {activeTab === 'leads' && (
-        <div style={{ animation: 'fadeIn 0.3s' }}>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '1rem', color: '#111827' }}>
-            לידים שיצרו קשר ({leads.length})
-          </h2>
-          {loading && leads.length === 0 ? (
-            <div className="glass-card" style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
-              טוען נתונים...
-            </div>
-          ) : leads.length === 0 ? (
-            <div className="glass-card" style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
-              לא התקבלו לידים עד כה
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gap: '1rem' }}>
-              {leads.map(lead => (
-                <div key={lead.id} className="glass-card" style={{ padding: '1.2rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '0.6rem', marginBottom: '0.4rem' }}>
-                    <div>
-                      <strong style={{ fontSize: '1.1rem', color: '#0f172a' }}>{lead.name}</strong> - 
-                      <span style={{ color: '#059669', fontWeight: 'bold', marginLeft: '0.5rem' }}> {lead.phone}</span>
+                  {managers.filter(m => m.yeshivaId === y.id).map(m => (
+                    <div key={m.id} style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.5rem' }}>
+                      אחראי: {m.email} • {m.phone}
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                      <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
-                        {new Date(lead.created_at).toLocaleString('he-IL')}
-                      </span>
-                      <button
-                        onClick={() => handleDeleteLead(lead)}
-                        disabled={loading}
-                        className="btn-secondary"
-                        style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.4)', padding: '0.3rem 0.5rem' }}
-                        title="מחק ליד"
-                      >
-                        <Trash2 style={{ width: 14, height: 14 }} />
-                      </button>
-                    </div>
-                  </div>
-                  <div>
-                    <span style={{ color: '#475569', fontWeight: 600 }}>מוסד מבוקש:</span> {lead.yeshiva_name}
-                  </div>
-                  <div>
-                    <span style={{ color: '#475569', fontWeight: 600 }}>התאמה מובילה בשאלון:</span> {lead.top_match || (lead.top_matches && lead.top_matches.length > 0 ? lead.top_matches[0].name : 'לא זמין')}
-                  </div>
-                  <details style={{ marginTop: '0.5rem', background: '#f8fafc', padding: '0.5rem', borderRadius: '4px' }}>
-                    <summary style={{ cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, color: '#3b82f6' }}>צפה בהעדפות השאלון</summary>
-                    <pre style={{ fontSize: '0.8rem', whiteSpace: 'pre-wrap', marginTop: '0.5rem', color: '#334155' }}>
-                      {JSON.stringify(lead.preferences, null, 2)}
-                    </pre>
-                  </details>
+                  ))}
                 </div>
               ))}
             </div>
@@ -775,6 +722,40 @@ export default function AdminDashboard({ onExitAdmin }) {
           </div>
         );
       })()}
+
+      {/* ONE-TIME MANAGER INVITE LINK */}
+      {inviteResult && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div className="glass-card" style={{ maxWidth: 560, width: '100%', background: '#ffffff', border: '1px solid #e2d9c8' }}>
+            <h2 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '0.6rem', color: '#111827' }}>
+              קישור הרשמה לאחראי שבושים – {inviteResult.yeshivaName}
+            </h2>
+            <p style={{ color: '#374151', marginBottom: '0.8rem' }}>
+              קוד הישיבה: <strong>{inviteResult.code}</strong>. הקישור חד-פעמי – אחרי שהאחראי נרשם הוא יפסיק לעבוד.
+            </p>
+            <input readOnly className="input-field" dir="ltr" value={inviteResult.url} onFocus={(e) => e.target.select()} style={{ marginBottom: '1rem' }} />
+            <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+              <button
+                className="btn-primary"
+                onClick={() => navigator.clipboard?.writeText(inviteResult.url).then(() => setMsg('✓ הקישור הועתק'))}
+              >
+                <Copy style={{ width: 16, height: 16 }} />
+                העתק קישור
+              </button>
+              <a
+                className="btn-secondary"
+                style={{ textDecoration: 'none' }}
+                target="_blank"
+                rel="noreferrer"
+                href={`https://wa.me/?text=${encodeURIComponent(`הרשמה כאחראי שבושים של ${inviteResult.yeshivaName}: ${inviteResult.url}`)}`}
+              >
+                שליחה בווטסאפ
+              </a>
+              <button className="btn-secondary" onClick={() => setInviteResult(null)}>סגור</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* EDIT / CREATE YESHIVA MODAL */}
       {editingYeshiva && (

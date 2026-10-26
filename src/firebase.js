@@ -9,7 +9,7 @@ import {
   deleteDoc,
   writeBatch
 } from "firebase/firestore";
-import { getAuth, signInAnonymously } from "firebase/auth";
+import { getAuth, signInAnonymously, signOut } from "firebase/auth";
 import { getAnalytics, isSupported } from "firebase/analytics";
 
 // Read Firebase keys from environment variables
@@ -50,10 +50,17 @@ if (isFirebaseConfigured) {
   }
 }
 
+export const getDb = () => db;
+export const getAuthInstance = () => auth;
+
 // Admin Authentication function to get valid Firebase token for security rules
 export const authenticateAdminDB = async () => {
   if (isFirebaseConfigured && auth) {
     try {
+      // A signed-in yeshiva manager (email/password) must never act as admin
+      if (auth.currentUser && !auth.currentUser.isAnonymous) {
+        await signOut(auth);
+      }
       if (!auth.currentUser) {
         await signInAnonymously(auth);
         console.log("🔒 Firebase Admin session authenticated successfully!");
@@ -109,27 +116,6 @@ export const saveTestResultDB = async (testData) => {
       console.error("Firestore save test result error:", err);
     }
   }
-};
-
-// 1.8 Save Contact Lead (For callback)
-export const saveContactLeadDB = async (leadData) => {
-  const dataToSave = {
-    ...leadData,
-    status: 'new',
-    created_at: new Date().toISOString()
-  };
-
-  if (isFirebaseConfigured && db) {
-    try {
-      await addDoc(collection(db, "contact_leads"), dataToSave);
-      console.log("Saved contact lead to Firestore!");
-      return true;
-    } catch (err) {
-      console.error("Firestore save lead error:", err);
-      return false;
-    }
-  }
-  return false;
 };
 
 // 2. Save Student Submission
@@ -210,35 +196,6 @@ export const getYeshivaRequestsDB = async () => {
     }
   }
   return JSON.parse(localStorage.getItem(LOCAL_REQUESTS_KEY) || '[]');
-};
-
-// 5.5 Get Contact Leads (For Admin)
-export const getContactLeadsDB = async () => {
-  await authenticateAdminDB();
-  if (isFirebaseConfigured && db) {
-    try {
-      const querySnapshot = await getDocs(collection(db, "contact_leads"));
-      const list = [];
-      querySnapshot.forEach(docSnap => list.push({ id: docSnap.id, ...docSnap.data() }));
-      // Sort newest first
-      return list.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-    } catch (err) {
-      console.error("Firestore getLeads error:", err);
-    }
-  }
-  return [];
-};
-
-// 5.6 Delete Contact Lead (For Admin)
-export const deleteContactLeadDB = async (leadId) => {
-  await authenticateAdminDB();
-  if (isFirebaseConfigured && db) {
-    try {
-      await deleteDoc(doc(db, "contact_leads", leadId));
-    } catch (err) {
-      console.error("Firestore delete lead error:", err);
-    }
-  }
 };
 
 // 5.7 Get All Test Results for Analytics (For Admin)

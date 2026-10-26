@@ -3,35 +3,65 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // אדמין = התחברות אנונימית של ממשק הניהול. אחראי ישיבה = התחברות באימייל וסיסמה (ללא הרשאות ניהול).
+    function isAdmin() {
+      return request.auth != null && request.auth.token.firebase.sign_in_provider == 'anonymous';
+    }
+    function isManager() {
+      return request.auth != null && request.auth.token.firebase.sign_in_provider == 'password';
+    }
+
     // 1. רשימת הישיבות: קריאה חופשית לציבור, כתיבה ועריכה לאדמין מורשה בלבד
     match /yeshivot/{yeshivaId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAdmin();
     }
 
     // 2. דיווחי תלמידים: יצירת דיווח פתוחה לכולם (עם בדיקת תקינות), קריאה/מחיקה לאדמין מורשה בלבד!
     match /student_submissions/{submissionId} {
       allow create: if request.resource.data.yeshiva_name is string 
                     && request.resource.data.yeshiva_name.size() > 0;
-      allow read, update, delete: if request.auth != null;
+      allow read, update, delete: if isAdmin();
     }
 
     // 3. בקשות להוספת ישיבה: יצירת בקשה פתוחה לכולם, קריאה/מחיקה/אישור לאדמין מורשה בלבד!
     match /yeshiva_requests/{requestId} {
       allow create: if request.resource.data.yeshiva_name is string 
                     && request.resource.data.yeshiva_name.size() > 0;
-      allow read, update, delete: if request.auth != null;
-    }
-    // 4. Contact Leads: anyone can create, only admin can read/update/delete
-    match /contact_leads/{leadId} {
-      allow create: if true;
-      allow read, update, delete: if request.auth != null;
+      allow read, update, delete: if isAdmin();
     }
 
-    // 5. All Test Results: anyone can create, only admin can read/update/delete
+    // 4. All Test Results: anyone can create, only admin can read/update/delete
     match /all_test_results/{testId} {
       allow create: if true;
-      allow read, update, delete: if request.auth != null;
+      allow read, update, delete: if isAdmin();
+    }
+
+
+    // 5. הזמנות חד-פעמיות לאחראי ישיבה: קריאה לפי טוקן בלבד (לא ניתן לרשום רשימה), יצירה לאדמין,
+    //    ואחראי חדש יכול רק לסמן את ההזמנה כמנוצלת על שמו.
+    match /invites/{token} {
+      allow get: if true;
+      allow list, create, update, delete: if isAdmin();
+      allow update: if isManager()
+                    && resource.data.used == false
+                    && request.resource.data.used == true
+                    && request.resource.data.used_by == request.auth.uid
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['used', 'used_by', 'used_at']);
+    }
+
+    // 6. פרופיל אחראי ישיבה: נוצר רק יחד עם ניצול הזמנה תקפה (באותו batch), האחראי יכול לעדכן רק טלפון.
+    match /managers/{uid} {
+      allow read: if isAdmin() || (isManager() && request.auth.uid == uid);
+      allow create: if isManager() && request.auth.uid == uid
+                    && get(/databases/$(database)/documents/invites/$(request.resource.data.inviteToken)).data.used == false
+                    && getAfter(/databases/$(database)/documents/invites/$(request.resource.data.inviteToken)).data.used_by == uid
+                    && get(/databases/$(database)/documents/invites/$(request.resource.data.inviteToken)).data.yeshivaId == request.resource.data.yeshivaId
+                    && get(/databases/$(database)/documents/invites/$(request.resource.data.inviteToken)).data.code == request.resource.data.code;
+      allow update: if (isManager() && request.auth.uid == uid
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['phone', 'updated_at']))
+                    || isAdmin();
+      allow delete: if isAdmin();
     }
 
   }

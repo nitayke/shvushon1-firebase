@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Questionnaire from './components/Questionnaire';
 import ResultsView from './components/ResultsView';
 import AdminDashboard from './components/AdminDashboard';
+import ManagerPortal from './components/ManagerPortal';
 import YeshivaRequestModal from './components/YeshivaRequestModal';
 import { getYeshivotDB, saveTestResultDB } from './firebase';
 import { calculateKNNMatches } from './knn';
@@ -13,6 +14,8 @@ export default function App() {
     const path = window.location.pathname;
     const search = window.location.search;
     const hash = window.location.hash;
+    if (path.startsWith('/manager/register')) return 'manager-register';
+    if (path.startsWith('/manager')) return 'manager';
     if (path.startsWith('/admin') || search.includes('admin=true') || hash === '#admin') {
       return 'admin';
     }
@@ -188,6 +191,13 @@ export default function App() {
               />
             )}
 
+            {(view === 'manager' || view === 'manager-register') && (
+              <ManagerPortal
+                mode={view === 'manager-register' ? 'register' : 'login'}
+                inviteToken={new URLSearchParams(window.location.search).get('invite')}
+              />
+            )}
+
             {view === 'admin' && (
               <AdminDashboard
                 onExitAdmin={navigateToHome}
@@ -200,7 +210,7 @@ export default function App() {
       {/* Bottom Footer Action Links */}
       <footer style={{ marginTop: '2rem', padding: '1rem 0', textAlign: 'center', borderTop: '1px solid #262a36' }}>
         <div style={{ display: 'flex', gap: '0.8rem', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', marginBottom: '0.6rem' }}>
-          {view !== 'admin' ? (
+          {view !== 'admin' && view !== 'manager' && view !== 'manager-register' ? (
             <>
               <button
                 onClick={() => {
