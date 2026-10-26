@@ -156,11 +156,13 @@ export const parseDateKey = (key) => {
   return new Date(y, m - 1, d);
 };
 
-// Events whose date falls in [fromKey, toKey] (YYYY-MM-DD, inclusive). Public.
-export const getEventsInRangeDB = async (fromKey, toKey) => {
-  const q = query(collection(getDb(), "events"), where("date", ">=", fromKey), where("date", "<=", toKey));
+// Events from today onward, soonest first. Public.
+export const getUpcomingEventsDB = async () => {
+  const q = query(collection(getDb(), "events"), where("date", ">=", toDateKey(new Date())));
   const snap = await getDocs(q);
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => a.date.localeCompare(b.date) || (a.time || '').localeCompare(b.time || ''));
 };
 
 export const getManagerEventsDB = async (uid) => {

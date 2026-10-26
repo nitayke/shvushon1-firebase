@@ -214,7 +214,7 @@ export default function App() {
 
               <a href="/calendar" onClick={navigateToCalendar} className="btn-secondary" style={{ textDecoration: 'none' }}>
                 <CalendarDays style={{ width: 16, height: 16 }} />
-                לוח ימים פתוחים ושבתות
+                ימים פתוחים ושבתות שבושים
               </a>
 
               <a href="mailto:shvushon@gmail.com" className="btn-secondary" style={{ textDecoration: 'none' }}>
