@@ -68,5 +68,21 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // 7. ימים פתוחים ושבתות שבושים: הלוח פתוח לצפייה לציבור. אחראי ישיבה יכול ליצור ולמחוק רק אירועים של הישיבה שלו.
+    match /events/{eventId} {
+      allow read: if true;
+      allow create: if isManager()
+                    && request.resource.data.created_by == request.auth.uid
+                    && request.resource.data.type in ['open_day', 'shabbat']
+                    && request.resource.data.date is string
+                    && request.resource.data.date.size() == 10
+                    && request.resource.data.notes is string
+                    && request.resource.data.notes.size() <= 300
+                    && get(/databases/$(database)/documents/managers/$(request.auth.uid)).data.yeshivaId == request.resource.data.yeshivaId
+                    && get(/databases/$(database)/documents/managers/$(request.auth.uid)).data.yeshivaName == request.resource.data.yeshivaName;
+      allow delete: if isAdmin() || (isManager() && resource.data.created_by == request.auth.uid);
+      allow update: if isAdmin();
+    }
+
   }
 }

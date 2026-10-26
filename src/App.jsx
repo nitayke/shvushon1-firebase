@@ -3,16 +3,18 @@ import React, { useState, useEffect, Suspense, lazy } from 'react';
 import Questionnaire from './components/Questionnaire';
 import ResultsView from './components/ResultsView';
 const ManagerPortal = lazy(() => import('./components/ManagerPortal'));
+import CalendarView from './components/CalendarView';
 import YeshivaRequestModal from './components/YeshivaRequestModal';
 import { getYeshivotDB, saveTestResultDB } from './firebase';
 import { calculateKNNMatches } from './knn';
-import { PlusCircle, Compass, Home, Mail, UserCog } from 'lucide-react';
+import { PlusCircle, Compass, Home, Mail, UserCog, CalendarDays } from 'lucide-react';
 
 export default function App() {
   const getInitialView = () => {
     const path = window.location.pathname;
     const search = window.location.search;
     const hash = window.location.hash;
+    if (path.startsWith('/calendar')) return 'calendar';
     if (path.startsWith('/manager/register')) return 'manager-register';
     if (path.startsWith('/manager') || path.startsWith('/admin') || search.includes('admin=true') || hash === '#admin') {
       return 'manager';
@@ -40,6 +42,13 @@ export default function App() {
     setViewState('manager');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     if (!hasTriggeredLoad) loadYeshivot();
+  };
+
+  const navigateToCalendar = (e) => {
+    if (e) e.preventDefault();
+    window.history.pushState({ view: 'calendar' }, '', '/calendar');
+    setViewState('calendar');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const navigateToHome = (e) => {
@@ -171,6 +180,8 @@ export default function App() {
               />
             )}
 
+            {view === 'calendar' && <CalendarView />}
+
             {(view === 'manager' || view === 'manager-register') && (
               <Suspense fallback={<p style={{ textAlign: 'center', padding: '2rem' }}>טוען...</p>}>
                 <ManagerPortal
@@ -188,7 +199,7 @@ export default function App() {
       {/* Bottom Footer Action Links */}
       <footer style={{ marginTop: '1.5rem', padding: '1rem 0 0.5rem', textAlign: 'center', borderTop: '1px solid var(--border-color)' }}>
         <div className="footer-links">
-          {view !== 'manager' && view !== 'manager-register' ? (
+          {view !== 'manager' && view !== 'manager-register' && view !== 'calendar' ? (
             <>
               <button
                 onClick={() => {
@@ -200,6 +211,11 @@ export default function App() {
                 <PlusCircle style={{ width: 16, height: 16 }} />
                 בקשה להוספת ישיבה / מכינה
               </button>
+
+              <a href="/calendar" onClick={navigateToCalendar} className="btn-secondary" style={{ textDecoration: 'none' }}>
+                <CalendarDays style={{ width: 16, height: 16 }} />
+                לוח ימים פתוחים ושבתות
+              </a>
 
               <a href="mailto:shvushon@gmail.com" className="btn-secondary" style={{ textDecoration: 'none' }}>
                 <Mail style={{ width: 16, height: 16 }} />

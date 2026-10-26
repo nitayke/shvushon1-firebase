@@ -5,7 +5,11 @@ import {
   setDoc,
   updateDoc,
   collection,
-  writeBatch
+  writeBatch,
+  addDoc,
+  deleteDoc,
+  query,
+  where
 } from "firebase/firestore";
 import {
   createUserWithEmailAndPassword,
@@ -138,9 +142,52 @@ export const getManagerProfileDB = async (uid) => {
   return snap.exists() ? { id: snap.id, ...snap.data() } : null;
 };
 
-export const getYeshivaByIdDB = async (id) => {
-  const snap = await getDoc(doc(getDb(), "yeshivot", id));
-  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+// ---------- Events (open days / Shabbatot) ----------
+
+export const EVENT_TYPES = {
+  open_day: 'יום פתוח',
+  shabbat: 'שבת שבושים'
+};
+
+const pad = (n) => String(n).padStart(2, '0');
+export const toDateKey = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+export const parseDateKey = (key) => {
+  const [y, m, d] = key.split('-').map(Number);
+  return new Date(y, m - 1, d);
+};
+
+// Events whose date falls in [fromKey, toKey] (YYYY-MM-DD, inclusive). Public.
+export const getEventsInRangeDB = async (fromKey, toKey) => {
+  const q = query(collection(getDb(), "events"), where("date", ">=", fromKey), where("date", "<=", toKey));
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+};
+
+export const getManagerEventsDB = async (uid) => {
+  const snap = await getDocs(query(collection(getDb(), "events"), where("created_by", "==", uid)));
+  return snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.date.localeCompare(b.date));
+};
+
+export const addEventDB = async (profile, { type, date, time, notes }) => {
+  if (!EVENT_TYPES[type]) throw new Error('סוג אירוע לא תקין');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('תאריך לא תקין');
+  if (type === 'shabbat' && parseDateKey(date).getDay() !== 6) throw new Error('שבת שבושים חייבת להיות ביום שבת');
+  const data = {
+    yeshivaId: profile.yeshivaId,
+    yeshivaName: profile.yeshivaName,
+    type,
+    date,
+    time: type === 'open_day' ? (time || '') : '',
+    notes: (notes || '').trim().slice(0, 300),
+    created_by: profile.uid,
+    created_at: new Date().toISOString()
+  };
+  const ref = await addDoc(collection(getDb(), "events"), data);
+  return { id: ref.id, ...data };
+};
+
+export const deleteEventDB = async (id) => {
+  await deleteDoc(doc(getDb(), "events", id));
 };
 
 export const updateManagerPhoneDB = async (uid, phone) => {

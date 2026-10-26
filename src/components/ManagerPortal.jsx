@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 const AdminDashboard = lazy(() => import('./AdminDashboard'));
-import { UserCog, LogOut, Phone, KeyRound, Eye, EyeOff } from 'lucide-react';
+import { UserCog, LogOut, Phone, KeyRound, Eye, EyeOff, CalendarPlus, Trash2 } from 'lucide-react';
 import {
   getInviteDB,
   registerManagerDB,
@@ -10,11 +10,15 @@ import {
   isAdminUser,
   watchManagerAuth,
   getManagerProfileDB,
-  getYeshivaByIdDB,
   updateManagerPhoneDB,
-  isValidPhone
+  isValidPhone,
+  EVENT_TYPES,
+  getManagerEventsDB,
+  addEventDB,
+  deleteEventDB,
+  toDateKey,
+  parseDateKey
 } from '../manager';
-import { PARAM_DEFINITIONS, REGION_TRANSLATIONS, TYPE_TRANSLATIONS } from '../knn';
 
 function PasswordInput({ value, onChange, autoComplete, minLength }) {
   const [show, setShow] = useState(false);
@@ -160,7 +164,14 @@ function LoginForm({ notice }) {
 
 function ManagerDashboard({ user }) {
   const [profile, setProfile] = useState(undefined);
-  const [yeshiva, setYeshiva] = useState(null);
+  const [events, setEvents] = useState([]);
+  const [evType, setEvType] = useState('open_day');
+  const [evDate, setEvDate] = useState('');
+  const [evTime, setEvTime] = useState('');
+  const [evNotes, setEvNotes] = useState('');
+  const [evMsg, setEvMsg] = useState('');
+  const [evError, setEvError] = useState('');
+  const [evBusy, setEvBusy] = useState(false);
   const [phone, setPhone] = useState('');
   const [msg, setMsg] = useState('');
   const [error, setError] = useState('');
@@ -172,7 +183,7 @@ function ManagerDashboard({ user }) {
         setProfile(p);
         if (p) {
           setPhone(p.phone || '');
-          setYeshiva(await getYeshivaByIdDB(p.yeshivaId));
+          setEvents(await getManagerEventsDB(user.uid));
         }
       } catch (err) {
         console.error('Manager profile load error:', err);
@@ -195,6 +206,42 @@ function ManagerDashboard({ user }) {
       setError('שגיאה בעדכון הטלפון');
     }
   };
+
+  const addEvent = async (e) => {
+    e.preventDefault();
+    setEvMsg('');
+    setEvError('');
+    if (!evDate) return setEvError('בחר תאריך');
+    if (evDate < toDateKey(new Date())) return setEvError('לא ניתן להוסיף אירוע בתאריך שעבר');
+    setEvBusy(true);
+    try {
+      const created = await addEventDB(profile, { type: evType, date: evDate, time: evTime, notes: evNotes });
+      setEvents(list => [...list, created].sort((a, b) => a.date.localeCompare(b.date)));
+      setEvDate(''); setEvTime(''); setEvNotes('');
+      setEvMsg('האירוע נוסף ללוח של שבושון');
+    } catch (err) {
+      console.error(err);
+      setEvError(err.message || 'שגיאה בהוספת האירוע');
+    } finally {
+      setEvBusy(false);
+    }
+  };
+
+  const removeEvent = async (ev) => {
+    if (!window.confirm('למחוק את האירוע מהלוח?')) return;
+    setEvMsg('');
+    setEvError('');
+    try {
+      await deleteEventDB(ev.id);
+      setEvents(list => list.filter(x => x.id !== ev.id));
+    } catch (err) {
+      console.error(err);
+      setEvError('שגיאה במחיקת האירוע');
+    }
+  };
+
+  const formatDate = (key) => new Intl.DateTimeFormat('he-IL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(parseDateKey(key));
+  const today = toDateKey(new Date());
 
   if (profile === undefined) return <p style={{ textAlign: 'center' }}>טוען...</p>;
   if (profile === null) {
@@ -234,21 +281,58 @@ function ManagerDashboard({ user }) {
         </div>
       </form>
 
-      {yeshiva && (
-        <div>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.5rem', color: '#111827' }}>
-            הנתונים של הישיבה במאגר
-          </h3>
-          <div style={{ color: '#6b7280', fontSize: '0.85rem', marginBottom: '0.7rem' }}>
-            {TYPE_TRANSLATIONS[yeshiva.type] || yeshiva.type} • {REGION_TRANSLATIONS[yeshiva.region] || yeshiva.region} • מבוסס על {yeshiva.submissions_count || 1} דיווחים
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.4rem', fontSize: '0.88rem' }}>
-            {PARAM_DEFINITIONS.map(p => (
-              <div key={p.id}>{p.label || p.name || p.id}: <strong>{yeshiva.ratings?.[p.id] ?? '-'}</strong></div>
-            ))}
-          </div>
+      <form onSubmit={addEvent} style={{ marginBottom: '1.5rem' }}>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.7rem', color: '#111827' }}>
+          הוספת יום פתוח / שבת שבושים
+        </h3>
+        {evMsg && <div style={okBox}>{evMsg}</div>}
+        {evError && <div style={errorBox}>{evError}</div>}
+        <div style={fieldWrap}>
+          <label style={labelStyle}>סוג האירוע</label>
+          <select className="input-field" value={evType} onChange={e => setEvType(e.target.value)}>
+            {Object.entries(EVENT_TYPES).map(([k, label]) => <option key={k} value={k}>{label}</option>)}
+          </select>
         </div>
-      )}
+        <div style={fieldWrap}>
+          <label style={labelStyle}>{evType === 'shabbat' ? 'תאריך (יום שבת)' : 'תאריך'}</label>
+          <input type="date" className="input-field" value={evDate} min={today} onChange={e => setEvDate(e.target.value)} required dir="ltr" />
+        </div>
+        {evType === 'open_day' && (
+          <div style={fieldWrap}>
+            <label style={labelStyle}>שעת התחלה (לא חובה)</label>
+            <input type="time" className="input-field" value={evTime} onChange={e => setEvTime(e.target.value)} dir="ltr" />
+          </div>
+        )}
+        <div style={fieldWrap}>
+          <label style={labelStyle}>הערות (לא חובה)</label>
+          <input type="text" className="input-field" value={evNotes} maxLength={300} onChange={e => setEvNotes(e.target.value)} placeholder="פרטים להרשמה, מי מוזמן ועוד" />
+        </div>
+        <button type="submit" className="btn-primary" disabled={evBusy} style={{ width: '100%', marginTop: '0.5rem' }}>
+          <CalendarPlus style={{ width: 16, height: 16 }} />
+          {evBusy ? 'מוסיף...' : 'הוספה ללוח'}
+        </button>
+      </form>
+
+      <div>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.6rem', color: '#111827' }}>
+          האירועים שהוספתם
+        </h3>
+        {events.length === 0 ? (
+          <div style={{ color: '#6b7280', fontSize: '0.9rem' }}>עוד לא הוספתם אירועים.</div>
+        ) : events.map(ev => (
+          <div key={ev.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 0', borderTop: '1px solid var(--border-color)', opacity: ev.date < today ? 0.6 : 1 }}>
+            <div>
+              <div style={{ fontWeight: 700 }}>{EVENT_TYPES[ev.type] || ev.type}</div>
+              <div style={{ fontSize: '0.88rem', color: '#4b5563' }}>
+                {formatDate(ev.date)}{ev.time ? ` · ${ev.time}` : ''}{ev.notes ? ` · ${ev.notes}` : ''}
+              </div>
+            </div>
+            <button className="btn-secondary" onClick={() => removeEvent(ev)} aria-label="מחיקת אירוע" title="מחיקה">
+              <Trash2 style={{ width: 14, height: 14 }} />
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
