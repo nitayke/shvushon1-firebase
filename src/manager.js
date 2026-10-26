@@ -74,7 +74,7 @@ export const getInviteDB = async (token) => {
 };
 
 // Registers via Firebase Auth, then atomically consumes the invite and creates the manager profile.
-export const registerManagerDB = async ({ token, email, phone, password }) => {
+export const registerManagerDB = async ({ token, email, phone, hasWhatsapp, password }) => {
   const db = getDb();
   const auth = getAuthInstance();
   const invite = await getInviteDB(token);
@@ -94,6 +94,9 @@ export const registerManagerDB = async ({ token, email, phone, password }) => {
       uid,
       email,
       phone,
+      hasWhatsapp: !!hasWhatsapp,
+      privacyAccepted: true,
+      privacyAcceptedAt: new Date().toISOString(),
       yeshivaId: invite.yeshivaId,
       yeshivaName: invite.yeshivaName,
       inviteToken: token,
@@ -163,7 +166,7 @@ export const getManagerEventsDB = async (uid) => {
   return snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.date.localeCompare(b.date));
 };
 
-export const addEventDB = async (profile, { type, date, time, notes }) => {
+export const addEventDB = async (profile, { type, date, time }) => {
   if (!EVENT_TYPES[type]) throw new Error('סוג אירוע לא תקין');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('תאריך לא תקין');
   if (type === 'shabbat' && parseDateKey(date).getDay() !== 6) throw new Error('שבת שבושים חייבת להיות ביום שבת');
@@ -173,7 +176,8 @@ export const addEventDB = async (profile, { type, date, time, notes }) => {
     type,
     date,
     time: type === 'open_day' ? (time || '') : '',
-    notes: (notes || '').trim().slice(0, 300),
+    phone: profile.phone,
+    hasWhatsapp: !!profile.hasWhatsapp,
     created_by: profile.uid,
     created_at: new Date().toISOString()
   };
@@ -185,6 +189,25 @@ export const deleteEventDB = async (id) => {
   await deleteDoc(doc(getDb(), "events", id));
 };
 
-export const updateManagerPhoneDB = async (uid, phone) => {
-  await updateDoc(doc(getDb(), "managers", uid), { phone, updated_at: new Date().toISOString() });
+// Updates the contact details and mirrors them onto the manager's events (the public calendar can't read manager profiles).
+export const updateManagerContactDB = async (uid, phone, hasWhatsapp) => {
+  const db = getDb();
+  await updateDoc(doc(db, "managers", uid), { phone, hasWhatsapp, updated_at: new Date().toISOString() });
+  const snap = await getDocs(query(collection(db, "events"), where("created_by", "==", uid)));
+  if (snap.empty) return;
+  const batch = writeBatch(db);
+  snap.docs.forEach(d => batch.update(d.ref, { phone, hasWhatsapp }));
+  await batch.commit();
 };
+
+// Existing managers confirm the policy and set the WhatsApp flag in one step (the flag is required by the events rules).
+export const acceptPrivacyDB = async (uid, hasWhatsapp) => {
+  const privacyAcceptedAt = new Date().toISOString();
+  await updateDoc(doc(getDb(), "managers", uid), { hasWhatsapp: !!hasWhatsapp, privacyAccepted: true, privacyAcceptedAt, updated_at: privacyAcceptedAt });
+  return privacyAcceptedAt;
+};
+
+// Contact links for the public calendar
+export const phoneDigits = (phone) => String(phone || '').replace(/\D/g, '');
+export const telUrl = (phone) => `tel:${phoneDigits(phone)}`;
+export const whatsappUrl = (phone) => `https://wa.me/972${phoneDigits(phone).replace(/^0/, '')}`;

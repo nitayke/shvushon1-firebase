@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { CalendarDays, Clock } from 'lucide-react';
-import { getUpcomingEventsDB, parseDateKey, EVENT_TYPES } from '../manager';
+import { CalendarDays, Clock, Phone, MessageCircle } from 'lucide-react';
+import { getUpcomingEventsDB, parseDateKey, EVENT_TYPES, telUrl, whatsappUrl } from '../manager';
 
 const fmt = (key, opts, locale = 'he-IL') => new Intl.DateTimeFormat(locale, opts).format(parseDateKey(key));
 
@@ -69,7 +69,20 @@ export default function CalendarView() {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 700, fontSize: '1.05rem' }}>{ev.yeshivaName}</div>
               <div style={{ fontWeight: 600 }}>{EVENT_TYPES[ev.type] || ev.type}</div>
-              {ev.notes && <div style={{ marginTop: 2, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{ev.notes}</div>}
+              {ev.phone && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: 6 }}>
+                  {ev.hasWhatsapp && (
+                    <a href={whatsappUrl(ev.phone)} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ textDecoration: 'none', padding: '0.3rem 0.7rem', fontSize: '0.85rem' }}>
+                      <MessageCircle style={{ width: 14, height: 14 }} />
+                      ווצאפ לאחראי
+                    </a>
+                  )}
+                  <a href={telUrl(ev.phone)} className="btn-secondary" style={{ textDecoration: 'none', padding: '0.3rem 0.7rem', fontSize: '0.85rem' }}>
+                    <Phone style={{ width: 14, height: 14 }} />
+                    <span dir="ltr">{ev.phone}</span>
+                  </a>
+                </div>
+              )}
             </div>
             <div style={{ textAlign: 'center', minWidth: 84, lineHeight: 1.25, color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
               <div style={{ fontWeight: 800, fontSize: '1.9rem', color: 'var(--primary-accent)', lineHeight: 1.1 }}>{hebrewParts(ev.date).day}</div>

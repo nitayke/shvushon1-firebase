@@ -4,6 +4,7 @@ import Questionnaire from './components/Questionnaire';
 import ResultsView from './components/ResultsView';
 const ManagerPortal = lazy(() => import('./components/ManagerPortal'));
 import CalendarView from './components/CalendarView';
+import PrivacyPolicy from './components/PrivacyPolicy';
 import YeshivaRequestModal from './components/YeshivaRequestModal';
 import { getYeshivotDB, saveTestResultDB } from './firebase';
 import { calculateKNNMatches } from './knn';
@@ -15,6 +16,7 @@ export default function App() {
     const search = window.location.search;
     const hash = window.location.hash;
     if (path.startsWith('/calendar')) return 'calendar';
+    if (path.startsWith('/privacy')) return 'privacy';
     if (path.startsWith('/manager/register')) return 'manager-register';
     if (path.startsWith('/manager') || path.startsWith('/admin') || search.includes('admin=true') || hash === '#admin') {
       return 'manager';
@@ -182,6 +184,8 @@ export default function App() {
 
             {view === 'calendar' && <CalendarView />}
 
+            {view === 'privacy' && <PrivacyPolicy />}
+
             {(view === 'manager' || view === 'manager-register') && (
               <Suspense fallback={<p style={{ textAlign: 'center', padding: '2rem' }}>טוען...</p>}>
                 <ManagerPortal
@@ -199,7 +203,7 @@ export default function App() {
       {/* Bottom Footer Action Links */}
       <footer style={{ marginTop: '1.5rem', padding: '1rem 0 0.5rem', textAlign: 'center', borderTop: '1px solid var(--border-color)' }}>
         <div className="footer-links">
-          {view !== 'manager' && view !== 'manager-register' && view !== 'calendar' ? (
+          {view !== 'manager' && view !== 'manager-register' && view !== 'calendar' && view !== 'privacy' ? (
             <>
               <button
                 onClick={() => {

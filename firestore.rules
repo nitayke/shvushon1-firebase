@@ -62,7 +62,7 @@ service cloud.firestore {
                     && getAfter(/databases/$(database)/documents/invites/$(request.resource.data.inviteToken)).data.used_by == uid
                     && get(/databases/$(database)/documents/invites/$(request.resource.data.inviteToken)).data.yeshivaId == request.resource.data.yeshivaId;
       allow update: if (isManager() && request.auth.uid == uid
-                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['phone', 'updated_at']))
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['phone', 'hasWhatsapp', 'privacyAccepted', 'privacyAcceptedAt', 'updated_at']))
                     || isAdmin();
       allow delete: if isAdmin();
     }
@@ -75,12 +75,18 @@ service cloud.firestore {
                     && request.resource.data.type in ['open_day', 'shabbat']
                     && request.resource.data.date is string
                     && request.resource.data.date.size() == 10
-                    && request.resource.data.notes is string
-                    && request.resource.data.notes.size() <= 300
+                    && !('notes' in request.resource.data)
                     && get(/databases/$(database)/documents/managers/$(request.auth.uid)).data.yeshivaId == request.resource.data.yeshivaId
-                    && get(/databases/$(database)/documents/managers/$(request.auth.uid)).data.yeshivaName == request.resource.data.yeshivaName;
+                    && get(/databases/$(database)/documents/managers/$(request.auth.uid)).data.yeshivaName == request.resource.data.yeshivaName
+                    && get(/databases/$(database)/documents/managers/$(request.auth.uid)).data.phone == request.resource.data.phone
+                    && get(/databases/$(database)/documents/managers/$(request.auth.uid)).data.hasWhatsapp == request.resource.data.hasWhatsapp;
       allow delete: if isAdmin() || (isManager() && resource.data.created_by == request.auth.uid);
-      allow update: if isAdmin();
+      // האחראי יכול לעדכן באירועים שלו רק את פרטי הקשר, בהתאם לפרופיל שלו
+      allow update: if isAdmin()
+                    || (isManager() && resource.data.created_by == request.auth.uid
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['phone', 'hasWhatsapp'])
+                        && get(/databases/$(database)/documents/managers/$(request.auth.uid)).data.phone == request.resource.data.phone
+                        && get(/databases/$(database)/documents/managers/$(request.auth.uid)).data.hasWhatsapp == request.resource.data.hasWhatsapp);
     }
 
   }

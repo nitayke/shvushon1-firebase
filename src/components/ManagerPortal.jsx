@@ -10,7 +10,8 @@ import {
   isAdminUser,
   watchManagerAuth,
   getManagerProfileDB,
-  updateManagerPhoneDB,
+  updateManagerContactDB,
+  acceptPrivacyDB,
   isValidPhone,
   EVENT_TYPES,
   getManagerEventsDB,
@@ -43,13 +44,70 @@ function PasswordInput({ value, onChange, autoComplete, minLength }) {
 
 const labelStyle = { display: 'block', fontWeight: 500, marginBottom: '0.35rem', color: 'var(--text-primary)', fontSize: '0.95rem' };
 const fieldWrap = { marginBottom: '0.3rem' };
+const checkRow = { display: 'flex', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.8rem', cursor: 'pointer', fontSize: '0.92rem' };
 const errorBox = { background: 'rgba(239, 68, 68, 0.12)', border: '1px solid #ef4444', color: '#b91c1c', padding: '0.7rem 1rem', borderRadius: 10, marginBottom: '1rem' };
 const okBox = { background: 'rgba(16, 185, 129, 0.15)', border: '1px solid #10b981', color: '#047857', padding: '0.7rem 1rem', borderRadius: 10, marginBottom: '1rem' };
+
+function PrivacyConsent({ agreed, setAgreed }) {
+  return (
+    <label style={checkRow}>
+      <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={{ marginTop: 4 }} />
+      <span>
+        קראתי ואני מאשר את <a href="/privacy" target="_blank" rel="noopener noreferrer">מדיניות הפרטיות</a>:
+        הטלפון שלי יוצג בלוח האירועים הציבורי, ושבושון רשאי ליצור איתי קשר בווצאפ, בטלפון ובאימייל.
+      </span>
+    </label>
+  );
+}
+
+// Managers who registered before the policy existed must approve it before using the dashboard.
+function PrivacyGate({ user, profile, onAccepted }) {
+  const [agreed, setAgreed] = useState(false);
+  const [hasWhatsapp, setHasWhatsapp] = useState(!!profile.hasWhatsapp);
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (!agreed) return setError('יש לאשר את מדיניות הפרטיות כדי להמשיך');
+    setBusy(true);
+    try {
+      const at = await acceptPrivacyDB(user.uid, hasWhatsapp);
+      onAccepted({ ...profile, hasWhatsapp, privacyAccepted: true, privacyAcceptedAt: at });
+    } catch (err) {
+      console.error(err);
+      setError('שגיאה בשמירת האישור');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <form onSubmit={submit}>
+      <p style={{ marginBottom: '1rem' }}>כדי להמשיך יש לאשר את מדיניות הפרטיות ולעדכן אם יש לך ווצאפ במספר <span dir="ltr">{profile.phone}</span>.</p>
+      {error && <div style={errorBox}>{error}</div>}
+      <label style={checkRow}>
+        <input type="checkbox" checked={hasWhatsapp} onChange={e => setHasWhatsapp(e.target.checked)} style={{ marginTop: 4 }} />
+        <span>יש לי ווצאפ במספר הזה</span>
+      </label>
+      <PrivacyConsent agreed={agreed} setAgreed={setAgreed} />
+      <button type="submit" className="btn-primary" disabled={busy} style={{ width: '100%', marginBottom: '0.6rem' }}>
+        {busy ? 'שומר...' : 'אישור והמשך'}
+      </button>
+      <button type="button" className="btn-secondary" onClick={logoutManagerDB} style={{ width: '100%' }}>
+        <LogOut style={{ width: 14, height: 14 }} /> התנתקות
+      </button>
+    </form>
+  );
+}
 
 function RegisterForm({ token, goToLogin }) {
   const [invite, setInvite] = useState(undefined); // undefined = loading, null = invalid
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [hasWhatsapp, setHasWhatsapp] = useState(true);
+  const [agreed, setAgreed] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -65,9 +123,10 @@ function RegisterForm({ token, goToLogin }) {
     setError('');
     if (!isValidPhone(phone)) return setError('מספר טלפון לא תקין');
     if (password.length < 6) return setError('הסיסמה חייבת להכיל לפחות 6 תווים');
+    if (!agreed) return setError('יש לאשר את מדיניות הפרטיות');
     setBusy(true);
     try {
-      await registerManagerDB({ token, email: email.trim(), phone: phone.trim(), password });
+      await registerManagerDB({ token, email: email.trim(), phone: phone.trim(), hasWhatsapp, password });
       goToLogin();
     } catch (err) {
       setError(err.message);
@@ -95,10 +154,15 @@ function RegisterForm({ token, goToLogin }) {
         <label style={labelStyle}>מספר טלפון נוכחי</label>
         <input type="tel" className="input-field" value={phone} onChange={e => setPhone(e.target.value)} required dir="ltr" placeholder="050-1234567" autoComplete="tel" />
       </div>
+      <label style={{ ...checkRow, marginTop: '0.4rem' }}>
+        <input type="checkbox" checked={hasWhatsapp} onChange={e => setHasWhatsapp(e.target.checked)} style={{ marginTop: 4 }} />
+        <span>יש לי ווצאפ במספר הזה</span>
+      </label>
       <div style={fieldWrap}>
         <label style={labelStyle}>סיסמה</label>
         <PasswordInput value={password} onChange={e => setPassword(e.target.value)} minLength={6} autoComplete="new-password" />
       </div>
+      <PrivacyConsent agreed={agreed} setAgreed={setAgreed} />
       <button type="submit" className="btn-primary" disabled={busy} style={{ width: '100%' }}>
         {busy ? 'נרשם...' : 'הרשמה'}
       </button>
@@ -168,11 +232,11 @@ function ManagerDashboard({ user }) {
   const [evType, setEvType] = useState('open_day');
   const [evDate, setEvDate] = useState('');
   const [evTime, setEvTime] = useState('');
-  const [evNotes, setEvNotes] = useState('');
   const [evMsg, setEvMsg] = useState('');
   const [evError, setEvError] = useState('');
   const [evBusy, setEvBusy] = useState(false);
   const [phone, setPhone] = useState('');
+  const [hasWhatsapp, setHasWhatsapp] = useState(false);
   const [msg, setMsg] = useState('');
   const [error, setError] = useState('');
 
@@ -183,6 +247,7 @@ function ManagerDashboard({ user }) {
         setProfile(p);
         if (p) {
           setPhone(p.phone || '');
+          setHasWhatsapp(!!p.hasWhatsapp);
           setEvents(await getManagerEventsDB(user.uid));
         }
       } catch (err) {
@@ -198,9 +263,9 @@ function ManagerDashboard({ user }) {
     setError('');
     if (!isValidPhone(phone)) return setError('מספר טלפון לא תקין');
     try {
-      await updateManagerPhoneDB(user.uid, phone.trim());
-      setProfile({ ...profile, phone: phone.trim() });
-      setMsg('מספר הטלפון עודכן');
+      await updateManagerContactDB(user.uid, phone.trim(), hasWhatsapp);
+      setProfile({ ...profile, phone: phone.trim(), hasWhatsapp });
+      setMsg('פרטי הקשר עודכנו');
     } catch (err) {
       console.error(err);
       setError('שגיאה בעדכון הטלפון');
@@ -215,9 +280,9 @@ function ManagerDashboard({ user }) {
     if (evDate < toDateKey(new Date())) return setEvError('לא ניתן להוסיף אירוע בתאריך שעבר');
     setEvBusy(true);
     try {
-      const created = await addEventDB(profile, { type: evType, date: evDate, time: evTime, notes: evNotes });
+      const created = await addEventDB(profile, { type: evType, date: evDate, time: evTime });
       setEvents(list => [...list, created].sort((a, b) => a.date.localeCompare(b.date)));
-      setEvDate(''); setEvTime(''); setEvNotes('');
+      setEvDate(''); setEvTime('');
       setEvMsg('האירוע נוסף ללוח של שבושון');
     } catch (err) {
       console.error(err);
@@ -253,6 +318,10 @@ function ManagerDashboard({ user }) {
     );
   }
 
+  if (!profile.privacyAccepted) {
+    return <PrivacyGate user={user} profile={profile} onAccepted={(p) => { setProfile(p); setHasWhatsapp(!!p.hasWhatsapp); }} />;
+  }
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.2rem' }}>
@@ -279,6 +348,10 @@ function ManagerDashboard({ user }) {
             עדכון
           </button>
         </div>
+        <label style={{ ...checkRow, marginTop: '0.6rem', marginBottom: 0 }}>
+          <input type="checkbox" checked={hasWhatsapp} onChange={e => setHasWhatsapp(e.target.checked)} style={{ marginTop: 4 }} />
+          <span>יש לי ווצאפ במספר הזה</span>
+        </label>
       </form>
 
       <form onSubmit={addEvent} style={{ marginBottom: '1.5rem' }}>
@@ -303,10 +376,6 @@ function ManagerDashboard({ user }) {
             <input type="time" className="input-field" value={evTime} onChange={e => setEvTime(e.target.value)} dir="ltr" />
           </div>
         )}
-        <div style={fieldWrap}>
-          <label style={labelStyle}>הערות (לא חובה)</label>
-          <input type="text" className="input-field" value={evNotes} maxLength={300} onChange={e => setEvNotes(e.target.value)} placeholder="פרטים להרשמה, מי מוזמן ועוד" />
-        </div>
         <button type="submit" className="btn-primary" disabled={evBusy} style={{ width: '100%', marginTop: '0.5rem' }}>
           <CalendarPlus style={{ width: 16, height: 16 }} />
           {evBusy ? 'מוסיף...' : 'הוספה ללוח'}
@@ -324,7 +393,7 @@ function ManagerDashboard({ user }) {
             <div>
               <div style={{ fontWeight: 700 }}>{EVENT_TYPES[ev.type] || ev.type}</div>
               <div style={{ fontSize: '0.88rem', color: '#4b5563' }}>
-                {formatDate(ev.date)}{ev.time ? ` · ${ev.time}` : ''}{ev.notes ? ` · ${ev.notes}` : ''}
+                {formatDate(ev.date)}{ev.time ? ` · ${ev.time}` : ''}
               </div>
             </div>
             <button className="btn-secondary" onClick={() => removeEvent(ev)} aria-label="מחיקת אירוע" title="מחיקה">
