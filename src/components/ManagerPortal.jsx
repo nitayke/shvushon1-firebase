@@ -84,7 +84,7 @@ function RegisterForm({ token, goToLogin }) {
   return (
     <form onSubmit={submit}>
       <p style={{ marginBottom: '1.2rem', color: '#374151' }}>
-        הרשמה כאחראי שבושים של <strong>{invite.yeshivaName}</strong> (קוד ישיבה: <strong>{invite.code}</strong>)
+        הרשמה כאחראי שבושים של <strong>{invite.yeshivaName}</strong>
       </p>
       {error && <div style={errorBox}>{error}</div>}
       <div style={fieldWrap}>
@@ -259,7 +259,7 @@ function ManagerDashboard({ user }) {
         <div>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: '#111827' }}>{profile.yeshivaName}</h2>
           <div style={{ color: '#6b7280', fontSize: '0.9rem', marginTop: 2 }}>
-            קוד ישיבה: <strong>{profile.code}</strong> • {profile.email}
+            {profile.email}
           </div>
         </div>
         <button className="btn-secondary" onClick={logoutManagerDB}>

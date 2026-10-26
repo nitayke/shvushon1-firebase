@@ -26,7 +26,7 @@ export default function AdminDashboard({ onExitAdmin }) {
   const [yeshivot, setYeshivot] = useState([]);
   const [analyticsTick, setAnalyticsTick] = useState(0);
   const [managers, setManagers] = useState([]);
-  const [inviteResult, setInviteResult] = useState(null); // { yeshivaName, code, url }
+  const [inviteResult, setInviteResult] = useState(null); // { yeshivaName, url }
 
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
@@ -123,8 +123,8 @@ export default function AdminDashboard({ onExitAdmin }) {
   const handleCreateInvite = async (y) => {
     setLoading(true);
     try {
-      const invite = await createManagerInviteDB(y, yeshivot);
-      setInviteResult({ yeshivaName: y.name, code: invite.code, url: invite.url });
+      const invite = await createManagerInviteDB(y);
+      setInviteResult({ yeshivaName: y.name, url: invite.url });
       await loadActiveTabData('yeshivot', true);
     } catch (err) {
       console.error('Error creating manager invite:', err);
@@ -467,7 +467,6 @@ export default function AdminDashboard({ onExitAdmin }) {
                       <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>{y.name}</h3>
                       <div style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: 2 }}>
                         {TYPE_TRANSLATIONS[y.type] || y.type} • {REGION_TRANSLATIONS[y.region] || y.region}
-                        {y.code ? ` • קוד: ${y.code}` : ''}
                       </div>
                     </div>
 
@@ -530,7 +529,7 @@ export default function AdminDashboard({ onExitAdmin }) {
               קישור הרשמה לאחראי שבושים – {inviteResult.yeshivaName}
             </h2>
             <p style={{ color: '#374151', marginBottom: '0.8rem' }}>
-              קוד הישיבה: <strong>{inviteResult.code}</strong>. הקישור חד-פעמי – אחרי שהאחראי נרשם הוא יפסיק לעבוד.
+              הקישור חד-פעמי – אחרי שהאחראי נרשם הוא יפסיק לעבוד.
             </p>
             <input readOnly className="input-field" dir="ltr" value={inviteResult.url} onFocus={(e) => e.target.select()} style={{ marginBottom: '1rem' }} />
             <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>

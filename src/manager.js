@@ -18,7 +18,7 @@ import {
   sendPasswordResetEmail,
   onAuthStateChanged
 } from "firebase/auth";
-import { getDb, getAuthInstance, authenticateAdminDB, saveYeshivaDB } from "./firebase";
+import { getDb, getAuthInstance, authenticateAdminDB } from "./firebase";
 
 export const ADMIN_EMAIL = 'shvushon@gmail.com';
 
@@ -46,23 +46,17 @@ const authErrorMessage = (err) => {
 
 // ---------- Admin side ----------
 
-// Creates a one-time registration invite for a yeshiva; assigns the yeshiva a numeric code if missing.
-export const createManagerInviteDB = async (yeshiva, allYeshivot) => {
+// Creates a one-time registration invite for a yeshiva.
+export const createManagerInviteDB = async (yeshiva) => {
   await authenticateAdminDB();
-  let code = yeshiva.code;
-  if (!code) {
-    code = Math.max(0, ...allYeshivot.map(y => Number(y.code) || 0)) + 1;
-    await saveYeshivaDB({ ...yeshiva, code });
-  }
   const token = randomToken();
   await setDoc(doc(getDb(), "invites", token), {
     yeshivaId: yeshiva.id,
     yeshivaName: yeshiva.name,
-    code,
     used: false,
     created_at: new Date().toISOString()
   });
-  return { token, code, url: `${window.location.origin}/manager/register?invite=${token}` };
+  return { token, url: `${window.location.origin}/manager/register?invite=${token}` };
 };
 
 export const getManagersDB = async () => {
@@ -102,7 +96,6 @@ export const registerManagerDB = async ({ token, email, phone, password }) => {
       phone,
       yeshivaId: invite.yeshivaId,
       yeshivaName: invite.yeshivaName,
-      code: invite.code,
       inviteToken: token,
       created_at: new Date().toISOString()
     });

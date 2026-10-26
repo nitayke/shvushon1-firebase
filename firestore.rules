@@ -60,8 +60,7 @@ service cloud.firestore {
       allow create: if isManager() && request.auth.uid == uid
                     && get(/databases/$(database)/documents/invites/$(request.resource.data.inviteToken)).data.used == false
                     && getAfter(/databases/$(database)/documents/invites/$(request.resource.data.inviteToken)).data.used_by == uid
-                    && get(/databases/$(database)/documents/invites/$(request.resource.data.inviteToken)).data.yeshivaId == request.resource.data.yeshivaId
-                    && get(/databases/$(database)/documents/invites/$(request.resource.data.inviteToken)).data.code == request.resource.data.code;
+                    && get(/databases/$(database)/documents/invites/$(request.resource.data.inviteToken)).data.yeshivaId == request.resource.data.yeshivaId;
       allow update: if (isManager() && request.auth.uid == uid
                         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['phone', 'updated_at']))
                     || isAdmin();
