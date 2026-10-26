@@ -16,6 +16,8 @@ import {
 } from "firebase/auth";
 import { getDb, getAuthInstance, authenticateAdminDB, saveYeshivaDB } from "./firebase";
 
+export const ADMIN_EMAIL = 'shvushon@gmail.com';
+
 const randomToken = () => {
   const bytes = new Uint8Array(24);
   crypto.getRandomValues(bytes);
@@ -116,6 +118,8 @@ export const loginManagerDB = async (email, password) => {
     throw new Error(authErrorMessage(err));
   }
 };
+
+export const isAdminUser = (user) => user?.email?.toLowerCase() === ADMIN_EMAIL;
 
 export const logoutManagerDB = () => signOut(getAuthInstance());
 

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 // Shvushon 2.0.1 - Male phrasing & 100% Live Firestore
 import Questionnaire from './components/Questionnaire';
 import ResultsView from './components/ResultsView';
-import AdminDashboard from './components/AdminDashboard';
 import ManagerPortal from './components/ManagerPortal';
 import YeshivaRequestModal from './components/YeshivaRequestModal';
 import { getYeshivotDB, saveTestResultDB } from './firebase';
@@ -15,9 +14,8 @@ export default function App() {
     const search = window.location.search;
     const hash = window.location.hash;
     if (path.startsWith('/manager/register')) return 'manager-register';
-    if (path.startsWith('/manager')) return 'manager';
-    if (path.startsWith('/admin') || search.includes('admin=true') || hash === '#admin') {
-      return 'admin';
+    if (path.startsWith('/manager') || path.startsWith('/admin') || search.includes('admin=true') || hash === '#admin') {
+      return 'manager';
     }
     if (path.startsWith('/results') || hash === '#results') {
       return 'results';
@@ -38,8 +36,8 @@ export default function App() {
   // Helper navigation functions
   const navigateToAdmin = (e) => {
     if (e) e.preventDefault();
-    window.history.pushState({ view: 'admin' }, '', '/admin');
-    setViewState('admin');
+    window.history.pushState({ view: 'manager' }, '', '/admin');
+    setViewState('manager');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     if (!hasTriggeredLoad) loadYeshivot();
   };
@@ -195,14 +193,10 @@ export default function App() {
               <ManagerPortal
                 mode={view === 'manager-register' ? 'register' : 'login'}
                 inviteToken={new URLSearchParams(window.location.search).get('invite')}
+                onExit={navigateToHome}
               />
             )}
 
-            {view === 'admin' && (
-              <AdminDashboard
-                onExitAdmin={navigateToHome}
-              />
-            )}
           </>
         )}
       </main>
@@ -282,8 +276,8 @@ export default function App() {
         onClose={() => setIsRequestModalOpen(false)}
         onOpenAdmin={() => {
           setIsRequestModalOpen(false);
-          setViewState('admin');
-          window.history.pushState({ view: 'admin' }, '', '/admin');
+          setViewState('manager');
+          window.history.pushState({ view: 'manager' }, '', '/admin');
         }}
       />
     </div>

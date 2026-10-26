@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import AdminDashboard from './AdminDashboard';
 import { UserCog, LogOut, Phone, KeyRound } from 'lucide-react';
 import {
   getInviteDB,
@@ -6,6 +7,7 @@ import {
   loginManagerDB,
   logoutManagerDB,
   resetManagerPasswordDB,
+  isAdminUser,
   watchManagerAuth,
   getManagerProfileDB,
   getYeshivaByIdDB,
@@ -230,7 +232,7 @@ function ManagerDashboard({ user }) {
   );
 }
 
-export default function ManagerPortal({ mode, inviteToken }) {
+export default function ManagerPortal({ mode, inviteToken, onExit }) {
   const [user, setUser] = useState(undefined); // undefined = auth not resolved yet
   const [justRegistered, setJustRegistered] = useState(false);
 
@@ -242,11 +244,16 @@ export default function ManagerPortal({ mode, inviteToken }) {
   // After a successful registration the new user is already signed in, so show the dashboard.
   const showRegister = mode === 'register' && !user && !justRegistered;
 
+  // The full admin console replaces the card layout for the site admin account.
+  if (user && isAdminUser(user)) {
+    return <AdminDashboard onExitAdmin={async () => { await logoutManagerDB(); onExit?.(); }} />;
+  }
+
   return (
     <div className="glass-card" style={{ maxWidth: 560, margin: '0 auto' }}>
       <h2 className="section-title" style={{ marginBottom: '1.2rem' }}>
         <UserCog className="w-5 h-5" />
-        {showRegister ? 'הרשמת אחראי שבושים' : 'כניסת אחראי ישיבה'}
+        {showRegister ? 'הרשמת אחראי שבושים' : 'כניסה לממשק הניהול'}
       </h2>
       {user === undefined ? (
         <p style={{ textAlign: 'center' }}>טוען...</p>

@@ -9,7 +9,7 @@ import {
   deleteDoc,
   writeBatch
 } from "firebase/firestore";
-import { getAuth, signInAnonymously, signOut } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { getAnalytics, isSupported } from "firebase/analytics";
 
 // Read Firebase keys from environment variables
@@ -53,23 +53,9 @@ if (isFirebaseConfigured) {
 export const getDb = () => db;
 export const getAuthInstance = () => auth;
 
-// Admin Authentication function to get valid Firebase token for security rules
-export const authenticateAdminDB = async () => {
-  if (isFirebaseConfigured && auth) {
-    try {
-      // A signed-in yeshiva manager (email/password) must never act as admin
-      if (auth.currentUser && !auth.currentUser.isAnonymous) {
-        await signOut(auth);
-      }
-      if (!auth.currentUser) {
-        await signInAnonymously(auth);
-        console.log("🔒 Firebase Admin session authenticated successfully!");
-      }
-    } catch (err) {
-      console.warn("Notice: Firebase Anonymous Auth is not enabled in Firebase Console. Proceeding directly with Firestore queries:", err?.message || err);
-    }
-  }
-};
+// Admin access is granted by the signed-in Firebase account (see ADMIN_EMAIL in manager.js and firestore.rules).
+// Kept as a no-op hook so admin data functions don't need to change.
+export const authenticateAdminDB = async () => {};
 
 // Local Storage Fallback keys
 const LOCAL_YESHIVOT_KEY = 'shvushon_yeshivot_v2';

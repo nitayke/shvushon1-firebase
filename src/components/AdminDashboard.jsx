@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, Plus, Check, RefreshCw, Trash2, Edit3, Lock, LogOut, Inbox, Users, Database, TrendingUp, Link2, Copy } from 'lucide-react';
+import { ShieldCheck, Plus, Check, RefreshCw, Trash2, Edit3, LogOut, Inbox, Users, Database, TrendingUp, Link2, Copy } from 'lucide-react';
 import { 
   getYeshivotDB, 
   getYeshivaRequestsDB, 
@@ -19,9 +19,6 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 import { LineChart, Line } from 'recharts';
 
 export default function AdminDashboard({ onExitAdmin }) {
-  const [password, setPassword] = useState('');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authError, setAuthError] = useState('');
 
   const [activeTab, setActiveTab] = useState('requests'); // requests, submissions, yeshivot, analytics
   const [submissionFilter, setSubmissionFilter] = useState('pending'); // 'pending' or 'all'
@@ -37,38 +34,6 @@ export default function AdminDashboard({ onExitAdmin }) {
 
   // Editing state for yeshivot
   const [editingYeshiva, setEditingYeshiva] = useState(null);
-
-  const hashPassword = async (text) => {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(text);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  };
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const inputHash = await hashPassword(password);
-      const envPassword = import.meta.env.VITE_ADMIN_PASSWORD;
-      const targetHash = import.meta.env.VITE_ADMIN_PASSWORD_HASH || "5f45c21f1598a41efcd1361add2bdba667629eb09f2ec9d819d915e0efc2310d";
-
-      const isValid = (envPassword && password === envPassword) || (inputHash === targetHash);
-
-      if (isValid) {
-        setIsAuthenticated(true);
-        setAuthError('');
-      } else {
-        setAuthError('סיסמה שגויה!');
-      }
-    } catch (err) {
-      console.error("Login verification error:", err);
-      setAuthError('שגיאה באימות סיסמה');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const loadActiveTabData = async (tabToLoad = activeTab, force = false) => {
     setLoading(true);
@@ -91,10 +56,8 @@ export default function AdminDashboard({ onExitAdmin }) {
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
-      loadActiveTabData(activeTab, false);
-    }
-  }, [activeTab, isAuthenticated]);
+    loadActiveTabData(activeTab, false);
+  }, [activeTab]);
 
   const handleApproveRequest = async (request) => {
     setLoading(true);
@@ -209,51 +172,6 @@ export default function AdminDashboard({ onExitAdmin }) {
 
   const regionOptions = REGIONS.map(r => ({ value: r.id, label: r.label }));
   const typeOptions = TYPES.filter(t => t.id !== 'all').map(t => ({ value: t.id, label: t.label }));
-
-  // Password Screen
-  if (!isAuthenticated) {
-    return (
-      <div className="glass-card" style={{ maxWidth: 450, margin: '2rem auto', textAlign: 'center', animation: 'fadeIn 0.3s' }}>
-        <div style={{ display: 'inline-flex', padding: '0.8rem', borderRadius: '50%', background: '#ede5d7', color: '#52341d', marginBottom: '1rem' }}>
-          <Lock style={{ width: 36, height: 36 }} />
-        </div>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.5rem', color: '#111827' }}>
-          כניסה לממשק ניהול
-        </h2>
-        <p style={{ color: '#4b5563', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-          הזן סיסמת אדמין לניהול מאגר הישיבות והמכינות
-        </p>
-
-        <form onSubmit={handleLogin}>
-          <input
-            type="password"
-            className="input-field"
-            placeholder="סיסמת אדמין"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={{ textAlign: 'center', fontSize: '1.1rem', letterSpacing: 2 }}
-            autoFocus
-            required
-          />
-
-          {authError && (
-            <div style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '1rem', fontWeight: 600 }}>
-              {authError}
-            </div>
-          )}
-
-          <div style={{ display: 'flex', gap: '0.8rem', justifyContent: 'center' }}>
-            <button type="button" onClick={onExitAdmin} className="btn-secondary">
-              חזרה
-            </button>
-            <button type="submit" className="btn-primary">
-              כניסה למערכת
-            </button>
-          </div>
-        </form>
-      </div>
-    );
-  }
 
   return (
     <div className="admin-container">

@@ -3,12 +3,16 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // אדמין = התחברות אנונימית של ממשק הניהול. אחראי ישיבה = התחברות באימייל וסיסמה (ללא הרשאות ניהול).
+    // אדמין = חשבון האתר היחיד (אימייל וסיסמה). אחראי ישיבה = כל חשבון אימייל וסיסמה אחר (ללא הרשאות ניהול).
     function isAdmin() {
-      return request.auth != null && request.auth.token.firebase.sign_in_provider == 'anonymous';
+      return request.auth != null
+          && request.auth.token.email == 'shvushon@gmail.com'
+          && request.auth.token.firebase.sign_in_provider == 'password';
     }
     function isManager() {
-      return request.auth != null && request.auth.token.firebase.sign_in_provider == 'password';
+      return request.auth != null
+          && request.auth.token.firebase.sign_in_provider == 'password'
+          && request.auth.token.email != 'shvushon@gmail.com';
     }
 
     // 1. רשימת הישיבות: קריאה חופשית לציבור, כתיבה ועריכה לאדמין מורשה בלבד
