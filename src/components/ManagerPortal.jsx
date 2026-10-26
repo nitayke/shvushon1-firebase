@@ -239,6 +239,61 @@ function LoginForm({ notice }) {
   );
 }
 
+const WEEKDAY_LETTERS = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'];
+
+// Month grid for picking an event date. With onlySaturday, every other day is disabled; past days always are.
+function DatePicker({ value, onChange, min, onlySaturday }) {
+  const start = value ? parseDateKey(value) : new Date();
+  const [month, setMonth] = useState(new Date(start.getFullYear(), start.getMonth(), 1));
+  const first = new Date(month.getFullYear(), month.getMonth(), 1);
+  const daysInMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+  const minMonth = parseDateKey(min);
+  const atMin = month.getFullYear() === minMonth.getFullYear() && month.getMonth() === minMonth.getMonth();
+  const title = new Intl.DateTimeFormat('he-IL', { month: 'long', year: 'numeric' }).format(month);
+  const cells = [...Array(first.getDay()).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
+  const navBtn = { background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.3rem', padding: '0 0.6rem', color: 'var(--primary-accent)' };
+
+  return (
+    <div style={{ border: '1px solid var(--border-strong)', borderRadius: 10, padding: '0.6rem', background: 'var(--bg-sand)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+        <button type="button" style={{ ...navBtn, opacity: 1 }} onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))} aria-label="החודש הבא">›</button>
+        <strong>{title}</strong>
+        <button type="button" disabled={atMin} style={{ ...navBtn, opacity: atMin ? 0.3 : 1, cursor: atMin ? 'default' : 'pointer' }} onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))} aria-label="החודש הקודם">‹</button>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, textAlign: 'center' }}>
+        {WEEKDAY_LETTERS.map(l => <div key={l} style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{l}</div>)}
+        {cells.map((day, i) => {
+          if (!day) return <div key={`e${i}`} />;
+          const d = new Date(month.getFullYear(), month.getMonth(), day);
+          const key = toDateKey(d);
+          const enabled = (!onlySaturday || d.getDay() === 6) && key >= min;
+          const selected = key === value;
+          return (
+            <button
+              key={key}
+              type="button"
+              disabled={!enabled}
+              onClick={() => onChange(key)}
+              style={{
+                minHeight: 38,
+                borderRadius: 8,
+                border: selected ? '2px solid var(--primary-accent)' : '1px solid transparent',
+                background: selected ? 'var(--primary-accent)' : enabled ? 'rgba(180, 120, 40, 0.16)' : 'transparent',
+                color: selected ? '#fff' : enabled ? 'var(--text-primary)' : 'var(--text-muted)',
+                fontWeight: enabled ? 700 : 400,
+                opacity: enabled ? 1 : 0.35,
+                cursor: enabled ? 'pointer' : 'not-allowed'
+              }}
+            >
+              {day}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function ManagerDashboard({ user }) {
   const [profile, setProfile] = useState(undefined);
   const [events, setEvents] = useState([]);
@@ -375,13 +430,16 @@ function ManagerDashboard({ user }) {
         {evError && <div style={errorBox}>{evError}</div>}
         <div style={fieldWrap}>
           <label style={labelStyle}>סוג האירוע</label>
-          <select className="input-field" value={evType} onChange={e => setEvType(e.target.value)}>
+          <select className="input-field" value={evType} onChange={e => { setEvType(e.target.value); setEvDate(''); }}>
             {Object.entries(EVENT_TYPES).map(([k, label]) => <option key={k} value={k}>{label}</option>)}
           </select>
         </div>
         <div style={fieldWrap}>
           <label style={labelStyle}>{evType === 'shabbat' ? 'תאריך (יום שבת)' : 'תאריך'}</label>
-          <input type="date" className="input-field" value={evDate} min={today} onChange={e => setEvDate(e.target.value)} required dir="ltr" />
+          <DatePicker value={evDate} onChange={setEvDate} min={today} onlySaturday={evType === 'shabbat'} />
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: 4 }}>
+            {evDate ? formatDate(evDate) : evType === 'shabbat' ? 'ניתן לבחור רק ימי שבת' : 'בחר תאריך'}
+          </div>
         </div>
         {evType === 'open_day' && (
           <div style={fieldWrap}>
