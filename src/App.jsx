@@ -201,7 +201,7 @@ export default function App() {
                 בקשה להוספת ישיבה / מכינה
               </button>
 
-              <a href="mailto:nitayke1@gmail.com" className="btn-secondary" style={{ textDecoration: 'none' }}>
+              <a href="mailto:shvushon@gmail.com" className="btn-secondary" style={{ textDecoration: 'none' }}>
                 <Mail style={{ width: 16, height: 16 }} />
                 צור קשר
               </a>
