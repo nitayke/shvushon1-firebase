@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { Award, CheckCircle, RefreshCw, HelpCircle, Save, Edit2, MailCheck } from 'lucide-react';
-import { saveStudentSubmissionDB, saveYeshivaRequestDB, saveContactLeadDB } from '../firebase';
+import { saveStudentSubmissionDB, saveYeshivaRequestDB } from '../firebase';
 import { PARAM_DEFINITIONS, REGION_TRANSLATIONS, TYPE_TRANSLATIONS } from '../knn';
 import AutocompleteYeshivaSelect from './AutocompleteYeshivaSelect';
 
@@ -13,13 +13,6 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
   const [customYeshivaInput, setCustomYeshivaInput] = useState('');
   const [reflectsYeshiva, setReflectsYeshiva] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  // Lead Form State (Per Yeshiva)
-  const [activeLeadYeshivaId, setActiveLeadYeshivaId] = useState(null);
-  const [leadName, setLeadName] = useState('');
-  const [leadPhone, setLeadPhone] = useState('');
-  const [isLeadSubmitting, setIsLeadSubmitting] = useState(false);
-  const [submittedLeads, setSubmittedLeads] = useState({});
   
   // Persist submission state in localStorage so UI remembers the user has already submitted!
   const [submissionSaved, setSubmissionSaved] = useState(() => {
@@ -77,56 +70,6 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
     }
   };
 
-  const sendLeadEmailToAdmin = async (leadData) => {
-    const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || "nitayke1@gmail.com";
-    
-    let typeHebrew = 'לא צוין';
-    let regionHebrew = 'לא צוין';
-    let ratingsText = 'לא צוינו ההעדפות';
-
-    if (leadData.preferences) {
-      const { type, region, ratings, ignoreParams } = leadData.preferences;
-      typeHebrew = TYPE_TRANSLATIONS[type] || type;
-      regionHebrew = REGION_TRANSLATIONS[region] || region;
-      
-      ratingsText = PARAM_DEFINITIONS.map(p => {
-        const val = ratings[p.id];
-        const isIgnored = ignoreParams && ignoreParams[p.id];
-        return `- ${p.label}: ${isIgnored || !val ? 'ללא העדפה' : val}`;
-      }).join('\n');
-    }
-
-    try {
-      const webhookUrl = import.meta.env.VITE_EMAIL_WEBHOOK_URL;
-      
-      const payload = {
-        _subject: `[שבושון] פניית תלמיד מתעניין ל${leadData.yeshiva_name}`,
-        מוסד_מבוקש: leadData.yeshiva_name,
-        שם_התלמיד: leadData.name,
-        טלפון: leadData.phone,
-        התאמה_מובילה_שיצאה: leadData.top_match,
-        רקע_אזור_גאוגרפי: regionHebrew,
-        רקע_סוג_מוסד: typeHebrew,
-        פירוט_העדפות_מהשאלון: ratingsText
-      };
-
-      // Fire and forget - do not await!
-      fetch(`https://formsubmit.co/ajax/${adminEmail}`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          ...payload,
-          _template: "table"
-        })
-      }).catch(err => console.log("Silent formsubmit error:", err));
-    } catch (err) {
-      console.log("Lead email notification error:", err);
-    }
-  };
-
   const handleStudentSubmit = async (e) => {
     e.preventDefault();
     const finalYeshivaName = selectedYeshivaName === 'other' ? customYeshivaInput.trim() : selectedYeshivaName;
@@ -172,34 +115,6 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
       console.error("Save submission error:", err);
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleLeadSubmit = async (e, yeshivaId, yeshivaName) => {
-    e.preventDefault();
-    if (!leadName.trim() || !leadPhone.trim()) return;
-    
-    setIsLeadSubmitting(true);
-    try {
-      const leadData = {
-        name: leadName,
-        phone: leadPhone,
-        yeshiva_id: yeshivaId,
-        yeshiva_name: yeshivaName,
-        top_match: results[0]?.name || 'N/A',
-        preferences: userPreferences
-      };
-      await saveContactLeadDB(leadData);
-      sendLeadEmailToAdmin(leadData);
-      
-      setSubmittedLeads(prev => ({ ...prev, [yeshivaId]: true }));
-      setActiveLeadYeshivaId(null);
-      setLeadName('');
-      setLeadPhone('');
-    } catch (err) {
-      console.error("Save lead error:", err);
-    } finally {
-      setIsLeadSubmitting(false);
     }
   };
 
@@ -249,71 +164,6 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
                   {item.matchScore}% התאמה
                 </div>
               </div>
-
-              {/* Lead Generation per Yeshiva CTA (Only for Yeshivot with has_leads enabled) */}
-              {item.has_leads && (
-                <div style={{ marginTop: '0.8rem', paddingTop: '0.8rem', borderTop: '1px solid #f3f4f6' }}>
-                  {submittedLeads[item.id] ? (
-                    <div style={{ background: '#ecfdf5', color: '#065f46', padding: '0.6rem', borderRadius: '6px', textAlign: 'center', fontSize: '0.85rem', fontWeight: '500' }}>
-                      ✓ הפרטים נשלחו והועברו בהצלחה לישיבה!
-                    </div>
-                ) : activeLeadYeshivaId === item.id ? (
-                  <form onSubmit={(e) => handleLeadSubmit(e, item.id, item.name)} style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', background: '#f8fafc', padding: '1rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                    <div style={{ fontSize: '0.95rem', fontWeight: 'bold', color: '#0f172a', marginBottom: '0.2rem' }}>
-                      השאר פרטים ואנחנו נעביר אותם ל{item.name}:
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="שם מלא"
-                      value={leadName}
-                      onChange={(e) => setLeadName(e.target.value)}
-                      className="input-field"
-                      required
-                    />
-                    <input
-                      type="tel"
-                      placeholder="מספר טלפון"
-                      value={leadPhone}
-                      onChange={(e) => setLeadPhone(e.target.value)}
-                      className="input-field"
-                      required
-                    />
-                    <div style={{ display: 'flex', gap: '0.8rem' }}>
-                      <button type="submit" disabled={isLeadSubmitting} className="btn-primary" style={{ flex: 1, justifyContent: 'center' }}>
-                        {isLeadSubmitting ? 'שולח...' : 'שלח'}
-                      </button>
-                      <button type="button" onClick={() => setActiveLeadYeshivaId(null)} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>
-                        ביטול
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  <button 
-                    onClick={() => { setActiveLeadYeshivaId(item.id); setLeadName(''); setLeadPhone(''); }}
-                    style={{ 
-                      width: '100%', 
-                      background: 'transparent', 
-                      color: '#52341d', 
-                      border: '1px solid #d9ccb9', 
-                      borderRadius: '6px', 
-                      padding: '0.5rem', 
-                      fontSize: '0.9rem', 
-                      fontWeight: '600', 
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.4rem'
-                    }}
-                    onMouseOver={(e) => { e.currentTarget.style.background = '#f9f6f0'; e.currentTarget.style.borderColor = '#52341d'; }}
-                    onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = '#d9ccb9'; }}
-                  >
-                    מעוניין לשמוע עוד? לחץ לקבלת פרטים
-                  </button>
-                )}
-              </div>
-              )}
             </div>
           );
         })}
@@ -482,9 +332,6 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
             <a href="https://shvushon.github.io/shlichim" target="_blank" rel="noreferrer">שליחון</a>
             <a href="https://shvushon.github.io/shvushon2" target="_blank" rel="noreferrer">שבושון 2</a>
             <a href="https://shvushon.github.io/hahamim" target="_blank" rel="noreferrer">חזלון</a>
-          </div>
-          <div className="supporting-copy" style={{ fontSize: '0.9rem', color: '#4b5563', marginTop: '0.6rem' }}>
-            <strong>יוצרים:</strong> שלמה אברמסון, אורי בובליל, נתאי קסנר
           </div>
         </div>
       </div>
