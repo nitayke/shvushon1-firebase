@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 // Shvushon 2.0.1 - Male phrasing & 100% Live Firestore
 import Questionnaire from './components/Questionnaire';
 import ResultsView from './components/ResultsView';
-import ManagerPortal from './components/ManagerPortal';
+const ManagerPortal = lazy(() => import('./components/ManagerPortal'));
 import YeshivaRequestModal from './components/YeshivaRequestModal';
 import { getYeshivotDB, saveTestResultDB } from './firebase';
 import { calculateKNNMatches } from './knn';
@@ -172,11 +172,13 @@ export default function App() {
             )}
 
             {(view === 'manager' || view === 'manager-register') && (
-              <ManagerPortal
-                mode={view === 'manager-register' ? 'register' : 'login'}
-                inviteToken={new URLSearchParams(window.location.search).get('invite')}
-                onExit={navigateToHome}
-              />
+              <Suspense fallback={<p style={{ textAlign: 'center', padding: '2rem' }}>טוען...</p>}>
+                <ManagerPortal
+                  mode={view === 'manager-register' ? 'register' : 'login'}
+                  inviteToken={new URLSearchParams(window.location.search).get('invite')}
+                  onExit={navigateToHome}
+                />
+              </Suspense>
             )}
 
           </>

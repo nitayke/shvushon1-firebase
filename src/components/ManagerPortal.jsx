@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import AdminDashboard from './AdminDashboard';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
+const AdminDashboard = lazy(() => import('./AdminDashboard'));
 import { UserCog, LogOut, Phone, KeyRound, Eye, EyeOff } from 'lucide-react';
 import {
   getInviteDB,
@@ -267,7 +267,11 @@ export default function ManagerPortal({ mode, inviteToken, onExit }) {
 
   // The full admin console replaces the card layout for the site admin account.
   if (user && isAdminUser(user)) {
-    return <AdminDashboard onExitAdmin={async () => { await logoutManagerDB(); onExit?.(); }} />;
+    return (
+      <Suspense fallback={<p style={{ textAlign: 'center', padding: '2rem' }}>טוען...</p>}>
+        <AdminDashboard onExitAdmin={async () => { await logoutManagerDB(); onExit?.(); }} />
+      </Suspense>
+    );
   }
 
   return (
