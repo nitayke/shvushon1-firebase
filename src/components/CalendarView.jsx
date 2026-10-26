@@ -2,8 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { CalendarDays, Clock } from 'lucide-react';
 import { getUpcomingEventsDB, parseDateKey, EVENT_TYPES } from '../manager';
 
-const fullDate = (key) => new Intl.DateTimeFormat('he-IL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(parseDateKey(key));
-const hebrewDate = (key) => new Intl.DateTimeFormat('he-u-ca-hebrew', { day: 'numeric', month: 'long' }).format(parseDateKey(key));
+const fmt = (key, opts, locale = 'he-IL') => new Intl.DateTimeFormat(locale, opts).format(parseDateKey(key));
+
+const ONES = ['', 'א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ז', 'ח', 'ט'];
+const TENS = ['', 'י', 'כ', 'ל'];
+// Day of the Hebrew month (1-30) as letters, e.g. 27 -> כ״ז
+const hebrewDayLetters = (n) => {
+  let letters = n === 15 ? 'טו' : n === 16 ? 'טז' : TENS[Math.floor(n / 10)] + ONES[n % 10];
+  return letters.length === 1 ? `${letters}׳` : `${letters.slice(0, -1)}״${letters.slice(-1)}`;
+};
+const hebrewParts = (key) => {
+  const parts = new Intl.DateTimeFormat('he-u-ca-hebrew', { day: 'numeric', month: 'long' }).formatToParts(parseDateKey(key));
+  return {
+    day: hebrewDayLetters(Number(parts.find(p => p.type === 'day').value)),
+    month: parts.find(p => p.type === 'month').value
+  };
+};
 
 const TYPE_COLORS = {
   open_day: { bg: 'rgba(180, 120, 40, 0.14)', border: 'var(--gold-accent)' },
@@ -47,20 +61,28 @@ export default function CalendarView() {
             background: TYPE_COLORS[ev.type]?.bg,
             borderInlineStart: `4px solid ${TYPE_COLORS[ev.type]?.border}`,
             borderRadius: 'var(--radius-md)',
-            padding: '0.7rem 0.9rem'
+            padding: '0.7rem 0.9rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.8rem'
           }}>
-            <div style={{ fontWeight: 700, fontSize: '1.05rem' }}>{ev.yeshivaName}</div>
-            <div style={{ fontWeight: 600 }}>{EVENT_TYPES[ev.type] || ev.type}</div>
-            <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-              {fullDate(ev.date)} · {hebrewDate(ev.date)}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 700, fontSize: '1.05rem' }}>{ev.yeshivaName}</div>
+              <div style={{ fontWeight: 600 }}>{EVENT_TYPES[ev.type] || ev.type}</div>
+              {ev.notes && <div style={{ marginTop: 2, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{ev.notes}</div>}
             </div>
-            {ev.time && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                <Clock style={{ width: 13, height: 13 }} />
-                <span dir="ltr">{ev.time}</span>
-              </div>
-            )}
-            {ev.notes && <div style={{ marginTop: 2, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{ev.notes}</div>}
+            <div style={{ textAlign: 'center', minWidth: 84, lineHeight: 1.25, color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+              <div style={{ fontWeight: 800, fontSize: '1.9rem', color: 'var(--primary-accent)', lineHeight: 1.1 }}>{hebrewParts(ev.date).day}</div>
+              <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--primary-accent)' }}>{hebrewParts(ev.date).month}</div>
+              {ev.type !== 'shabbat' && <div style={{ marginTop: 2 }}>{fmt(ev.date, { weekday: 'long' })}</div>}
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{fmt(ev.date, { day: 'numeric', month: 'numeric' })}</div>
+              {ev.time && (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, marginTop: 2, fontWeight: 600 }}>
+                  <Clock style={{ width: 12, height: 12 }} />
+                  <span dir="ltr">{ev.time}</span>
+                </div>
+              )}
+            </div>
           </div>
         ))}
       </div>
