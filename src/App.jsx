@@ -6,7 +6,7 @@ const ManagerPortal = lazy(() => import('./components/ManagerPortal'));
 import YeshivaRequestModal from './components/YeshivaRequestModal';
 import { getYeshivotDB, saveTestResultDB } from './firebase';
 import { calculateKNNMatches } from './knn';
-import { PlusCircle, Compass, Home, Mail } from 'lucide-react';
+import { PlusCircle, Compass, Home, Mail, UserCog } from 'lucide-react';
 
 export default function App() {
   const getInitialView = () => {
@@ -205,6 +205,11 @@ export default function App() {
                 <Mail style={{ width: 16, height: 16 }} />
                 צור קשר
               </a>
+
+              <a href="/admin" onClick={navigateToAdmin} className="btn-secondary" style={{ textDecoration: 'none' }}>
+                <UserCog style={{ width: 16, height: 16 }} />
+                כניסת אחראי ישיבות
+              </a>
             </>
           ) : (
             <a href="/" onClick={navigateToHome} className="btn-secondary" style={{ textDecoration: 'none' }}>
@@ -215,14 +220,6 @@ export default function App() {
 
         <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
           © שבושון · מערכת להתאמת ישיבות ומכינות
-          {view !== 'manager' && view !== 'manager-register' && (
-            <>
-              {' · '}
-              <a href="/admin" onClick={navigateToAdmin} className="footer-link-subtle" style={{ padding: 0 }}>
-                כניסת אחראים
-              </a>
-            </>
-          )}
         </div>
       </footer>
 
