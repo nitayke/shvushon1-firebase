@@ -104,14 +104,8 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
       <div className="glass-card hero-card fade-in">
         <h1 className="hero-title">ברוכים הבאים ל"שבושון"</h1>
         <p className="hero-lead">
-          שמיניסט יקר! שאלון קצר שיעזור לך לגלות איזו ישיבה או מכינה מתאימה לך באמת.
+          שמיניסט יקר! שאלון קצר שיעזור לך לגלות איזו ישיבה או מכינה מתאימה לך באמת. עליך לדרג 11 מאפיינים מ־1 עד 5, לפי מה שחשוב לך.
         </p>
-
-        <div className="hero-facts">
-          <div className="hero-fact"><b>11</b><span>מאפיינים</span></div>
-          <div className="hero-fact"><b>1–5</b><span>דירוג לכל אחד</span></div>
-          <div className="hero-fact"><b>3</b><span>דקות בערך</span></div>
-        </div>
 
         <button
           onClick={() => {

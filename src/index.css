@@ -320,7 +320,7 @@ button:active, .chip-card:active { transform: scale(0.98); }
 /* Intro */
 .hero-card { text-align: center; padding: 2rem 1.25rem 1.6rem; }
 .hero-title { font-size: 2.3rem; color: var(--primary-accent); margin-bottom: 0.6rem; }
-.hero-lead { font-size: 1.1rem; color: var(--text-secondary); max-width: 520px; margin: 0 auto 1.4rem; }
+.hero-lead { font-size: 1.15rem; color: var(--text-secondary); max-width: 520px; margin: 0 auto 1.8rem; }
 .hero-facts {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -335,7 +335,7 @@ button:active, .chip-card:active { transform: scale(0.98); }
 }
 .hero-fact b { display: block; font-weight: 700; font-size: 1.7rem; color: var(--primary-accent); line-height: 1.1; }
 .hero-fact span { font-size: 0.85rem; color: var(--text-secondary); }
-.hero-note { font-size: 0.82rem; color: var(--text-muted); margin-top: 1.2rem; line-height: 1.5; max-width: 520px; margin-inline: auto; }
+.hero-note { font-size: 0.95rem; color: var(--text-secondary); margin-top: 1.5rem; line-height: 1.6; max-width: 520px; margin-inline: auto; }
 
 /* Sliders */
 .slider-group {
