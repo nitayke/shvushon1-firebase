@@ -27,6 +27,8 @@ function PasswordInput({ value, onChange, autoComplete, minLength }) {
     <div className="password-wrap">
       <input
         type={show ? 'text' : 'password'}
+        name="password"
+        id="password"
         className="input-field"
         value={value}
         onChange={onChange}
@@ -41,6 +43,15 @@ function PasswordInput({ value, onChange, autoComplete, minLength }) {
     </div>
   );
 }
+
+// Asks the browser to offer saving the login (Credential Management API, Chromium); other browsers use the form heuristics.
+const storeCredentials = (id, password) => {
+  try {
+    if (window.PasswordCredential && navigator.credentials?.store) {
+      navigator.credentials.store(new window.PasswordCredential({ id, password })).catch(() => {});
+    }
+  } catch { /* optional */ }
+};
 
 const labelStyle = { display: 'block', fontWeight: 500, marginBottom: '0.35rem', color: 'var(--text-primary)', fontSize: '0.95rem' };
 const fieldWrap = { marginBottom: '0.3rem' };
@@ -127,6 +138,7 @@ function RegisterForm({ token, goToLogin }) {
     setBusy(true);
     try {
       await registerManagerDB({ token, email: email.trim(), phone: phone.trim(), hasWhatsapp, password });
+      storeCredentials(email.trim(), password);
       goToLogin();
     } catch (err) {
       setError(err.message);
@@ -141,14 +153,14 @@ function RegisterForm({ token, goToLogin }) {
   }
 
   return (
-    <form onSubmit={submit}>
+    <form onSubmit={submit} method="post">
       <p style={{ marginBottom: '1.2rem', color: '#374151' }}>
         הרשמה כאחראי שבושים של <strong>{invite.yeshivaName}</strong>
       </p>
       {error && <div style={errorBox}>{error}</div>}
       <div style={fieldWrap}>
         <label style={labelStyle}>אימייל</label>
-        <input type="email" className="input-field" value={email} onChange={e => setEmail(e.target.value)} required dir="ltr" autoComplete="email" />
+        <input type="email" name="email" id="email" className="input-field" value={email} onChange={e => setEmail(e.target.value)} required dir="ltr" autoComplete="username" />
       </div>
       <div style={fieldWrap}>
         <label style={labelStyle}>מספר טלפון נוכחי</label>
@@ -184,6 +196,7 @@ function LoginForm({ notice }) {
     setBusy(true);
     try {
       await loginManagerDB(email.trim(), password);
+      storeCredentials(email.trim(), password);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -204,12 +217,12 @@ function LoginForm({ notice }) {
   };
 
   return (
-    <form onSubmit={submit}>
+    <form onSubmit={submit} method="post">
       {info && <div style={okBox}>{info}</div>}
       {error && <div style={errorBox}>{error}</div>}
       <div style={fieldWrap}>
         <label style={labelStyle}>אימייל</label>
-        <input type="email" className="input-field" value={email} onChange={e => setEmail(e.target.value)} required dir="ltr" autoComplete="email" />
+        <input type="email" name="email" id="email" className="input-field" value={email} onChange={e => setEmail(e.target.value)} required dir="ltr" autoComplete="username" />
       </div>
       <div style={fieldWrap}>
         <label style={labelStyle}>סיסמה</label>
