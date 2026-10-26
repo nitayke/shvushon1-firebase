@@ -202,7 +202,7 @@ export default function App() {
 
       {/* Bottom Footer Action Links */}
       <footer style={{ marginTop: '1.5rem', padding: '1rem 0 0.5rem', textAlign: 'center', borderTop: '1px solid var(--border-color)' }}>
-        <div className="footer-links">
+        <div className={view !== 'manager' && view !== 'manager-register' && view !== 'calendar' && view !== 'privacy' ? 'footer-grid' : 'footer-links'}>
           {view !== 'manager' && view !== 'manager-register' && view !== 'calendar' && view !== 'privacy' ? (
             <>
               <button
