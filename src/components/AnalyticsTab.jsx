@@ -73,8 +73,6 @@ export default function AnalyticsTab({ refreshTick }) {
     return <div className="glass-card" style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>אין עדיין תוצאות מבדקים.</div>;
   }
 
-  const topMatchesData = [...rows].sort((a, b) => b.first - a.first).slice(0, 10).filter(r => r.first > 0)
-    .map(r => ({ name: r.name, count: r.first }));
   const paramAveragesData = PARAM_DEFINITIONS.map(p => ({ name: p.label, avg: stats.paramAverages[p.id] || 0 }))
     .sort((a, b) => b.avg - a.avg);
   const regionData = Object.entries(stats.regionCounts).map(([region, value]) => ({ name: REGION_TRANSLATIONS[region] || region, value }));
@@ -163,28 +161,6 @@ export default function AnalyticsTab({ refreshTick }) {
           </table>
         </div>
       </div>
-
-      {topMatchesData.length > 0 && (
-        <div className="glass-card">
-          <h3 style={cardTitle}>10 הישיבות המובילות (מקום ראשון)</h3>
-          <div style={{ width: '100%', height: 350 }}>
-            <ResponsiveContainer>
-              <BarChart data={topMatchesData} layout="vertical" margin={{ top: 5, right: 15, left: 10, bottom: 5 }}>
-                <XAxis type="number" allowDecimals={false} />
-                <YAxis
-                  dataKey="name"
-                  type="category"
-                  width={100}
-                  tick={{ fontSize: 11 }}
-                  tickFormatter={(val) => val.length > 15 ? val.substring(0, 14) + '...' : val}
-                />
-                <Tooltip />
-                <Bar dataKey="count" fill="#3b82f6" radius={[0, 4, 4, 0]} name="מספר פעמים שיצאה ראשונה" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))', gap: '1.5rem' }}>
         <div className="glass-card" style={{ marginBottom: 0 }}>
