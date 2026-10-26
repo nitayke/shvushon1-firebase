@@ -1,3 +1,45 @@
+/* Custom Local Fonts from User ZIP Archives (Yiddishkeit by AlefAlefAlef + Frank Ruhl Libre) */
+@font-face {
+  font-family: 'Yiddishkeit';
+  src: url('/fonts/Yiddishkeit/YiddishkeitAlefAlefAlef-Bold.woff') format('woff'),
+       url('/fonts/Yiddishkeit/YiddishkeitAlefAlefAlef-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Frank Ruhl Libre';
+  src: url('/fonts/FrankRuhlLibre/Frank_Ruhl_Libre/FrankRuhlLibre-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Frank Ruhl Libre';
+  src: url('/fonts/FrankRuhlLibre/Frank_Ruhl_Libre/FrankRuhlLibre-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Frank Ruhl Libre';
+  src: url('/fonts/FrankRuhlLibre/Frank_Ruhl_Libre/FrankRuhlLibre-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Frank Ruhl Libre';
+  src: url('/fonts/FrankRuhlLibre/Frank_Ruhl_Libre/FrankRuhlLibre-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Shvushon — warm parchment & espresso theme. Fonts: Secular One (display) + Rubik (body), loaded in index.html */
 
 :root {
@@ -15,8 +57,8 @@
   --primary-accent-hover: #3f2411;
   --gold-accent: #b47828;
   --success-color: #059669;
-  --font-display: 'Secular One', 'Rubik', sans-serif;
-  --font-body: 'Rubik', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+  --font-display: 'Yiddishkeit', 'Frank Ruhl Libre', serif;
+  --font-body: 'Frank Ruhl Libre', Georgia, serif;
   --radius-lg: 18px;
   --radius-md: 12px;
   --radius-sm: 8px;
@@ -53,9 +95,9 @@ body {
   font-family: var(--font-body);
 }
 
-h1, h2, h3, h4, .section-title, .question-title, .app-title {
-  font-family: var(--font-display);
-  font-weight: 400;
+h1, h2, h3, h4, .section-title, .question-title {
+  font-family: var(--font-body);
+  font-weight: 700;
   letter-spacing: 0;
   color: var(--text-primary);
   line-height: 1.25;
@@ -85,7 +127,7 @@ button:active, .chip-card:active { transform: scale(0.98); }
 
 /* Header */
 .app-header { margin-bottom: 1rem; }
-.app-title { font-size: 1.9rem; color: var(--primary-accent); }
+.app-title { font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; color: var(--primary-accent); }
 
 /* Cards */
 .glass-card {
@@ -152,8 +194,7 @@ button:active, .chip-card:active { transform: scale(0.98); }
   padding: 0.95rem 2.6rem;
   min-height: 56px;
   border-radius: 16px;
-  font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 700;
   box-shadow: 0 6px 18px rgba(82, 52, 29, 0.35);
 }
 
@@ -226,7 +267,7 @@ button:active, .chip-card:active { transform: scale(0.98); }
   border: 2px solid transparent;
   min-height: 64px;
   border-radius: var(--radius-md);
-  font-family: var(--font-display);
+  font-weight: 700;
   font-size: 1.6rem;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
@@ -292,7 +333,7 @@ button:active, .chip-card:active { transform: scale(0.98); }
   border-radius: var(--radius-md);
   padding: 0.85rem 0.4rem;
 }
-.hero-fact b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 1.7rem; color: var(--primary-accent); line-height: 1.1; }
+.hero-fact b { display: block; font-weight: 700; font-size: 1.7rem; color: var(--primary-accent); line-height: 1.1; }
 .hero-fact span { font-size: 0.85rem; color: var(--text-secondary); }
 .hero-note { font-size: 0.82rem; color: var(--text-muted); margin-top: 1.2rem; line-height: 1.5; max-width: 520px; margin-inline: auto; }
 
@@ -505,8 +546,6 @@ button:active, .chip-card:active { transform: scale(0.98); }
   .modal-content { border-radius: 20px 20px 0 0; max-height: 92dvh; padding: 1.25rem 1.1rem calc(1.25rem + env(safe-area-inset-bottom)); }
 }
 
-/* Secular One ships a single weight; avoid faux-bold from legacy inline font-weights */
-h1, h2, h3, h4 { font-weight: 400 !important; }
 
 /* Quiz focus: pin the nav to the bottom of the screen and hide footer actions mid-quiz */
 .questionnaire-wizard { display: flex; flex-direction: column; min-height: calc(100dvh - 100px); }
