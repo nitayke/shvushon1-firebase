@@ -1,3 +1,9 @@
+// A preference may be 'all', empty, a single id, or a list of ids; an empty list means no restriction.
+const toList = (v) => {
+  const list = Array.isArray(v) ? v : (v ? [v] : []);
+  return list.includes('all') ? [] : list;
+};
+
 /**
  * Advanced Weighted KNN Matching Engine for Shvushon
  * Includes Uniform Answer Easter Egg Edge Cases from Shvushon 1 (Only when ALL 11 parameters are identical and active)
@@ -128,6 +134,8 @@ export const TYPE_TRANSLATIONS = {
  */
 export const calculateKNNMatches = (userPreferences, yeshivotList, k = 3) => {
   const { region, type, ratings, ignoreParams = {} } = userPreferences;
+  const types = toList(type);
+  const regions = toList(region);
 
   // Strict Easter Egg check: Trigger ONLY if ALL 11 parameters are rated (none ignored) AND all 11 ratings are 100% identical!
   const hasIgnoredParams = PARAM_DEFINITIONS.some(p => ignoreParams[p.id]);
@@ -215,8 +223,8 @@ export const calculateKNNMatches = (userPreferences, yeshivotList, k = 3) => {
     const rmsDistance = totalWeight > 0 ? Math.sqrt(weightedDistSq / totalWeight) : 0;
 
     // Penalty for Type & Region mismatch
-    const typePenalty = (type && type !== 'all' && yeshiva.type !== type) ? 0.35 : 0;
-    const regionPenalty = (region && region !== 'all' && yeshiva.region !== region) ? 0.25 : 0;
+    const typePenalty = (types.length > 0 && !types.includes(yeshiva.type)) ? 0.35 : 0;
+    const regionPenalty = (regions.length > 0 && !regions.includes(yeshiva.region)) ? 0.25 : 0;
     const totalPenalty = typePenalty + regionPenalty;
 
     // Hybrid Distance metric: 85% Euclidean accuracy + 15% Cosine angular alignment

@@ -35,8 +35,12 @@ export const computeAnalytics = (results) => {
       });
     }
 
-    const region = res.preferences?.region || 'all';
-    regionCounts[region] = (regionCounts[region] || 0) + 1;
+    // region is 'all', a single id (old records) or a list of ids (multi-select)
+    const rawRegion = res.preferences?.region;
+    const regionList = Array.isArray(rawRegion) && rawRegion.length > 0 ? rawRegion : [rawRegion || 'all'];
+    regionList.forEach(region => {
+      regionCounts[region] = (regionCounts[region] || 0) + 1;
+    });
   });
 
   const paramAverages = {};

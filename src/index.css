@@ -551,3 +551,15 @@ button:active, .chip-card:active { transform: scale(0.98); }
 .questionnaire-wizard { display: flex; flex-direction: column; min-height: calc(100dvh - 100px); }
 .questionnaire-wizard .wizard-nav { margin-top: auto; }
 body:has(.questionnaire-wizard) footer { display: none; }
+
+/* Multi-select chips: checkbox indicator + hint */
+.chip-box {
+  width: 20px; height: 20px; flex: none;
+  border: 2px solid var(--border-strong);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--primary-accent);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.chip-card.selected .chip-box { background: #fff; border-color: #fff; }
+.multi-hint { margin-inline-start: auto; font-size: 0.78rem; font-weight: 400; color: var(--text-muted); }

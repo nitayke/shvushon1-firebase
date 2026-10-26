@@ -118,3 +118,23 @@ test('Ignored parameters are skipped without penalizing distance', () => {
   assert.equal(matches[0].id, targetYeshiva.id);
   assert.equal(matches[0].matchScore, 100, 'Exact match on non-ignored parameter returns 100%');
 });
+
+test('Multi-select type/region only penalizes yeshivot outside the selected lists', () => {
+  const ratings = Object.fromEntries(PARAM_DEFINITIONS.map((p, i) => [p.id, (i % 5) + 1]));
+  const base = { ratings, ignoreParams: {} };
+  const mk = (id, type, region) => ({ id, name: id, type, region, ratings, submissions_count: 1 });
+  const list = [mk('a', 'hesder', 'north'), mk('b', 'gvoha', 'center'), mk('c', 'mechina', 'south')];
+  const score = (prefs, id) => calculateKNNMatches({ ...base, ...prefs }, list, 3).find(m => m.id === id).matchScore;
+
+  // 'all', an empty list and no preference are the same: nobody is penalized
+  assert.equal(score({ type: 'all', region: 'all' }, 'a'), score({ type: [], region: [] }, 'a'));
+  // Selecting hesder + gvoha keeps both unpenalized and penalizes mechina
+  const multi = { type: ['hesder', 'gvoha'], region: 'all' };
+  assert.equal(score(multi, 'a'), score({ type: 'all', region: 'all' }, 'a'));
+  assert.equal(score(multi, 'b'), score({ type: 'all', region: 'all' }, 'b'));
+  assert.ok(score(multi, 'c') < score({ type: 'all', region: 'all' }, 'c'));
+  // Region list works the same way
+  const regionMulti = { type: 'all', region: ['north', 'south'] };
+  assert.ok(score(regionMulti, 'b') < score({ type: 'all', region: 'all' }, 'b'));
+  assert.equal(score(regionMulti, 'c'), score({ type: 'all', region: 'all' }, 'c'));
+});

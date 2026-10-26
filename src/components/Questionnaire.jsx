@@ -1,14 +1,21 @@
 import React, { useState, useRef } from 'react';
 import { PARAM_DEFINITIONS, REGIONS, TYPES } from '../knn';
-import { MapPin, GraduationCap, ChevronRight, ChevronLeft, Check, PlusCircle, RotateCcw, Play } from 'lucide-react';
+import { MapPin, GraduationCap, ChevronRight, ChevronLeft, Check, Play } from 'lucide-react';
 
 export default function Questionnaire({ onStartQuiz, onCalculateMatches, onRequestAddYeshiva }) {
   const [isStarted, setIsStarted] = useState(false);
   // Step 0: Type & Region. Steps 1..11: The 11 parameters. Total 12 steps.
   const [currentStep, setCurrentStep] = useState(0);
 
-  const [region, setRegion] = useState('all');
-  const [type, setType] = useState('all');
+  // Multi-select; an empty list means "all" (the default)
+  const [regions, setRegions] = useState([]);
+  const [types, setTypes] = useState([]);
+
+  const toggleChoice = (list, setList, id) => {
+    if (id === 'all') return setList([]);
+    setList(list.includes(id) ? list.filter(x => x !== id) : [...list, id]);
+  };
+  const toPreference = (list) => (list.length === 0 ? 'all' : list);
 
   // Initialize all 11 rating parameters to null (NOTHING SELECTED BY DEFAULT)
   const initialRatings = PARAM_DEFINITIONS.reduce((acc, p) => {
@@ -38,8 +45,8 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
         } else {
           // Final question completed -> calculate matches!
           onCalculateMatches({
-            region,
-            type,
+            region: toPreference(regions),
+            type: toPreference(types),
             ratings: updatedRatings,
             ignoreParams: updatedIgnore
           });
@@ -78,8 +85,8 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
       setCurrentStep(prev => prev + 1);
     } else {
       onCalculateMatches({
-        region,
-        type,
+        region: toPreference(regions),
+        type: toPreference(types),
         ratings,
         ignoreParams
       });
@@ -146,21 +153,25 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, marginBottom: '0.65rem', color: 'var(--text-primary)' }}>
               <GraduationCap style={{ width: 18, height: 18, color: 'var(--primary-accent)' }} />
               איזה סוג מוסד תורני אתה מחפש?
+              <span className="multi-hint">אפשר לבחור כמה</span>
             </div>
-            <div className="chips-grid" role="radiogroup">
-              {TYPES.map(t => (
-                <button
-                  type="button"
-                  role="radio"
-                  aria-checked={type === t.id}
-                  key={t.id}
-                  className={`chip-card ${type === t.id ? 'selected' : ''}`}
-                  onClick={() => setType(t.id)}
-                >
-                  {type === t.id && <Check style={{ width: 16, height: 16 }} />}
-                  {t.label}
-                </button>
-              ))}
+            <div className="chips-grid" role="group" aria-label="סוג מוסד">
+              {TYPES.map(t => {
+                const selected = t.id === 'all' ? types.length === 0 : types.includes(t.id);
+                return (
+                  <button
+                    type="button"
+                    role="checkbox"
+                    aria-checked={selected}
+                    key={t.id}
+                    className={`chip-card ${selected ? 'selected' : ''}`}
+                    onClick={() => toggleChoice(types, setTypes, t.id)}
+                  >
+                    <span className="chip-box" aria-hidden="true">{selected && <Check style={{ width: 14, height: 14 }} />}</span>
+                    {t.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -168,21 +179,25 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, marginBottom: '0.65rem', color: 'var(--text-primary)' }}>
               <MapPin style={{ width: 18, height: 18, color: 'var(--primary-accent)' }} />
               אזור גאוגרפי מועדף
+              <span className="multi-hint">אפשר לבחור כמה</span>
             </div>
-            <div className="chips-grid" role="radiogroup">
-              {REGIONS.map(r => (
-                <button
-                  type="button"
-                  role="radio"
-                  aria-checked={region === r.id}
-                  key={r.id}
-                  className={`chip-card ${region === r.id ? 'selected' : ''}`}
-                  onClick={() => setRegion(r.id)}
-                >
-                  {region === r.id && <Check style={{ width: 16, height: 16 }} />}
-                  {r.label}
-                </button>
-              ))}
+            <div className="chips-grid" role="group" aria-label="אזור גאוגרפי">
+              {REGIONS.map(r => {
+                const selected = r.id === 'all' ? regions.length === 0 : regions.includes(r.id);
+                return (
+                  <button
+                    type="button"
+                    role="checkbox"
+                    aria-checked={selected}
+                    key={r.id}
+                    className={`chip-card ${selected ? 'selected' : ''}`}
+                    onClick={() => toggleChoice(regions, setRegions, r.id)}
+                  >
+                    <span className="chip-box" aria-hidden="true">{selected && <Check style={{ width: 14, height: 14 }} />}</span>
+                    {r.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
