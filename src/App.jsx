@@ -6,7 +6,7 @@ import ManagerPortal from './components/ManagerPortal';
 import YeshivaRequestModal from './components/YeshivaRequestModal';
 import { getYeshivotDB, saveTestResultDB } from './firebase';
 import { calculateKNNMatches } from './knn';
-import { Shield, PlusCircle, Compass, Home, Mail } from 'lucide-react';
+import { PlusCircle, Compass, Home, Mail } from 'lucide-react';
 
 export default function App() {
   const getInitialView = () => {
@@ -122,41 +122,23 @@ export default function App() {
   return (
     <div className="app-container">
       {/* Top App Header - Ultra Compact Single Row */}
-      <header className="app-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem', padding: '0 0.1rem' }}>
-        {/* Clickable Logo and Title */}
-        <h1 
-          className="app-title" 
+      <header className="app-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.2rem 0.1rem' }}>
+        <h1
+          className="app-title"
           onClick={navigateToHome}
-          title="לחץ לחזרה לדף הבית"
-          style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '0.4rem', 
-            cursor: 'pointer',
-            fontSize: '1.4rem',
-            margin: 0
-          }}
+          title="לדף הבית"
+          style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', cursor: 'pointer', margin: 0 }}
         >
-          <Compass style={{ width: 22, height: 22, color: '#6e441f' }} />
+          <Compass style={{ width: 26, height: 26, color: 'var(--gold-accent)' }} />
           <span>שבושון</span>
         </h1>
 
-        {/* Return to Home Button */}
-        <button
-          onClick={navigateToHome}
-          className="btn-secondary"
-          style={{
-            fontSize: '0.78rem',
-            padding: '0.3rem 0.75rem',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.35rem'
-          }}
-          title="חזרה לדף הבית"
-        >
-          <Home style={{ width: 14, height: 14 }} />
-          דף הבית
-        </button>
+        {view !== 'questionnaire' && (
+          <button onClick={navigateToHome} className="btn-secondary" title="חזרה לדף הבית">
+            <Home style={{ width: 16, height: 16 }} />
+            דף הבית
+          </button>
+        )}
       </header>
 
       {/* Main View Router */}
@@ -202,9 +184,9 @@ export default function App() {
       </main>
 
       {/* Bottom Footer Action Links */}
-      <footer style={{ marginTop: '2rem', padding: '1rem 0', textAlign: 'center', borderTop: '1px solid #262a36' }}>
-        <div style={{ display: 'flex', gap: '0.8rem', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', marginBottom: '0.6rem' }}>
-          {view !== 'admin' && view !== 'manager' && view !== 'manager-register' ? (
+      <footer style={{ marginTop: '1.5rem', padding: '1rem 0 0.5rem', textAlign: 'center', borderTop: '1px solid var(--border-color)' }}>
+        <div className="footer-links">
+          {view !== 'manager' && view !== 'manager-register' ? (
             <>
               <button
                 onClick={() => {
@@ -212,60 +194,33 @@ export default function App() {
                   if (!hasTriggeredLoad) loadYeshivot();
                 }}
                 className="btn-secondary"
-                style={{ fontSize: '0.82rem', padding: '0.4rem 0.9rem' }}
               >
-                <PlusCircle style={{ width: 14, height: 14 }} />
+                <PlusCircle style={{ width: 16, height: 16 }} />
                 בקשה להוספת ישיבה / מכינה
               </button>
 
-              <a
-                href="mailto:nitayke1@gmail.com"
-                className="btn-secondary"
-                style={{ fontSize: '0.82rem', padding: '0.4rem 0.9rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
-              >
-                <Mail style={{ width: 14, height: 14 }} />
+              <a href="mailto:nitayke1@gmail.com" className="btn-secondary" style={{ textDecoration: 'none' }}>
+                <Mail style={{ width: 16, height: 16 }} />
                 צור קשר
-              </a>
-
-              <a
-                href="/admin"
-                onClick={navigateToAdmin}
-                className="btn-secondary"
-                style={{ 
-                  fontSize: '0.82rem', 
-                  padding: '0.4rem 0.9rem', 
-                  opacity: 0.7, 
-                  textDecoration: 'none', 
-                  display: 'inline-flex', 
-                  alignItems: 'center', 
-                  gap: '0.4rem' 
-                }}
-              >
-                <Shield style={{ width: 14, height: 14 }} />
-                ממשק ניהול
               </a>
             </>
           ) : (
-            <a
-              href="/"
-              onClick={navigateToHome}
-              className="btn-secondary"
-              style={{ 
-                fontSize: '0.85rem', 
-                padding: '0.45rem 1rem', 
-                textDecoration: 'none', 
-                display: 'inline-flex', 
-                alignItems: 'center', 
-                gap: '0.4rem' 
-              }}
-            >
+            <a href="/" onClick={navigateToHome} className="btn-secondary" style={{ textDecoration: 'none' }}>
               חזרה לשאלון בשבושון
             </a>
           )}
         </div>
 
-        <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
-          © שבושון - מערכת להתאמת ישיבות ומכינות
+        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+          © שבושון · מערכת להתאמת ישיבות ומכינות
+          {view !== 'manager' && view !== 'manager-register' && (
+            <>
+              {' · '}
+              <a href="/admin" onClick={navigateToAdmin} className="footer-link-subtle" style={{ padding: 0 }}>
+                כניסת אחראים
+              </a>
+            </>
+          )}
         </div>
       </footer>
 

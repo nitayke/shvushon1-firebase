@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminDashboard from './AdminDashboard';
-import { UserCog, LogOut, Phone, KeyRound } from 'lucide-react';
+import { UserCog, LogOut, Phone, KeyRound, Eye, EyeOff } from 'lucide-react';
 import {
   getInviteDB,
   registerManagerDB,
@@ -16,8 +16,29 @@ import {
 } from '../manager';
 import { PARAM_DEFINITIONS, REGION_TRANSLATIONS, TYPE_TRANSLATIONS } from '../knn';
 
-const labelStyle = { display: 'block', fontWeight: 600, marginBottom: '0.3rem', color: '#111827' };
-const fieldWrap = { marginBottom: '1rem' };
+function PasswordInput({ value, onChange, autoComplete, minLength }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="password-wrap">
+      <input
+        type={show ? 'text' : 'password'}
+        className="input-field"
+        value={value}
+        onChange={onChange}
+        required
+        minLength={minLength}
+        dir="ltr"
+        autoComplete={autoComplete}
+      />
+      <button type="button" className="password-toggle" onClick={() => setShow(s => !s)} aria-label={show ? 'הסתר סיסמה' : 'הצג סיסמה'}>
+        {show ? <EyeOff style={{ width: 20, height: 20 }} /> : <Eye style={{ width: 20, height: 20 }} />}
+      </button>
+    </div>
+  );
+}
+
+const labelStyle = { display: 'block', fontWeight: 500, marginBottom: '0.35rem', color: 'var(--text-primary)', fontSize: '0.95rem' };
+const fieldWrap = { marginBottom: '0.3rem' };
 const errorBox = { background: 'rgba(239, 68, 68, 0.12)', border: '1px solid #ef4444', color: '#b91c1c', padding: '0.7rem 1rem', borderRadius: 10, marginBottom: '1rem' };
 const okBox = { background: 'rgba(16, 185, 129, 0.15)', border: '1px solid #10b981', color: '#047857', padding: '0.7rem 1rem', borderRadius: 10, marginBottom: '1rem' };
 
@@ -72,7 +93,7 @@ function RegisterForm({ token, goToLogin }) {
       </div>
       <div style={fieldWrap}>
         <label style={labelStyle}>סיסמה</label>
-        <input type="password" className="input-field" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} dir="ltr" autoComplete="new-password" />
+        <PasswordInput value={password} onChange={e => setPassword(e.target.value)} minLength={6} autoComplete="new-password" />
       </div>
       <button type="submit" className="btn-primary" disabled={busy} style={{ width: '100%' }}>
         {busy ? 'נרשם...' : 'הרשמה'}
@@ -124,7 +145,7 @@ function LoginForm({ notice }) {
       </div>
       <div style={fieldWrap}>
         <label style={labelStyle}>סיסמה</label>
-        <input type="password" className="input-field" value={password} onChange={e => setPassword(e.target.value)} required dir="ltr" autoComplete="current-password" />
+        <PasswordInput value={password} onChange={e => setPassword(e.target.value)} autoComplete="current-password" />
       </div>
       <button type="submit" className="btn-primary" disabled={busy} style={{ width: '100%', marginBottom: '0.6rem' }}>
         {busy ? 'מתחבר...' : 'התחברות'}
@@ -253,7 +274,7 @@ export default function ManagerPortal({ mode, inviteToken, onExit }) {
     <div className="glass-card" style={{ maxWidth: 560, margin: '0 auto' }}>
       <h2 className="section-title" style={{ marginBottom: '1.2rem' }}>
         <UserCog className="w-5 h-5" />
-        {showRegister ? 'הרשמת אחראי שבושים' : 'כניסה לממשק הניהול'}
+        {showRegister ? 'הרשמת אחראי שבושים' : 'כניסה לאחראים ולמנהל'}
       </h2>
       {user === undefined ? (
         <p style={{ textAlign: 'center' }}>טוען...</p>
@@ -262,7 +283,12 @@ export default function ManagerPortal({ mode, inviteToken, onExit }) {
       ) : showRegister ? (
         <RegisterForm token={inviteToken} goToLogin={() => setJustRegistered(true)} />
       ) : (
-        <LoginForm />
+        <>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', marginBottom: '1.1rem' }}>
+            אחראי ישיבה? היכנס עם המייל והסיסמה שבחרת בהרשמה. נרשמת דרך קישור חד־פעמי שקיבלת מהמנהל.
+          </p>
+          <LoginForm />
+        </>
       )}
     </div>
   );

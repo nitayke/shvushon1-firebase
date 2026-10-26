@@ -101,27 +101,16 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
 
   if (!isStarted) {
     return (
-      <div className="glass-card" style={{ textAlign: 'center', padding: '2rem 1.25rem', animation: 'fadeIn 0.3s' }}>
-        <h1 style={{ fontSize: '2.1rem', fontWeight: 700, marginBottom: '1.1rem', color: '#111827' }}>
-          ברוכים הבאים ל"שבושון"
-        </h1>
+      <div className="glass-card hero-card fade-in">
+        <h1 className="hero-title">ברוכים הבאים ל"שבושון"</h1>
+        <p className="hero-lead">
+          שמיניסט יקר! שאלון קצר שיעזור לך לגלות איזו ישיבה או מכינה מתאימה לך באמת.
+        </p>
 
-        <div style={{ color: '#374151', fontSize: '1rem', lineHeight: 1.65, maxWidth: 620, margin: '0 auto 1.5rem auto', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-          <p style={{ fontWeight: 700, color: '#1f2937', fontSize: '1.08rem' }}>
-            שמיניסט יקר! לפניך שאלון שבו תוכל לגלות איזו ישיבה/מכינה מתאימה לך.
-          </p>
-          <p>
-            ישנם 11 מאפיינים. עליך לדרג מ-1 עד 5 כל מאפיין - כמה חשוב לך שיהיה בישיבה/מכינה.
-          </p>
-          <p>
-            השאלון אינו ח"ו מדרג ישיבות ומכינות אלא עובד על בסיס התאמה אישית.
-          </p>
-          <p>
-            השאלון הינו המלצה כללית בלבד ואינו מהווה תחליף לשיחה עם הר"מ/המחנך בעניין בחירת הישיבה/המכינה.
-          </p>
-          <p style={{ fontWeight: 700, color: '#111827', fontSize: '1.1rem', marginTop: '0.2rem' }}>
-            בהצלחה!
-          </p>
+        <div className="hero-facts">
+          <div className="hero-fact"><b>11</b><span>מאפיינים</span></div>
+          <div className="hero-fact"><b>1–5</b><span>דירוג לכל אחד</span></div>
+          <div className="hero-fact"><b>3</b><span>דקות בערך</span></div>
         </div>
 
         <button
@@ -129,115 +118,103 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
             setIsStarted(true);
             if (onStartQuiz) onStartQuiz();
           }}
-          className="btn-primary"
-          style={{ fontSize: '1.05rem', padding: '0.75rem 2.2rem', borderRadius: 8 }}
+          className="btn-primary btn-hero"
         >
-          <Play style={{ width: 16, height: 16, fill: 'currentColor' }} />
-          התחל
+          <Play style={{ width: 18, height: 18, fill: 'currentColor' }} />
+          מתחילים
         </button>
 
-        <div style={{ fontSize: '0.82rem', color: '#6b7280', marginTop: '1.3rem', fontWeight: 500 }}>
-          *השאלון מבוסס על מידע שנאסף מביינישים, תלמידים ובוגרי ישיבות ומכינות רבים, וממשיך להתעדכן באופן שוטף מתשובות ודיווחים של תלמידים כיום.
-        </div>
+        <p className="hero-note">
+          השאלון אינו מדרג ישיבות, אלא מתאים לפי מה שחשוב לך. הוא המלצה כללית בלבד ואינו תחליף לשיחה עם הר"מ או המחנך.
+          המידע נאסף מתלמידים ובוגרים רבים ומתעדכן באופן שוטף.
+        </p>
       </div>
     );
   }
 
   return (
     <div className="questionnaire-wizard">
-      {/* Top Progress Bar - Compact Padding */}
-      <div className="glass-card" style={{ padding: '0.75rem 1.25rem', marginBottom: '1rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', fontSize: '0.88rem', fontWeight: 700 }}>
-          <span style={{ color: '#111827' }}>שאלה {currentStep + 1} מתוך {totalSteps}</span>
-          <span style={{ color: '#4b5563' }}>{progressPercent}% הושלמו</span>
+      <div className="glass-card" style={{ padding: '0.85rem 1.1rem', marginBottom: '0.9rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
+          <span>שאלה <strong style={{ color: 'var(--text-primary)' }}>{currentStep + 1}</strong> מתוך {totalSteps}</span>
         </div>
-        <div style={{ height: 6, background: '#e5decb', borderRadius: 999, overflow: 'hidden' }}>
-          <div style={{ width: `${progressPercent}%`, height: '100%', background: '#52341d', transition: 'width 0.3s ease' }} />
+        <div className="progress-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progressPercent}>
+          <div className="progress-fill" style={{ width: `${Math.max(progressPercent, 4)}%` }} />
         </div>
       </div>
 
       {/* STEP 0: Institution Type & Region */}
       {currentStep === 0 && (
-        <div className="glass-card" style={{ animation: 'fadeIn 0.3s', padding: '1.35rem' }}>
-          <h2 className="section-title" style={{ fontSize: '1.35rem', marginBottom: '1rem', color: '#111827' }}>
-            סוג המוסד והאזור הגאוגרפי
-          </h2>
+        <div className="glass-card fade-in">
+          <h2 className="section-title">סוג המוסד והאזור</h2>
 
-          {/* Yeshiva Type Selection */}
-          <div style={{ marginBottom: '1.3rem' }}>
-            <label style={{ display: 'block', fontWeight: 700, fontSize: '0.98rem', marginBottom: '0.6rem', color: '#1f2937' }}>
-              <GraduationCap style={{ display: 'inline', width: 18, height: 18, marginLeft: 6, color: '#52341d' }} />
+          <div style={{ marginBottom: '1.4rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, marginBottom: '0.65rem', color: 'var(--text-primary)' }}>
+              <GraduationCap style={{ width: 18, height: 18, color: 'var(--primary-accent)' }} />
               איזה סוג מוסד תורני אתה מחפש?
-            </label>
-            <div className="chips-grid">
+            </div>
+            <div className="chips-grid" role="radiogroup">
               {TYPES.map(t => (
-                <div
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={type === t.id}
                   key={t.id}
                   className={`chip-card ${type === t.id ? 'selected' : ''}`}
                   onClick={() => setType(t.id)}
-                  style={{ padding: '0.75rem', fontSize: '0.98rem' }}
                 >
+                  {type === t.id && <Check style={{ width: 16, height: 16 }} />}
                   {t.label}
-                </div>
+                </button>
               ))}
             </div>
           </div>
 
-          {/* Region Chip Selection */}
-          <div style={{ marginBottom: '0.5rem' }}>
-            <label style={{ display: 'block', fontWeight: 700, fontSize: '0.98rem', marginBottom: '0.6rem', color: '#1f2937' }}>
-              <MapPin style={{ display: 'inline', width: 18, height: 18, marginLeft: 6, color: '#52341d' }} />
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, marginBottom: '0.65rem', color: 'var(--text-primary)' }}>
+              <MapPin style={{ width: 18, height: 18, color: 'var(--primary-accent)' }} />
               אזור גאוגרפי מועדף
-            </label>
-            <div className="chips-grid">
+            </div>
+            <div className="chips-grid" role="radiogroup">
               {REGIONS.map(r => (
-                <div
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={region === r.id}
                   key={r.id}
                   className={`chip-card ${region === r.id ? 'selected' : ''}`}
                   onClick={() => setRegion(r.id)}
-                  style={{ padding: '0.7rem', fontSize: '0.92rem' }}
                 >
+                  {region === r.id && <Check style={{ width: 16, height: 16 }} />}
                   {r.label}
-                </div>
+                </button>
               ))}
             </div>
           </div>
         </div>
       )}
 
-      {/* STEPS 1..11: The 11 Parameters (100% Neutral, NO DEFAULT SELECTIONS) */}
+      {/* STEPS 1..11: The 11 Parameters (no default selections) */}
       {currentStep > 0 && currentParam && (
-        <div className="glass-card" style={{ animation: 'fadeIn 0.3s', textAlign: 'center', padding: '1.6rem 1.25rem', marginBottom: '1rem' }}>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '1.2rem', color: '#111827', lineHeight: 1.35 }}>
-            {currentParam.question || currentParam.label}
-          </h2>
+        <div className="glass-card question-card fade-in" key={currentParam.id}>
+          <h2 className="question-title">{currentParam.question || currentParam.label}</h2>
 
-          {/* 1 to 5 Score Buttons Grid (Nothing pressed by default) */}
-          <div style={{ margin: '0 auto', maxWidth: 600 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#4b5563', fontWeight: 700 }}>
-              <span>1 - {currentParam.minLabel}</span>
-              <span>5 - {currentParam.maxLabel}</span>
+          <div style={{ margin: '0 auto', maxWidth: 560 }}>
+            <div className="score-ends">
+              <span><strong>1</strong> · {currentParam.minLabel}</span>
+              <span>{currentParam.maxLabel} · <strong>5</strong></span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.5rem' }}>
+            <div className="score-grid">
               {[1, 2, 3, 4, 5].map(score => {
                 const isSelected = !ignoreParams[currentParam.id] && ratings[currentParam.id] === score;
                 return (
                   <button
                     key={score}
                     type="button"
+                    aria-pressed={isSelected}
                     onClick={() => handleSelectScore(currentParam.id, score)}
-                    style={{
-                      background: isSelected ? '#52341d' : '#ede5d7',
-                      color: isSelected ? '#ffffff' : '#1f2937',
-                      border: isSelected ? '2px solid #3f2411' : '2px solid #d9ccb9',
-                      padding: '0.85rem 0.2rem',
-                      borderRadius: 8,
-                      fontSize: '1.3rem',
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease'
-                    }}
+                    className={`score-btn ${isSelected ? 'selected' : ''}`}
                   >
                     {score}
                   </button>
@@ -246,48 +223,30 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
             </div>
           </div>
 
-          {/* Small, Discreet "לא משנה לי" Option at the Bottom (Unselected by default) */}
-          <div style={{ marginTop: '1.2rem', textAlign: 'center' }}>
+          <div style={{ marginTop: '1.3rem' }}>
             <button
               type="button"
               onClick={() => handleSetIndifferent(currentParam.id)}
-              style={{
-                background: ignoreParams[currentParam.id] ? '#52341d' : '#ede5d7',
-                border: ignoreParams[currentParam.id] ? '2px solid #3f2411' : '1px solid #d9ccb9',
-                color: ignoreParams[currentParam.id] ? '#ffffff' : '#4b5563',
-                fontSize: '0.85rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                padding: '0.4rem 0.9rem',
-                borderRadius: 999,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.35rem',
-                transition: 'all 0.2s ease'
-              }}
+              className={`indifferent-btn ${ignoreParams[currentParam.id] ? 'selected' : ''}`}
             >
-              {ignoreParams[currentParam.id] && <Check style={{ width: 13, height: 13, color: '#ffffff' }} />}
-              לא משנה לי (ללא העדפה בנושא זה)
+              {ignoreParams[currentParam.id] && <Check style={{ width: 14, height: 14 }} />}
+              לא משנה לי
             </button>
           </div>
         </div>
       )}
 
-      {/* Navigation Buttons (Back & Next) */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <button
-          onClick={handlePrev}
-          className="btn-secondary"
-          style={{ padding: '0.6rem 1.2rem', fontSize: '0.92rem' }}
-        >
-          <ChevronRight style={{ width: 16, height: 16 }} />
+      {/* Sticky navigation (thumb-reachable on mobile) */}
+      <div className="wizard-nav">
+        <button onClick={handlePrev} className="btn-secondary">
+          <ChevronRight style={{ width: 18, height: 18 }} />
           הקודם
         </button>
 
         {currentStep === 0 && (
-          <button onClick={handleNext} className="btn-primary" style={{ padding: '0.65rem 1.4rem', fontSize: '0.95rem' }}>
+          <button onClick={handleNext} className="btn-primary">
             הבא
-            <ChevronLeft style={{ width: 16, height: 16 }} />
+            <ChevronLeft style={{ width: 18, height: 18 }} />
           </button>
         )}
       </div>
