@@ -9,7 +9,7 @@ import {
   deleteDoc,
   writeBatch
 } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { initializeAuth, browserSessionPersistence } from "firebase/auth";
 import { getAnalytics, isSupported } from "firebase/analytics";
 
 // Read Firebase keys from environment variables
@@ -37,7 +37,8 @@ if (isFirebaseConfigured) {
   try {
     app = initializeApp(firebaseConfig);
     db = getFirestore(app);
-    auth = getAuth(app);
+    // Session-only login: opening the admin/manager page in a new tab or visit always asks for credentials
+    auth = initializeAuth(app, { persistence: browserSessionPersistence });
     isSupported().then(yes => {
       if (yes) {
         getAnalytics(app);
