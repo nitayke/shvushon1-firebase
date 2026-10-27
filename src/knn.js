@@ -126,8 +126,22 @@ export const TYPES = [
 export const TYPE_TRANSLATIONS = {
   hesder: 'ישיבת הסדר',
   gvoha: 'ישיבה גבוהה',
+  hesder_gvoha: 'ישיבה גבוהה וגם הסדר',
   mechina: 'מכינה קדם-צבאית'
 };
+
+// Types a yeshiva can be registered with (the questionnaire filters by TYPES, where the combined type is just both).
+export const YESHIVA_TYPES = [
+  { id: 'hesder', label: TYPE_TRANSLATIONS.hesder },
+  { id: 'gvoha', label: TYPE_TRANSLATIONS.gvoha },
+  { id: 'hesder_gvoha', label: TYPE_TRANSLATIONS.hesder_gvoha },
+  { id: 'mechina', label: TYPE_TRANSLATIONS.mechina }
+];
+
+// A combined yeshiva matches a hesder or a gvoha selection.
+export const typeMatches = (selectedTypes, yeshivaType) =>
+  selectedTypes.includes(yeshivaType) ||
+  (yeshivaType === 'hesder_gvoha' && (selectedTypes.includes('hesder') || selectedTypes.includes('gvoha')));
 
 /**
  * Advanced Weighted KNN Distance Matching Algorithm + Strict Uniform Answer Edge Cases
@@ -223,7 +237,7 @@ export const calculateKNNMatches = (userPreferences, yeshivotList, k = 3) => {
     const rmsDistance = totalWeight > 0 ? Math.sqrt(weightedDistSq / totalWeight) : 0;
 
     // Penalty for Type & Region mismatch
-    const typePenalty = (types.length > 0 && !types.includes(yeshiva.type)) ? 0.35 : 0;
+    const typePenalty = (types.length > 0 && !typeMatches(types, yeshiva.type)) ? 0.35 : 0;
     const regionPenalty = (regions.length > 0 && !regions.includes(yeshiva.region)) ? 0.25 : 0;
     const totalPenalty = typePenalty + regionPenalty;
 

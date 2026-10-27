@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Send, CheckCircle, MailCheck, Mail } from 'lucide-react';
 import { saveYeshivaRequestDB } from '../firebase';
-import { PARAM_DEFINITIONS, REGIONS, TYPES, REGION_TRANSLATIONS, TYPE_TRANSLATIONS } from '../knn';
+import { PARAM_DEFINITIONS, REGIONS, YESHIVA_TYPES, REGION_TRANSLATIONS, TYPE_TRANSLATIONS } from '../knn';
 import CustomSelect from './CustomSelect';
 
 export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin, yeshivotList = [] }) {
@@ -113,7 +113,7 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin, yesh
     }
   };
 
-  const typeOptions = TYPES.filter(t => t.id !== 'all').map(t => ({ value: t.id, label: t.label }));
+  const typeOptions = YESHIVA_TYPES.map(t => ({ value: t.id, label: t.label }));
   const regionOptions = REGIONS.filter(r => r.id !== 'all').map(r => ({ value: r.id, label: r.label }));
 
   return (

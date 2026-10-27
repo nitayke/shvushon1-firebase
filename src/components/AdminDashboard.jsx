@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { ShieldCheck, Plus, Check, RefreshCw, Trash2, Edit3, LogOut, Inbox, Users, Database, TrendingUp, Link2, Copy } from 'lucide-react';
+import { ShieldCheck, Plus, Check, RefreshCw, Trash2, Edit3, LogOut, Inbox, Users, Database, TrendingUp, Link2, Copy, UserCheck } from 'lucide-react';
 import { 
   getYeshivotDB, 
   getYeshivaRequestsDB, 
@@ -11,7 +11,7 @@ import {
   deleteYeshivaRequestDB,
   deleteStudentSubmissionDB
 } from '../firebase';
-import { PARAM_DEFINITIONS, REGIONS, TYPES, REGION_TRANSLATIONS, TYPE_TRANSLATIONS } from '../knn';
+import { PARAM_DEFINITIONS, REGIONS, YESHIVA_TYPES, REGION_TRANSLATIONS, TYPE_TRANSLATIONS } from '../knn';
 import { createManagerInviteDB, getManagersDB } from '../manager';
 import CustomSelect from './CustomSelect';
 // Charts (recharts) are heavy: load them only when the analytics tab is opened
@@ -27,6 +27,7 @@ export default function AdminDashboard({ onExitAdmin }) {
   const [analyticsTick, setAnalyticsTick] = useState(0);
   const [managers, setManagers] = useState([]);
   const [inviteResult, setInviteResult] = useState(null); // { yeshivaName, url }
+  const [onlyWithManager, setOnlyWithManager] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
@@ -170,7 +171,7 @@ export default function AdminDashboard({ onExitAdmin }) {
   };
 
   const regionOptions = REGIONS.map(r => ({ value: r.id, label: r.label }));
-  const typeOptions = TYPES.filter(t => t.id !== 'all').map(t => ({ value: t.id, label: t.label }));
+  const typeOptions = YESHIVA_TYPES.map(t => ({ value: t.id, label: t.label }));
 
   return (
     <div className="admin-container">
@@ -438,6 +439,15 @@ export default function AdminDashboard({ onExitAdmin }) {
               ניהול מאגר הישיבות והמכינות
             </h2>
 
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              onClick={() => setOnlyWithManager(v => !v)}
+              className={onlyWithManager ? 'btn-primary' : 'btn-secondary'}
+            >
+              <UserCheck style={{ width: 18, height: 18 }} />
+              רק עם אחראי רשום
+            </button>
             <button
               onClick={() => setEditingYeshiva({
                 id: 'y_' + Date.now(),
@@ -452,6 +462,7 @@ export default function AdminDashboard({ onExitAdmin }) {
               <Plus style={{ width: 18, height: 18 }} />
               הוסף ישיבה/מכינה ידנית
             </button>
+            </div>
           </div>
 
           {loading && yeshivot.length === 0 ? (
@@ -460,7 +471,7 @@ export default function AdminDashboard({ onExitAdmin }) {
             <p style={{ color: '#94a3b8' }}>אין ישיבות/מכינות במאגר.</p>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-              {yeshivot.map(y => (
+              {yeshivot.filter(y => !onlyWithManager || managers.some(m => m.yeshivaId === y.id)).map(y => (
                 <div key={y.id} className="yeshiva-result-card" style={{ margin: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.8rem' }}>
                     <div>
@@ -504,7 +515,7 @@ export default function AdminDashboard({ onExitAdmin }) {
                   </div>
                   {managers.filter(m => m.yeshivaId === y.id).map(m => (
                     <div key={m.id} style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.5rem' }}>
-                      אחראי: {m.email} • {m.phone}
+                      אחראי: {m.name ? `${m.name} • ` : ''}{m.email} • {m.phone}
                     </div>
                   ))}
                 </div>

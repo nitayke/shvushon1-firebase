@@ -115,6 +115,7 @@ function PrivacyGate({ user, profile, onAccepted }) {
 
 function RegisterForm({ token, goToLogin }) {
   const [invite, setInvite] = useState(undefined); // undefined = loading, null = invalid
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [hasWhatsapp, setHasWhatsapp] = useState(true);
@@ -132,12 +133,13 @@ function RegisterForm({ token, goToLogin }) {
   const submit = async (e) => {
     e.preventDefault();
     setError('');
+    if (!name.trim()) return setError('יש להזין שם');
     if (!isValidPhone(phone)) return setError('מספר טלפון לא תקין');
     if (password.length < 6) return setError('הסיסמה חייבת להכיל לפחות 6 תווים');
     if (!agreed) return setError('יש לאשר את מדיניות הפרטיות');
     setBusy(true);
     try {
-      await registerManagerDB({ token, email: email.trim(), phone: phone.trim(), hasWhatsapp, password });
+      await registerManagerDB({ token, name: name.trim(), email: email.trim(), phone: phone.trim(), hasWhatsapp, password });
       storeCredentials(email.trim(), password);
       goToLogin();
     } catch (err) {
@@ -158,6 +160,10 @@ function RegisterForm({ token, goToLogin }) {
         הרשמה כאחראי שבושים של <strong>{invite.yeshivaName}</strong>
       </p>
       {error && <div style={errorBox}>{error}</div>}
+      <div style={fieldWrap}>
+        <label style={labelStyle}>שם מלא</label>
+        <input type="text" name="name" className="input-field" value={name} onChange={e => setName(e.target.value)} required autoComplete="name" />
+      </div>
       <div style={fieldWrap}>
         <label style={labelStyle}>אימייל</label>
         <input type="email" name="email" id="email" className="input-field" value={email} onChange={e => setEmail(e.target.value)} required dir="ltr" autoComplete="username" />

@@ -74,7 +74,7 @@ export const getInviteDB = async (token) => {
 };
 
 // Registers via Firebase Auth, then atomically consumes the invite and creates the manager profile.
-export const registerManagerDB = async ({ token, email, phone, hasWhatsapp, password }) => {
+export const registerManagerDB = async ({ token, name, email, phone, hasWhatsapp, password }) => {
   const db = getDb();
   const auth = getAuthInstance();
   const invite = await getInviteDB(token);
@@ -92,6 +92,7 @@ export const registerManagerDB = async ({ token, email, phone, hasWhatsapp, pass
     batch.update(doc(db, "invites", token), { used: true, used_by: uid, used_at: new Date().toISOString() });
     batch.set(doc(db, "managers", uid), {
       uid,
+      name,
       email,
       phone,
       hasWhatsapp: !!hasWhatsapp,

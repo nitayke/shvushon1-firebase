@@ -138,3 +138,12 @@ test('Multi-select type/region only penalizes yeshivot outside the selected list
   assert.ok(score(regionMulti, 'b') < score({ type: 'all', region: 'all' }, 'b'));
   assert.equal(score(regionMulti, 'c'), score({ type: 'all', region: 'all' }, 'c'));
 });
+
+test('A combined hesder+gvoha yeshiva is not penalized for either selection', () => {
+  const ratings = { overall_size: 5 };
+  const list = [{ id: 'x', name: 'x', type: 'hesder_gvoha', region: 'north', ratings, submissions_count: 1 }];
+  const score = (type) => calculateKNNMatches({ type, region: 'all', ratings, ignoreParams: {} }, list)[0].matchScore;
+  assert.equal(score(['hesder']), score('all'));
+  assert.equal(score(['gvoha']), score('all'));
+  assert.ok(score(['mechina']) < score('all'));
+});
