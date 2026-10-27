@@ -58,6 +58,21 @@ export default function CalendarView() {
         האירועים הקרובים שהישיבות והמכינות פרסמו, מהקרוב לרחוק.
       </p>
 
+      <div style={{
+        background: 'rgba(180, 120, 40, 0.14)', border: '1px dashed var(--gold-accent)',
+        borderRadius: 'var(--radius-md)', padding: '0.7rem 0.9rem', marginBottom: '1rem',
+        display: 'flex', alignItems: 'center', gap: '0.8rem', flexWrap: 'wrap'
+      }}>
+        <div style={{ flex: 1, minWidth: 200, fontSize: '0.92rem' }}>
+          <strong>🚧 היומן בהרצה.</strong> אם האירועים של הישיבה שלכם לא מופיעים כאן, פנו אלינו ונוסיף אותם.
+        </div>
+        <a href={whatsappUrl('0587990583', 'היי, האירועים של הישיבה שלנו לא מופיעים ביומן של שבושון. שם הישיבה: ')}
+          target="_blank" rel="noopener noreferrer" className="btn-secondary" style={contactBtn}>
+          <WhatsAppIcon />
+          פנו אלינו
+        </a>
+      </div>
+
       {error && <div style={{ color: '#b91c1c', marginBottom: '0.8rem' }}>{error}</div>}
       {loading && <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>טוען...</p>}
       {!loading && !error && events.length === 0 && (
@@ -81,7 +96,7 @@ export default function CalendarView() {
               {ev.phone && (
                 <div style={{ marginTop: 6 }}>
                   {ev.hasWhatsapp ? (
-                    <a href={whatsappUrl(ev.phone)} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={contactBtn}>
+                    <a href={whatsappUrl(ev.phone, 'היי, הגעתי דרך שבושון 🙂')} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={contactBtn}>
                       <WhatsAppIcon />
                       ווצאפ לאחראי
                     </a>

@@ -164,6 +164,20 @@ export default function App() {
         ) : (
           <>
             {view === 'questionnaire' && (
+              <a href="/calendar" onClick={navigateToCalendar} className="btn-gold" style={{
+                textDecoration: 'none', width: '100%', marginBottom: '1rem', minHeight: 56,
+                fontSize: '1.1rem', fontWeight: 700, boxShadow: '0 4px 12px rgba(180, 120, 40, 0.35)'
+              }}>
+                <CalendarDays style={{ width: 22, height: 22 }} />
+                ימים פתוחים ושבתות שבושים
+                <span style={{
+                  background: '#fff', color: '#94601c', fontWeight: 800, fontSize: '0.75rem',
+                  padding: '0.1rem 0.55rem', borderRadius: 999, whiteSpace: 'nowrap'
+                }}>בהרצה</span>
+              </a>
+            )}
+
+            {view === 'questionnaire' && (
               <Questionnaire
                 key={resetKey}
                 onStartQuiz={loadYeshivot}
@@ -215,11 +229,6 @@ export default function App() {
                 <PlusCircle style={{ width: 16, height: 16 }} />
                 בקשה להוספת ישיבה / מכינה
               </button>
-
-              <a href="/calendar" onClick={navigateToCalendar} className="btn-secondary" style={{ textDecoration: 'none' }}>
-                <CalendarDays style={{ width: 16, height: 16 }} />
-                ימים פתוחים ושבתות שבושים
-              </a>
 
               <a href="mailto:shvushon@gmail.com" className="btn-secondary" style={{ textDecoration: 'none' }}>
                 <Mail style={{ width: 16, height: 16 }} />

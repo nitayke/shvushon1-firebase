@@ -210,4 +210,5 @@ export const acceptPrivacyDB = async (uid, hasWhatsapp) => {
 // Contact links for the public calendar
 export const phoneDigits = (phone) => String(phone || '').replace(/\D/g, '');
 export const telUrl = (phone) => `tel:${phoneDigits(phone)}`;
-export const whatsappUrl = (phone) => `https://wa.me/972${phoneDigits(phone).replace(/^0/, '')}`;
+export const whatsappUrl = (phone, text) =>
+  `https://wa.me/972${phoneDigits(phone).replace(/^0/, '')}${text ? `?text=${encodeURIComponent(text)}` : ''}`;
