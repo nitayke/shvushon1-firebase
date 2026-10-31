@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { Award, CheckCircle, RefreshCw, HelpCircle, Save, Edit2, MailCheck } from 'lucide-react';
+import { Award, CheckCircle, RefreshCw, HelpCircle, Save, Edit2, MailCheck, Phone } from 'lucide-react';
 import { saveStudentSubmissionDB, saveYeshivaRequestDB } from '../firebase';
+import { getManagerContactsDB, whatsappUrl, telUrl } from '../manager';
+import WhatsAppIcon from './WhatsAppIcon';
 import { PARAM_DEFINITIONS, REGION_TRANSLATIONS, TYPE_TRANSLATIONS } from '../knn';
 import AutocompleteYeshivaSelect from './AutocompleteYeshivaSelect';
 
@@ -28,13 +30,26 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
     userPreferences?.ratings || PARAM_DEFINITIONS.reduce((acc, p) => ({ ...acc, [p.id]: 3 }), {})
   );
 
+  // yeshivaId -> { phone, hasWhatsapp } for yeshivot whose manager is registered
+  const [managerContacts, setManagerContacts] = useState({});
+
   useEffect(() => {
     confetti({
       particleCount: 85,
       spread: 75,
       origin: { y: 0.55 }
     });
+    getManagerContactsDB().then(setManagerContacts).catch(err => console.error('Manager contacts load error:', err));
   }, []);
+
+  const shareText = [
+    'עשיתי את שאלון ההתאמה של שבושון, והנה הישיבות והמכינות שהכי מתאימות לי:',
+    '',
+    ...results.slice(0, 5).map((r, i) => `${i + 1}. ${r.name} - ${r.matchScore}% התאמה`),
+    '',
+    'גם אתם יכולים לבדוק מה מתאים לכם:',
+    'https://www.shvushon.com'
+  ].join('\n');
 
   const handleStudentRatingChange = (id, val) => {
     setStudentRatings(prev => ({ ...prev, [id]: Number(val) }));
@@ -133,6 +148,16 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
         <p style={{ color: '#047857', fontSize: '1.1rem', fontWeight: 600 }}>
           המוסד בעל ההתאמה הגבוהה ביותר עבורך הוא: <strong style={{ color: '#064e3b', fontSize: '1.4rem' }}>{topMatch?.name}</strong> עם {topMatch?.matchScore}% התאמה!
         </p>
+        <a
+          href={`https://wa.me/?text=${encodeURIComponent(shareText)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-secondary"
+          style={{ textDecoration: 'none', marginTop: '0.8rem', display: 'inline-flex' }}
+        >
+          <WhatsAppIcon size={18} />
+          שתף את התוצאות בווצאפ
+        </a>
       </div>
 
       {/* Results List */}
@@ -164,6 +189,22 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
                   {item.matchScore}% התאמה
                 </div>
               </div>
+
+              {managerContacts[item.id]?.phone && (
+                <div style={{ marginTop: '0.7rem' }}>
+                  {managerContacts[item.id].hasWhatsapp ? (
+                    <a href={whatsappUrl(managerContacts[item.id].phone, 'היי, הגעתי דרך שבושון 🙂')} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ textDecoration: 'none', padding: '0.3rem 0.7rem', fontSize: '0.85rem' }}>
+                      <WhatsAppIcon />
+                      ווצאפ לאחראי הישיבה
+                    </a>
+                  ) : (
+                    <a href={telUrl(managerContacts[item.id].phone)} className="btn-secondary" style={{ textDecoration: 'none', padding: '0.3rem 0.7rem', fontSize: '0.85rem' }}>
+                      <Phone style={{ width: 14, height: 14 }} />
+                      טלפון לאחראי הישיבה
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
           );
         })}

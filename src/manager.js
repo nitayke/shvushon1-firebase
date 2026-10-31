@@ -103,6 +103,7 @@ export const registerManagerDB = async ({ token, name, email, phone, hasWhatsapp
       inviteToken: token,
       created_at: new Date().toISOString()
     });
+    batch.set(doc(db, "manager_contacts", invite.yeshivaId), { phone, hasWhatsapp: !!hasWhatsapp, updated_at: new Date().toISOString() });
     await batch.commit();
   } catch (err) {
     // Invite was consumed in the meantime or rules rejected it: don't leave an orphan account
@@ -193,7 +194,9 @@ export const deleteEventDB = async (id) => {
 // Updates the contact details and mirrors them onto the manager's events (the public calendar can't read manager profiles).
 export const updateManagerContactDB = async (uid, phone, hasWhatsapp) => {
   const db = getDb();
+  const profile = await getManagerProfileDB(uid);
   await updateDoc(doc(db, "managers", uid), { phone, hasWhatsapp, updated_at: new Date().toISOString() });
+  await syncManagerContactDB({ ...profile, phone, hasWhatsapp });
   const snap = await getDocs(query(collection(db, "events"), where("created_by", "==", uid)));
   if (snap.empty) return;
   const batch = writeBatch(db);
@@ -206,6 +209,24 @@ export const acceptPrivacyDB = async (uid, hasWhatsapp) => {
   const privacyAcceptedAt = new Date().toISOString();
   await updateDoc(doc(getDb(), "managers", uid), { hasWhatsapp: !!hasWhatsapp, privacyAccepted: true, privacyAcceptedAt, updated_at: privacyAcceptedAt });
   return privacyAcceptedAt;
+};
+
+// ---------- Public manager contacts (shown on the results page) ----------
+
+// The public can't read manager profiles, so the contact of each yeshiva's manager is mirrored here, keyed by yeshiva id.
+export const syncManagerContactDB = async (profile) => {
+  if (!profile?.yeshivaId || !profile.phone) return;
+  await setDoc(doc(getDb(), "manager_contacts", profile.yeshivaId), {
+    phone: profile.phone,
+    hasWhatsapp: !!profile.hasWhatsapp,
+    updated_at: new Date().toISOString()
+  });
+};
+
+// Map of yeshivaId -> { phone, hasWhatsapp }
+export const getManagerContactsDB = async () => {
+  const snap = await getDocs(collection(getDb(), "manager_contacts"));
+  return Object.fromEntries(snap.docs.map(d => [d.id, d.data()]));
 };
 
 // Contact links for the public calendar

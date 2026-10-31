@@ -11,6 +11,7 @@ import {
   watchManagerAuth,
   getManagerProfileDB,
   updateManagerContactDB,
+  syncManagerContactDB,
   acceptPrivacyDB,
   isValidPhone,
   EVENT_TYPES,
@@ -322,6 +323,7 @@ function ManagerDashboard({ user }) {
         if (p) {
           setPhone(p.phone || '');
           setHasWhatsapp(!!p.hasWhatsapp);
+          if (p.privacyAccepted) syncManagerContactDB(p).catch(err => console.error('Contact sync error:', err));
           setEvents(await getManagerEventsDB(user.uid));
         }
       } catch (err) {

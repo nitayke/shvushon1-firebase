@@ -39,20 +39,17 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
     if (timerRef.current) clearTimeout(timerRef.current);
 
     timerRef.current = setTimeout(() => {
-      setCurrentStep(prev => {
-        if (prev < totalSteps - 1) {
-          return prev + 1;
-        } else {
-          // Final question completed -> calculate matches!
-          onCalculateMatches({
-            region: toPreference(regions),
-            type: toPreference(types),
-            ratings: updatedRatings,
-            ignoreParams: updatedIgnore
-          });
-          return prev;
-        }
-      });
+      if (currentStep < totalSteps - 1) {
+        setCurrentStep(currentStep + 1);
+      } else {
+        // Final question completed -> calculate matches!
+        onCalculateMatches({
+          region: toPreference(regions),
+          type: toPreference(types),
+          ratings: updatedRatings,
+          ignoreParams: updatedIgnore
+        });
+      }
     }, 400);
   };
 
