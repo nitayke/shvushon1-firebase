@@ -27,11 +27,36 @@ export default function App() {
     return 'questionnaire';
   };
 
-  const [view, setViewState] = useState(getInitialView);
+  // The last computed results survive reloads and navigating away and back (sessionStorage).
+  const RESULTS_KEY = 'shvushon_last_results';
+  const loadSavedResults = () => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(RESULTS_KEY));
+      if (saved && Array.isArray(saved.results) && saved.results.length > 0) return saved;
+    } catch { /* storage unavailable or corrupt: behave as if nothing was saved */ }
+    return null;
+  };
+  const saveResults = (data) => {
+    try { sessionStorage.setItem(RESULTS_KEY, JSON.stringify(data)); } catch { /* ignore */ }
+  };
+  const clearSavedResults = () => {
+    try { sessionStorage.removeItem(RESULTS_KEY); } catch { /* ignore */ }
+  };
+
+  const [saved] = useState(loadSavedResults);
+  const [view, setViewState] = useState(() => {
+    const initial = getInitialView();
+    // /results with nothing to show (e.g. a fresh tab): go to the questionnaire instead of an empty board
+    if (initial === 'results' && !saved) {
+      window.history.replaceState({ view: 'questionnaire' }, '', '/');
+      return 'questionnaire';
+    }
+    return initial;
+  });
   const [yeshivotList, setYeshivotList] = useState([]);
-  const [userPreferences, setUserPreferences] = useState(null);
-  const [results, setResults] = useState([]);
-  const [testResultIdPromise, setTestResultIdPromise] = useState(null);
+  const [userPreferences, setUserPreferences] = useState(saved?.userPreferences || null);
+  const [results, setResults] = useState(saved?.results || []);
+  const [testResultIdPromise, setTestResultIdPromise] = useState(saved?.testResultId || null);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hasTriggeredLoad, setHasTriggeredLoad] = useState(false);
@@ -59,6 +84,7 @@ export default function App() {
     window.history.pushState({ view: 'questionnaire' }, '', '/');
     setUserPreferences(null);
     setResults([]);
+    clearSavedResults();
     setViewState('questionnaire');
     setResetKey(prev => prev + 1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -73,7 +99,13 @@ export default function App() {
   // Sync back/forward browser navigation & direct URL changes
   useEffect(() => {
     const handleUrlSync = () => {
-      setViewState(getInitialView());
+      const next = getInitialView();
+      if (next === 'results' && !loadSavedResults()) {
+        window.history.replaceState({ view: 'questionnaire' }, '', '/');
+        setViewState('questionnaire');
+        return;
+      }
+      setViewState(next);
     };
 
     window.addEventListener('popstate', handleUrlSync);
@@ -123,10 +155,15 @@ export default function App() {
     setResults(matches);
     
     // Log the answers and the generated matches automatically (Task B)
-    setTestResultIdPromise(saveTestResultDB({
+    const idPromise = saveTestResultDB({
       preferences,
       top_matches: matches.map(m => ({ id: m.id, name: m.name, matchScore: m.matchScore }))
-    }));
+    });
+    setTestResultIdPromise(idPromise);
+    saveResults({ userPreferences: preferences, results: matches, testResultId: null });
+    Promise.resolve(idPromise).then(id => {
+      if (typeof id === 'string') saveResults({ userPreferences: preferences, results: matches, testResultId: id });
+    }).catch(() => {});
 
     navigateToResults();
   };

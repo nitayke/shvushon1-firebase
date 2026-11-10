@@ -103,7 +103,7 @@ export const registerManagerDB = async ({ token, name, email, phone, hasWhatsapp
       inviteToken: token,
       created_at: new Date().toISOString()
     });
-    batch.set(doc(db, "manager_contacts", invite.yeshivaId), { phone, hasWhatsapp: !!hasWhatsapp, updated_at: new Date().toISOString() });
+    batch.set(doc(db, "manager_contacts", invite.yeshivaId), { phone, hasWhatsapp: !!hasWhatsapp, name, updated_at: new Date().toISOString() });
     await batch.commit();
   } catch (err) {
     // Invite was consumed in the meantime or rules rejected it: don't leave an orphan account
@@ -198,6 +198,7 @@ export const addEventDB = async (profile, { type, date, time }) => {
     time: type === 'open_day' ? (time || '') : '',
     phone: profile.phone,
     hasWhatsapp: !!profile.hasWhatsapp,
+    managerName: profile.name || '',
     created_by: profile.uid,
     created_at: new Date().toISOString()
   };
@@ -218,7 +219,7 @@ export const updateManagerContactDB = async (uid, phone, hasWhatsapp) => {
   const snap = await getDocs(query(collection(db, "events"), where("created_by", "==", uid)));
   if (snap.empty) return;
   const batch = writeBatch(db);
-  snap.docs.forEach(d => batch.update(d.ref, { phone, hasWhatsapp }));
+  snap.docs.forEach(d => batch.update(d.ref, { phone, hasWhatsapp, managerName: profile.name || '' }));
   await batch.commit();
 };
 
@@ -237,6 +238,7 @@ export const syncManagerContactDB = async (profile) => {
   await setDoc(doc(getDb(), "manager_contacts", profile.yeshivaId), {
     phone: profile.phone,
     hasWhatsapp: !!profile.hasWhatsapp,
+    name: profile.name || '',
     updated_at: new Date().toISOString()
   });
 };
@@ -250,5 +252,7 @@ export const getManagerContactsDB = async () => {
 // Contact links for the public calendar
 export const phoneDigits = (phone) => String(phone || '').replace(/\D/g, '');
 export const telUrl = (phone) => `tel:${phoneDigits(phone)}`;
+export const contactMessage = (name) =>
+  `היי${name ? ` ${name}` : ''}, קיבלתי בשבושון את הישיבה שלכם ואשמח לשמוע פרטים נוספים`;
 export const whatsappUrl = (phone, text) =>
   `https://wa.me/972${phoneDigits(phone).replace(/^0/, '')}${text ? `?text=${encodeURIComponent(text)}` : ''}`;

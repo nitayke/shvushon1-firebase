@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CalendarDays, Clock, Phone } from 'lucide-react';
 import WhatsAppIcon from './WhatsAppIcon';
-import { getUpcomingEventsDB, parseDateKey, EVENT_TYPES, telUrl, whatsappUrl } from '../manager';
+import { getUpcomingEventsDB, parseDateKey, EVENT_TYPES, telUrl, whatsappUrl, contactMessage } from '../manager';
 
 const fmt = (key, opts, locale = 'he-IL') => new Intl.DateTimeFormat(locale, opts).format(parseDateKey(key));
 
@@ -90,7 +90,7 @@ export default function CalendarView() {
               {ev.phone && (
                 <div style={{ marginTop: 6 }}>
                   {ev.hasWhatsapp ? (
-                    <a href={whatsappUrl(ev.phone, 'היי, הגעתי דרך שבושון 🙂')} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={contactBtn}>
+                    <a href={whatsappUrl(ev.phone, contactMessage(ev.managerName))} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={contactBtn}>
                       <WhatsAppIcon />
                       ווצאפ לאחראי
                     </a>

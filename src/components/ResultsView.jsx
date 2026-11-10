@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { Award, CheckCircle, RefreshCw, HelpCircle, Save, Edit2, MailCheck, Phone } from 'lucide-react';
 import { saveStudentSubmissionDB, saveYeshivaRequestDB, recordManagerContactClickDB } from '../firebase';
-import { getManagerContactsDB, whatsappUrl, telUrl } from '../manager';
+import { getManagerContactsDB, whatsappUrl, telUrl, contactMessage } from '../manager';
 import WhatsAppIcon from './WhatsAppIcon';
 import { PARAM_DEFINITIONS, REGION_TRANSLATIONS, TYPE_TRANSLATIONS } from '../knn';
 import AutocompleteYeshivaSelect from './AutocompleteYeshivaSelect';
@@ -197,7 +197,7 @@ export default function ResultsView({ results, userPreferences, yeshivotList, te
               {managerContacts[item.id]?.phone && (
                 <div style={{ marginTop: '0.7rem' }}>
                   {managerContacts[item.id].hasWhatsapp ? (
-                    <a href={whatsappUrl(managerContacts[item.id].phone, 'היי, הגעתי דרך שבושון 🙂')} onClick={() => trackContactClick(item.id)} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ textDecoration: 'none', padding: '0.3rem 0.7rem', fontSize: '0.85rem' }}>
+                    <a href={whatsappUrl(managerContacts[item.id].phone, contactMessage(managerContacts[item.id].name))} onClick={() => trackContactClick(item.id)} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ textDecoration: 'none', padding: '0.3rem 0.7rem', fontSize: '0.85rem' }}>
                       <WhatsAppIcon />
                       ווצאפ לאחראי הישיבה
                     </a>

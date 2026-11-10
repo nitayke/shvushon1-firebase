@@ -97,7 +97,7 @@ service cloud.firestore {
       // האחראי יכול לעדכן באירועים שלו רק את פרטי הקשר, בהתאם לפרופיל שלו
       allow update: if isAdmin()
                     || (isManager() && resource.data.created_by == request.auth.uid
-                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['phone', 'hasWhatsapp'])
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['phone', 'hasWhatsapp', 'managerName'])
                         && get(/databases/$(database)/documents/managers/$(request.auth.uid)).data.phone == request.resource.data.phone
                         && get(/databases/$(database)/documents/managers/$(request.auth.uid)).data.hasWhatsapp == request.resource.data.hasWhatsapp);
     }
