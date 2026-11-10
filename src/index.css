@@ -40,7 +40,85 @@
   font-display: swap;
 }
 
-/* Shvushon — warm parchment & espresso theme. Fonts: Secular One (display) + Rubik (body), loaded in index.html */
+/* Backup set with clear licenses: Frank Ruehl CLM (Culmus, open source) + Heebo (OFL). Switch by editing --font-display / --font-body below */
+@font-face {
+  font-family: 'Frank Ruehl CLM';
+  src: url('/fonts/Backup/FrankRuehlCLM-Medium.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Frank Ruehl CLM';
+  src: url('/fonts/Backup/FrankRuehlCLM-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Heebo';
+  src: url('/fonts/Backup/Heebo-Medium.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Heebo';
+  src: url('/fonts/Backup/Heebo-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* IBM Plex Sans Hebrew (SIL OFL) — body font */
+@font-face {
+  font-family: 'IBM Plex Sans Hebrew';
+  src: url('/fonts/Plex/plex-hebrew-400.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans Hebrew';
+  src: url('/fonts/Plex/plex-latin-400.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans Hebrew';
+  src: url('/fonts/Plex/plex-hebrew-500.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+  unicode-range: U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans Hebrew';
+  src: url('/fonts/Plex/plex-latin-500.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans Hebrew';
+  src: url('/fonts/Plex/plex-hebrew-700.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+  unicode-range: U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans Hebrew';
+  src: url('/fonts/Plex/plex-latin-700.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Shvushon — warm parchment & espresso theme. Fonts: Heebo (display) + IBM Plex Sans Hebrew (body), local files in public/fonts */
 
 :root {
   --bg-main: #f4eee3;
@@ -57,8 +135,8 @@
   --primary-accent-hover: #3f2411;
   --gold-accent: #b47828;
   --success-color: #059669;
-  --font-display: 'Yiddishkeit', 'Frank Ruhl Libre', serif;
-  --font-body: 'Frank Ruhl Libre', Georgia, serif;
+  --font-display: 'Heebo', Arial, sans-serif; /* option: 'Frank Ruehl CLM' */
+  --font-body: 'IBM Plex Sans Hebrew', 'Heebo', Arial, sans-serif;
   --radius-lg: 18px;
   --radius-md: 12px;
   --radius-sm: 8px;
@@ -96,7 +174,7 @@ body {
 }
 
 h1, h2, h3, h4, .section-title, .question-title {
-  font-family: var(--font-body);
+  font-family: var(--font-display);
   font-weight: 700;
   letter-spacing: 0;
   color: var(--text-primary);
