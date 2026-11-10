@@ -223,7 +223,8 @@ export const approveYeshivaRequestDB = async (request) => {
     type: request.type,
     region: request.region,
     ratings: request.ratings,
-    submissions_count: 1
+    submissions_count: 1,
+    created_at: new Date().toISOString()
   };
 
   if (isFirebaseConfigured && db) {

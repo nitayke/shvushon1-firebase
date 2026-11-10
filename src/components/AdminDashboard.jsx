@@ -17,6 +17,11 @@ import CustomSelect from './CustomSelect';
 // Charts (recharts) are heavy: load them only when the analytics tab is opened
 const AnalyticsTab = lazy(() => import('./AnalyticsTab'));
 
+const formatDateTime = (iso) => {
+  const d = iso ? new Date(iso) : null;
+  return d && !isNaN(d) ? d.toLocaleString('he-IL', { dateStyle: 'short', timeStyle: 'short' }) : 'לא ידוע';
+};
+
 export default function AdminDashboard({ onExitAdmin }) {
 
   const [activeTab, setActiveTab] = useState('requests'); // requests, submissions, yeshivot, analytics
@@ -270,6 +275,9 @@ export default function AdminDashboard({ onExitAdmin }) {
                     <div style={{ color: '#6b7280', fontSize: '0.82rem', marginTop: 2 }}>
                       אימייל מגיש: {req.submitter_email || 'לא צוין'} | הערות: {req.notes || 'אין'}
                     </div>
+                    <div style={{ color: '#6b7280', fontSize: '0.82rem', marginTop: 2 }}>
+                      הוגשה: {formatDateTime(req.created_at)}
+                    </div>
                   </div>
 
                   <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -391,7 +399,7 @@ export default function AdminDashboard({ onExitAdmin }) {
                         )}
                       </div>
                       <div style={{ color: '#4b5563', fontSize: '0.85rem' }}>
-                        תאריך דיווח: {new Date(sub.created_at || Date.now()).toLocaleDateString('he-IL')}
+                        תאריך דיווח: {formatDateTime(sub.created_at)}
                       </div>
                     </div>
 
@@ -455,7 +463,8 @@ export default function AdminDashboard({ onExitAdmin }) {
                 type: 'hesder',
                 region: 'center',
                 ratings: PARAM_DEFINITIONS.reduce((acc, p) => ({ ...acc, [p.id]: 3 }), {}),
-                submissions_count: 1
+                submissions_count: 1,
+                created_at: new Date().toISOString()
               })}
               className="btn-primary"
             >
@@ -478,6 +487,9 @@ export default function AdminDashboard({ onExitAdmin }) {
                       <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>{y.name}</h3>
                       <div style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: 2 }}>
                         {TYPE_TRANSLATIONS[y.type] || y.type} • {REGION_TRANSLATIONS[y.region] || y.region}
+                      </div>
+                      <div style={{ color: '#94a3b8', fontSize: '0.78rem', marginTop: 2 }}>
+                        נוספה: {formatDateTime(y.created_at)}
                       </div>
                     </div>
 
@@ -515,7 +527,7 @@ export default function AdminDashboard({ onExitAdmin }) {
                   </div>
                   {managers.filter(m => m.yeshivaId === y.id).map(m => (
                     <div key={m.id} style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.5rem' }}>
-                      אחראי: {m.name ? `${m.name} • ` : ''}{m.email} • {m.phone}
+                      אחראי: {m.name ? `${m.name} • ` : ''}{m.email} • {m.phone} • נרשם: {formatDateTime(m.created_at)}
                     </div>
                   ))}
                 </div>
