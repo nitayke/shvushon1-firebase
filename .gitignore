@@ -52,3 +52,6 @@ scripts/out/
 
 # Secrets (Firebase service account) - never commit
 .secrets/
+
+.vercel
+.env*
