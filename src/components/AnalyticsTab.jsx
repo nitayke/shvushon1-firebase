@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Search, ArrowDownUp } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { getAllTestResultsDB, getYeshivotDB } from '../firebase';
-import { computeAnalytics } from '../analytics';
+import { getAnalyticsSummaryDB, getYeshivotDB } from '../firebase';
 import { PARAM_DEFINITIONS, REGION_TRANSLATIONS } from '../knn';
 
 const CACHE_KEY = 'shvushon_analytics_cache_v2';
@@ -30,10 +29,9 @@ export default function AnalyticsTab({ refreshTick }) {
     let cancelled = false;
     setRefreshing(true);
     setError(false);
-    Promise.all([getAllTestResultsDB(), getYeshivotDB().catch(() => [])])
-      .then(([results, yeshivot]) => {
+    Promise.all([getAnalyticsSummaryDB(), getYeshivotDB().catch(() => [])])
+      .then(([next, yeshivot]) => {
         if (cancelled) return;
-        const next = computeAnalytics(results);
         writeCache(next);
         setStats(next);
         setYeshivotList(yeshivot);

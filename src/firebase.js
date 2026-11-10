@@ -202,20 +202,16 @@ export const getYeshivaRequestsDB = async () => {
   return JSON.parse(localStorage.getItem(LOCAL_REQUESTS_KEY) || '[]');
 };
 
-// 5.7 Get All Test Results for Analytics (For Admin)
-export const getAllTestResultsDB = async () => {
-  await authenticateAdminDB();
-  if (isFirebaseConfigured && db) {
-    try {
-      const querySnapshot = await getDocs(collection(db, "all_test_results"));
-      const list = [];
-      querySnapshot.forEach(docSnap => list.push({ id: docSnap.id, ...docSnap.data() }));
-      return list;
-    } catch (err) {
-      console.error("Firestore getTestResults error:", err);
-    }
-  }
-  return [];
+// 5.7 Get the analytics summary (For Admin). Aggregated on the server (api/analytics.js),
+// so the client never downloads the raw all_test_results documents.
+export const getAnalyticsSummaryDB = async () => {
+  const user = auth?.currentUser;
+  if (!user) throw new Error("Not signed in");
+  const res = await fetch("/api/analytics", {
+    headers: { Authorization: `Bearer ${await user.getIdToken()}` }
+  });
+  if (!res.ok) throw new Error(`Analytics request failed (${res.status})`);
+  return res.json();
 };
 
 // 6. Approve Yeshiva Request (For Admin)

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { computeAnalytics } from './analytics.js';
+import { computeAnalytics, createAggregate, addResult, mergeAggregates, summarize } from './analytics.js';
 
 const results = [
   { created_at: new Date().toISOString(), top_matches: [{ name: 'א' }, { name: 'ב' }, { name: 'ג' }], preferences: { region: 'north', ratings: { gemara: 5 } } },
@@ -36,4 +36,18 @@ test('totals, recent count, averages and regions', () => {
   assert.equal(s.last7, 1);
   assert.equal(s.paramAverages.gemara, 4);
   assert.deepEqual(s.regionCounts, { north: 1, all: 3 });
+});
+
+test('folding results in two stages equals aggregating them all at once', () => {
+  const now = Date.now();
+  const all = [
+    ...results,
+    { created_at: new Date(now).toISOString(), top_matches: [{ id: 'y1', name: 'א' }], contact_clicks: ['y1'], preferences: { region: ['north', 'south'], ratings: { gemara: 4 } } }
+  ];
+  const stage = (list) => { const agg = createAggregate(); list.forEach(r => addResult(agg, r)); return agg; };
+  // the stored half survives a JSON round trip, like it does in Firestore
+  const stored = JSON.parse(JSON.stringify(stage(all.slice(0, 2))));
+  const merged = mergeAggregates(stored, stage(all.slice(2)));
+  const norm = (s) => ({ ...s, yeshivot: [...s.yeshivot].sort((a, b) => a.name.localeCompare(b.name)) });
+  assert.deepEqual(norm(summarize(merged, now)), norm(computeAnalytics(all, now)));
 });

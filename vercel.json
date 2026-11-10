@@ -7,6 +7,9 @@
       "permanent": true
     }
   ],
+  "crons": [
+    { "path": "/api/analytics", "schedule": "0 3 * * *" }
+  ],
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
