@@ -190,7 +190,7 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin, yesh
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
               <div>
-                <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem', color: '#111827' }}>סוג המוסד</label>
+                <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem', color: '#111827' }}>סוג המוסד *</label>
                 <CustomSelect
                   options={typeOptions}
                   value={type}
@@ -199,7 +199,7 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin, yesh
               </div>
 
               <div>
-                <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem', color: '#111827' }}>אזור גאוגרפי</label>
+                <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem', color: '#111827' }}>אזור גאוגרפי *</label>
                 <CustomSelect
                   options={regionOptions}
                   value={region}
@@ -262,7 +262,7 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin, yesh
               <button type="button" onClick={onClose} className="btn-secondary">
                 ביטול
               </button>
-              <button type="submit" disabled={isSubmitting} className="btn-primary">
+              <button type="submit" disabled={isSubmitting || !yeshivaName.trim() || !type || !region} className="btn-primary">
                 <Send style={{ width: 18, height: 18 }} />
                 {isSubmitting ? 'שולח בקשה...' : 'שלח בקשה להוספה'}
               </button>

@@ -143,6 +143,8 @@ export default function AdminDashboard({ onExitAdmin }) {
   const handleSaveEditingYeshiva = async (e) => {
     e.preventDefault();
     if (!editingYeshiva.name) return;
+    if (!editingYeshiva.type) return alert('אנא בחר סוג מוסד כדי להמשיך.');
+    if (!editingYeshiva.region || editingYeshiva.region === 'all') return alert('אנא בחר אזור גאוגרפי כדי להמשיך.');
 
     setLoading(true);
     try {
@@ -460,8 +462,8 @@ export default function AdminDashboard({ onExitAdmin }) {
               onClick={() => setEditingYeshiva({
                 id: 'y_' + Date.now(),
                 name: '',
-                type: 'hesder',
-                region: 'center',
+                type: '',
+                region: '',
                 ratings: PARAM_DEFINITIONS.reduce((acc, p) => ({ ...acc, [p.id]: 3 }), {}),
                 submissions_count: 1,
                 created_at: new Date().toISOString()
@@ -600,7 +602,7 @@ export default function AdminDashboard({ onExitAdmin }) {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.2rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.3rem', color: '#111827' }}>סוג המוסד</label>
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.3rem', color: '#111827' }}>סוג המוסד *</label>
                   <CustomSelect
                     options={typeOptions}
                     value={editingYeshiva.type}
@@ -609,7 +611,7 @@ export default function AdminDashboard({ onExitAdmin }) {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.3rem', color: '#111827' }}>אזור גאוגרפי</label>
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.3rem', color: '#111827' }}>אזור גאוגרפי *</label>
                   <CustomSelect
                     options={regionOptions}
                     value={editingYeshiva.region}
