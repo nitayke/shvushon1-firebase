@@ -10,6 +10,9 @@ import { getYeshivotDB, saveTestResultDB } from './firebase';
 import { calculateKNNMatches } from './knn';
 import { PlusCircle, Compass, Home, Mail, UserCog, CalendarDays } from 'lucide-react';
 
+// The open days / Shabbatot calendar stays reachable at /calendar, but its home-page button is hidden until enough events are published.
+const SHOW_CALENDAR_ENTRY = false;
+
 export default function App() {
   const getInitialView = () => {
     const path = window.location.pathname;
@@ -201,7 +204,7 @@ export default function App() {
           </div>
         ) : (
           <>
-            {view === 'questionnaire' && (
+            {SHOW_CALENDAR_ENTRY && view === 'questionnaire' && (
               <a href="/calendar" onClick={navigateToCalendar} className="btn-gold" style={{
                 textDecoration: 'none', width: '100%', marginBottom: '1rem', minHeight: 56,
                 fontSize: '1.1rem', fontWeight: 700, boxShadow: '0 4px 12px rgba(180, 120, 40, 0.35)'
