@@ -45,3 +45,10 @@ build/
 *.njsproj
 *.sln
 *.sw?
+
+# Exported analytics data (contains user answers)
+scripts/out/
+
+
+# Secrets (Firebase service account) - never commit
+.secrets/
