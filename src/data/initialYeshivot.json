@@ -45,7 +45,7 @@
     "id": "y_4",
     "name": "מצפה יריחו – מאור טוביה",
     "type": "hesder",
-    "region": "jerusalem",
+    "region": "yosh",
     "class_a_size": 56,
     "ratings": {
       "overall_size": 2,
@@ -213,7 +213,7 @@
     "id": "y_12",
     "name": "הר עציון",
     "type": "gvoha",
-    "region": "center",
+    "region": "yosh",
     "class_a_size": 117,
     "ratings": {
       "overall_size": 4,
@@ -234,7 +234,7 @@
     "id": "y_13",
     "name": "שבי חברון",
     "type": "gvoha",
-    "region": "jerusalem",
+    "region": "yosh",
     "class_a_size": 118,
     "ratings": {
       "overall_size": 4,
@@ -255,7 +255,7 @@
     "id": "y_14",
     "name": "ישיבת עלי – בני דוד",
     "type": "mechina",
-    "region": "jerusalem",
+    "region": "yosh",
     "class_a_size": 88,
     "ratings": {
       "overall_size": 3,
@@ -297,7 +297,7 @@
     "id": "y_16",
     "name": "ברכת משה – מעלה אדומים",
     "type": "hesder",
-    "region": "center",
+    "region": "yosh",
     "class_a_size": 90,
     "ratings": {
       "overall_size": 3,
@@ -318,7 +318,7 @@
     "id": "y_17",
     "name": "תקוע",
     "type": "gvoha",
-    "region": "center",
+    "region": "yosh",
     "class_a_size": 34,
     "ratings": {
       "overall_size": 1,
@@ -423,7 +423,7 @@
     "id": "y_22",
     "name": "בית אל",
     "type": "gvoha",
-    "region": "jerusalem",
+    "region": "yosh",
     "class_a_size": 85,
     "ratings": {
       "overall_size": 3,
@@ -507,7 +507,7 @@
     "id": "y_26",
     "name": "מחניים",
     "type": "hesder",
-    "region": "center",
+    "region": "yosh",
     "class_a_size": 56,
     "ratings": {
       "overall_size": 2,
@@ -528,7 +528,7 @@
     "id": "y_27",
     "name": "תפוח – אבינעם",
     "type": "hesder",
-    "region": "jerusalem",
+    "region": "yosh",
     "class_a_size": 58,
     "ratings": {
       "overall_size": 2,
@@ -570,7 +570,7 @@
     "id": "y_29",
     "name": "קרני שומרון",
     "type": "hesder",
-    "region": "jerusalem",
+    "region": "yosh",
     "class_a_size": 91,
     "ratings": {
       "overall_size": 3,
@@ -591,7 +591,7 @@
     "id": "y_30",
     "name": "שדמות נריה",
     "type": "hesder",
-    "region": "center",
+    "region": "yosh",
     "class_a_size": 30,
     "ratings": {
       "overall_size": 1,
@@ -612,7 +612,7 @@
     "id": "y_31",
     "name": "ברכת יוסף – אלון מורה",
     "type": "hesder",
-    "region": "jerusalem",
+    "region": "yosh",
     "class_a_size": 58,
     "ratings": {
       "overall_size": 2,
@@ -738,7 +738,7 @@
     "id": "y_37",
     "name": "שיח יצחק – אפרת",
     "type": "gvoha",
-    "region": "center",
+    "region": "yosh",
     "class_a_size": 27,
     "ratings": {
       "overall_size": 1,
@@ -780,7 +780,7 @@
     "id": "y_39",
     "name": "ברוכין",
     "type": "mechina",
-    "region": "jerusalem",
+    "region": "yosh",
     "class_a_size": 64,
     "ratings": {
       "overall_size": 2,
@@ -864,7 +864,7 @@
     "id": "y_43",
     "name": "נצר מטעי – נצרים",
     "type": "hesder",
-    "region": "jerusalem",
+    "region": "yosh",
     "class_a_size": 32,
     "ratings": {
       "overall_size": 1,
@@ -969,7 +969,7 @@
     "id": "y_48",
     "name": "שילה",
     "type": "hesder",
-    "region": "jerusalem",
+    "region": "yosh",
     "class_a_size": 28,
     "ratings": {
       "overall_size": 1,
@@ -990,7 +990,7 @@
     "id": "y_49",
     "name": "ניר – קרית ארבע",
     "type": "hesder",
-    "region": "jerusalem",
+    "region": "yosh",
     "class_a_size": 57,
     "ratings": {
       "overall_size": 2,
@@ -1053,7 +1053,7 @@
     "id": "y_52",
     "name": "הר ברכה",
     "type": "hesder",
-    "region": "jerusalem",
+    "region": "yosh",
     "class_a_size": 63,
     "ratings": {
       "overall_size": 2,
@@ -1074,7 +1074,7 @@
     "id": "y_53",
     "name": "איתמר",
     "type": "hesder",
-    "region": "jerusalem",
+    "region": "yosh",
     "class_a_size": 58,
     "ratings": {
       "overall_size": 2,

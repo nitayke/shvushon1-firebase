@@ -105,14 +105,16 @@ export const REGION_TRANSLATIONS = {
   north: 'צפון',
   center: 'מרכז',
   jerusalem: 'ירושלים',
+  yosh: 'יהודה ושומרון',
   south: 'דרום'
 };
 
 export const REGIONS = [
   { id: 'all', label: 'כל הארץ' },
   { id: 'north', label: 'צפון (גליל / גולן / עכו / צפת)' },
-  { id: 'center', label: 'מרכז (גוש דן / שפלה / שומרון)' },
+  { id: 'center', label: 'מרכז (גוש דן / שפלה)' },
   { id: 'jerusalem', label: 'ירושלים וסביבתה' },
+  { id: 'yosh', label: 'יהודה ושומרון' },
   { id: 'south', label: 'דרום (נגב / שדרות / אילת)' }
 ];
 
