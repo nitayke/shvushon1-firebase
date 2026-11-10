@@ -56,7 +56,7 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
   };
 
   const sendAutomaticEmailToAdmin = async (requestData) => {
-    const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || "nitayke1@gmail.com";
+    const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || "shvushon@gmail.com";
     const paramsList = PARAM_DEFINITIONS.map(p => `${p.label}: ${requestData.ratings[p.id] || 3}`).join('\n');
 
     const emailPayload = {

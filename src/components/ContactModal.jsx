@@ -17,7 +17,7 @@ export default function ContactModal({ isOpen, onClose }) {
     setIsSubmitting(true);
     
     // Fire and forget using FormSubmit
-    fetch(`https://formsubmit.co/ajax/nitayke1@gmail.com`, {
+    fetch(`https://formsubmit.co/ajax/shvushon@gmail.com`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

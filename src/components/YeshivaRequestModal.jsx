@@ -42,7 +42,7 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin, yesh
   // Let's replace the form input block instead.
 
   const generateMailtoLink = (req) => {
-    const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || "nitayke1@gmail.com";
+    const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || "shvushon@gmail.com";
     const subject = encodeURIComponent(`[שבושון] בקשה להוספת ישיבה חדשה: ${req.yeshiva_name}`);
     const paramsList = PARAM_DEFINITIONS.map(p => `- ${p.label}: ${req.ratings[p.id] || 3}`).join('\n');
     const body = encodeURIComponent(
@@ -59,11 +59,11 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin, yesh
   };
 
   const sendAutomaticEmailToAdmin = async (requestData) => {
-    const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || "nitayke1@gmail.com";
+    const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || "shvushon@gmail.com";
     const paramsList = PARAM_DEFINITIONS.map(p => `- ${p.label}: ${requestData.ratings[p.id] || 3}`).join('\n');
 
     try {
-      // Send real email via FormSubmit service directly to nitayke1@gmail.com!
+      // Send real email via FormSubmit service directly to shvushon@gmail.com!
       await fetch(`https://formsubmit.co/ajax/${adminEmail}`, {
         method: 'POST',
         headers: { 

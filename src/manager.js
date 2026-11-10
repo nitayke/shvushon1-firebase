@@ -110,7 +110,25 @@ export const registerManagerDB = async ({ token, name, email, phone, hasWhatsapp
     try { await cred.user.delete(); } catch { await signOut(auth); }
     throw new Error('הקישור אינו תקף או שכבר נעשה בו שימוש');
   }
+  notifyAdminOfManagerRegistration({ name, email, phone, hasWhatsapp, yeshivaName: invite.yeshivaName });
   return uid;
+};
+
+// Best-effort email to the admin; never blocks or fails the registration.
+const notifyAdminOfManagerRegistration = ({ name, email, phone, hasWhatsapp, yeshivaName }) => {
+  fetch(`https://formsubmit.co/ajax/${ADMIN_EMAIL}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      _subject: `[שבושון] אחראי שבושים חדש נרשם: ${yeshivaName}`,
+      ישיבה: yeshivaName,
+      שם: name,
+      אימייל: email,
+      טלפון: phone,
+      וואטסאפ: hasWhatsapp ? 'כן' : 'לא',
+      _template: 'box'
+    })
+  }).catch(() => {});
 };
 
 export const loginManagerDB = async (email, password) => {
