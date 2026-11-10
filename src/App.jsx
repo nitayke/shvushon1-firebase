@@ -31,6 +31,7 @@ export default function App() {
   const [yeshivotList, setYeshivotList] = useState([]);
   const [userPreferences, setUserPreferences] = useState(null);
   const [results, setResults] = useState([]);
+  const [testResultIdPromise, setTestResultIdPromise] = useState(null);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hasTriggeredLoad, setHasTriggeredLoad] = useState(false);
@@ -122,10 +123,10 @@ export default function App() {
     setResults(matches);
     
     // Log the answers and the generated matches automatically (Task B)
-    saveTestResultDB({
+    setTestResultIdPromise(saveTestResultDB({
       preferences,
       top_matches: matches.map(m => ({ id: m.id, name: m.name, matchScore: m.matchScore }))
-    });
+    }));
 
     navigateToResults();
   };
@@ -191,6 +192,7 @@ export default function App() {
                 results={results}
                 userPreferences={userPreferences}
                 yeshivotList={yeshivotList}
+                testResultIdPromise={testResultIdPromise}
                 onRestart={navigateToHome}
                 onRequestAddYeshiva={() => setIsRequestModalOpen(true)}
               />

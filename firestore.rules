@@ -38,9 +38,12 @@ service cloud.firestore {
     // 4. All Test Results: anyone can create, only admin can read/update/delete
     match /all_test_results/{testId} {
       allow create: if true;
+      // המשתמש (שמכיר את מזהה המסמך האקראי שלו) יכול רק לסמן על איזה כפתורי "פנייה לאחראי" לחץ
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['contact_clicks'])
+                    && request.resource.data.contact_clicks is list
+                    && request.resource.data.contact_clicks.size() <= 3;
       allow read, update, delete: if isAdmin();
     }
-
 
     // 5. הזמנות חד-פעמיות לאחראי ישיבה: קריאה לפי טוקן בלבד (לא ניתן לרשום רשימה), יצירה לאדמין,
     //    ואחראי חדש יכול רק לסמן את ההזמנה כמנוצלת על שמו.

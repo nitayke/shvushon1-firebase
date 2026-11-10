@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { Award, CheckCircle, RefreshCw, HelpCircle, Save, Edit2, MailCheck, Phone } from 'lucide-react';
-import { saveStudentSubmissionDB, saveYeshivaRequestDB } from '../firebase';
+import { saveStudentSubmissionDB, saveYeshivaRequestDB, recordManagerContactClickDB } from '../firebase';
 import { getManagerContactsDB, whatsappUrl, telUrl } from '../manager';
 import WhatsAppIcon from './WhatsAppIcon';
 import { PARAM_DEFINITIONS, REGION_TRANSLATIONS, TYPE_TRANSLATIONS } from '../knn';
@@ -9,7 +9,11 @@ import AutocompleteYeshivaSelect from './AutocompleteYeshivaSelect';
 
 const LOCAL_SURVEY_SAVED_KEY = 'shvushon_has_submitted_student_survey';
 
-export default function ResultsView({ results, userPreferences, yeshivotList, onRestart, onRequestAddYeshiva }) {
+export default function ResultsView({ results, userPreferences, yeshivotList, testResultIdPromise, onRestart, onRequestAddYeshiva }) {
+  const trackContactClick = (yeshivaId) => {
+    Promise.resolve(testResultIdPromise).then(id => recordManagerContactClickDB(id, yeshivaId));
+  };
+
   const [isCurrentStudent, setIsCurrentStudent] = useState(null); // true, false, null
   const [selectedYeshivaName, setSelectedYeshivaName] = useState('');
   const [customYeshivaInput, setCustomYeshivaInput] = useState('');
@@ -193,12 +197,12 @@ export default function ResultsView({ results, userPreferences, yeshivotList, on
               {managerContacts[item.id]?.phone && (
                 <div style={{ marginTop: '0.7rem' }}>
                   {managerContacts[item.id].hasWhatsapp ? (
-                    <a href={whatsappUrl(managerContacts[item.id].phone, 'היי, הגעתי דרך שבושון 🙂')} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ textDecoration: 'none', padding: '0.3rem 0.7rem', fontSize: '0.85rem' }}>
+                    <a href={whatsappUrl(managerContacts[item.id].phone, 'היי, הגעתי דרך שבושון 🙂')} onClick={() => trackContactClick(item.id)} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ textDecoration: 'none', padding: '0.3rem 0.7rem', fontSize: '0.85rem' }}>
                       <WhatsAppIcon />
                       ווצאפ לאחראי הישיבה
                     </a>
                   ) : (
-                    <a href={telUrl(managerContacts[item.id].phone)} className="btn-secondary" style={{ textDecoration: 'none', padding: '0.3rem 0.7rem', fontSize: '0.85rem' }}>
+                    <a href={telUrl(managerContacts[item.id].phone)} onClick={() => trackContactClick(item.id)} className="btn-secondary" style={{ textDecoration: 'none', padding: '0.3rem 0.7rem', fontSize: '0.85rem' }}>
                       <Phone style={{ width: 14, height: 14 }} />
                       טלפון לאחראי הישיבה
                     </a>

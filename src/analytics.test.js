@@ -12,10 +12,22 @@ const results = [
 test('counts first-place and top-3 appearances per yeshiva', () => {
   const s = computeAnalytics(results);
   const byName = Object.fromEntries(s.yeshivot.map(y => [y.name, y]));
-  assert.deepEqual(byName['א'], { name: 'א', first: 1, top3: 2 });
-  assert.deepEqual(byName['ב'], { name: 'ב', first: 1, top3: 2 });
+  assert.deepEqual(byName['א'], { name: 'א', first: 1, top3: 2, clicks: 0 });
+  assert.deepEqual(byName['ב'], { name: 'ב', first: 1, top3: 2, clicks: 0 });
   assert.equal(byName['ג'].first, 1);
   assert.equal(byName['לא ידוע'], undefined);
+});
+
+test('counts manager-contact clicks per yeshiva, once per test taker', () => {
+  const s = computeAnalytics([
+    { top_matches: [{ id: 'y1', name: 'א' }, { id: 'y2', name: 'ב' }], contact_clicks: ['y1'] },
+    { top_matches: [{ id: 'y1', name: 'א' }], contact_clicks: ['y1', 'y9'] },
+    { top_matches: [{ id: 'y1', name: 'א' }] }
+  ]);
+  const byName = Object.fromEntries(s.yeshivot.map(y => [y.name, y]));
+  assert.equal(byName['א'].clicks, 2);
+  assert.equal(byName['ב'].clicks, 0);
+  assert.equal(s.clickers, 2);
 });
 
 test('totals, recent count, averages and regions', () => {

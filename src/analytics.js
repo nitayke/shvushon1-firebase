@@ -13,6 +13,7 @@ export const computeAnalytics = (results) => {
   const paramCounts = {};
   const regionCounts = {};
   let last7 = 0;
+  let clickers = 0; // test takers who clicked a manager-contact button
 
   results.forEach(res => {
     if (res.created_at && new Date(res.created_at).getTime() >= weekAgo) last7++;
@@ -24,6 +25,17 @@ export const computeAnalytics = (results) => {
       entry.top3++;
       if (i === 0) entry.first++;
     });
+
+    // contact_clicks holds yeshiva ids; resolve names through this result's own top_matches
+    if (Array.isArray(res.contact_clicks) && res.contact_clicks.length > 0) {
+      clickers++;
+      res.contact_clicks.forEach(id => {
+        const name = matchesOf(res).find(m => String(m?.id) === String(id))?.name;
+        if (!name || IGNORED_NAMES.has(name)) return;
+        const entry = yeshivot[name] || (yeshivot[name] = { name, first: 0, top3: 0 });
+        entry.clicks = (entry.clicks || 0) + 1;
+      });
+    }
 
     const ratings = res.preferences?.ratings;
     if (ratings) {
@@ -51,7 +63,8 @@ export const computeAnalytics = (results) => {
   return {
     total: results.length,
     last7,
-    yeshivot: Object.values(yeshivot),
+    clickers,
+    yeshivot: Object.values(yeshivot).map(y => ({ ...y, clicks: y.clicks || 0 })),
     paramAverages,
     regionCounts,
     updatedAt: new Date().toISOString()

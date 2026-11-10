@@ -5,7 +5,7 @@ import { getAllTestResultsDB, getYeshivotDB } from '../firebase';
 import { computeAnalytics } from '../analytics';
 import { PARAM_DEFINITIONS, REGION_TRANSLATIONS } from '../knn';
 
-const CACHE_KEY = 'shvushon_analytics_cache_v1';
+const CACHE_KEY = 'shvushon_analytics_cache_v2';
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#a855f7'];
 
 const readCache = () => {
@@ -48,7 +48,7 @@ export default function AnalyticsTab({ refreshTick }) {
     if (!stats) return [];
     const byName = new Map(stats.yeshivot.map(y => [y.name, { ...y }]));
     yeshivotList.forEach(y => {
-      if (!byName.has(y.name)) byName.set(y.name, { name: y.name, first: 0, top3: 0 });
+      if (!byName.has(y.name)) byName.set(y.name, { name: y.name, first: 0, top3: 0, clicks: 0 });
     });
     return [...byName.values()];
   }, [stats, yeshivotList]);
@@ -58,7 +58,7 @@ export default function AnalyticsTab({ refreshTick }) {
     const filtered = q ? rows.filter(r => r.name.includes(q)) : rows;
     return [...filtered].sort((a, b) => {
       if (sortBy === 'name') return a.name.localeCompare(b.name, 'he');
-      return (b[sortBy] - a[sortBy]) || (b.top3 - a.top3) || a.name.localeCompare(b.name, 'he');
+      return ((b[sortBy] || 0) - (a[sortBy] || 0)) || (b.top3 - a.top3) || a.name.localeCompare(b.name, 'he');
     });
   }, [rows, query, sortBy]);
 
@@ -105,8 +105,12 @@ export default function AnalyticsTab({ refreshTick }) {
           <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>{neverShown}</div>
           <div style={{ color: '#64748b', fontSize: '0.85rem' }}>ישיבות שלא הוצעו אף פעם</div>
         </div>
+        <div className="glass-card" style={{ marginBottom: 0, textAlign: 'center' }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>{(stats.clickers || 0).toLocaleString('he-IL')}</div>
+          <div style={{ color: '#64748b', fontSize: '0.85rem' }}>לחצו על פנייה לאחראי</div>
+        </div>
       </div>
-      {refreshing && <div style={{ color: '#64748b', fontSize: '0.82rem' }}>מרענן נתונים...</div>}
+      {refreshing &&<div style={{ color: '#64748b', fontSize: '0.82rem' }}>מרענן נתונים...</div>}
 
       <div className="glass-card">
         <h3 style={cardTitle}>כל הישיבות והמכינות: כמה פעמים כל אחת יצאה</h3>
@@ -125,6 +129,7 @@ export default function AnalyticsTab({ refreshTick }) {
           <ArrowDownUp style={{ width: 16, height: 16, color: '#64748b' }} aria-hidden="true" />
           {sortBtn('first', 'מקום ראשון')}
           {sortBtn('top3', 'בטופ 3')}
+          {sortBtn('clicks', 'פניות לאחראי')}
           {sortBtn('name', 'שם')}
         </div>
 
@@ -136,6 +141,7 @@ export default function AnalyticsTab({ refreshTick }) {
                 <th style={{ padding: '0.4rem' }}>ישיבה / מכינה</th>
                 <th style={{ padding: '0.4rem' }}>מקום ראשון</th>
                 <th style={{ padding: '0.4rem' }}>בטופ 3</th>
+                <th style={{ padding: '0.4rem' }}>פניות לאחראי</th>
               </tr>
             </thead>
             <tbody>
@@ -152,10 +158,11 @@ export default function AnalyticsTab({ refreshTick }) {
                     </div>
                   </td>
                   <td style={{ padding: '0.5rem 0.4rem' }}>{r.top3}</td>
+                  <td style={{ padding: '0.5rem 0.4rem' }}>{r.clicks || 0}</td>
                 </tr>
               ))}
               {visibleRows.length === 0 && (
-                <tr><td colSpan={4} style={{ padding: '1rem', textAlign: 'center', color: '#64748b' }}>לא נמצאו ישיבות.</td></tr>
+                <tr><td colSpan={5} style={{ padding: '1rem', textAlign: 'center', color: '#64748b' }}>לא נמצאו ישיבות.</td></tr>
               )}
             </tbody>
           </table>

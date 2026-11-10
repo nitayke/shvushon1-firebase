@@ -5,9 +5,11 @@ import {
   getDocs, 
   addDoc, 
   doc, 
-  setDoc, 
+  setDoc,
   deleteDoc,
-  writeBatch
+  writeBatch,
+  updateDoc,
+  arrayUnion
 } from "firebase/firestore";
 import { initializeAuth, browserSessionPersistence } from "firebase/auth";
 import { getAnalytics, isSupported } from "firebase/analytics";
@@ -97,11 +99,26 @@ export const saveTestResultDB = async (testData) => {
 
   if (isFirebaseConfigured && db) {
     try {
-      await addDoc(collection(db, "all_test_results"), dataToSave);
+      const ref = await addDoc(collection(db, "all_test_results"), dataToSave);
       console.log("Logged test result to Firestore!");
+      return ref.id;
     } catch (err) {
       console.error("Firestore save test result error:", err);
     }
+  }
+  return null;
+};
+
+// Records that this test taker clicked the manager-contact button of a yeshiva.
+// arrayUnion keeps one entry per yeshiva, so repeated clicks count as one person.
+export const recordManagerContactClickDB = async (testResultId, yeshivaId) => {
+  if (!testResultId || !yeshivaId || !isFirebaseConfigured || !db) return;
+  try {
+    await updateDoc(doc(db, "all_test_results", testResultId), {
+      contact_clicks: arrayUnion(String(yeshivaId))
+    });
+  } catch (err) {
+    console.error("Firestore record contact click error:", err);
   }
 };
 
