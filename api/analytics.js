@@ -6,40 +6,13 @@
 // - Callers: the signed-in admin (Firebase ID token) or Vercel Cron (CRON_SECRET).
 //
 // Env: FIREBASE_SERVICE_ACCOUNT (service account JSON), CRON_SECRET (optional, for the daily cron).
-import { timingSafeEqual } from 'node:crypto';
-import { initializeApp, cert, getApps } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
-import { getAuth } from 'firebase-admin/auth';
+import { db, isAuthorized } from './_firebaseAdmin.js';
 import { createAggregate, addResult, mergeAggregates, summarize } from '../src/analytics.js';
 
-const ADMIN_EMAIL = 'shvushon@gmail.com';
 const RAW_RETENTION_DAYS = 180;
 const CLICK_GRACE_MS = 24 * 60 * 60 * 1000;
 const PURGE_BATCH = 500;
 const PURGE_MAX_BATCHES = 20;
-
-if (!getApps().length) {
-  initializeApp({ credential: cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)) });
-}
-const db = getFirestore();
-
-const safeEqual = (a, b) => {
-  const x = Buffer.from(a);
-  const y = Buffer.from(b);
-  return x.length === y.length && timingSafeEqual(x, y);
-};
-
-const isAuthorized = async (req) => {
-  const token = (req.headers.authorization || '').match(/^Bearer (.+)$/)?.[1];
-  if (!token) return false;
-  if (process.env.CRON_SECRET && safeEqual(token, process.env.CRON_SECRET)) return true;
-  try {
-    const decoded = await getAuth().verifyIdToken(token);
-    return decoded.email === ADMIN_EMAIL && decoded.firebase?.sign_in_provider === 'password';
-  } catch {
-    return false;
-  }
-};
 
 // Folds the tests in [watermark, cutoff) into the stored aggregate, atomically.
 const foldIntoRollup = (rollupRef, results, cutoff, keepFromDay) => db.runTransaction(async (tx) => {
@@ -73,7 +46,7 @@ const purgeOldResults = async (results, purgeBefore) => {
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   if (req.method !== 'GET') return res.status(405).json({ error: 'method not allowed' });
-  if (!(await isAuthorized(req))) return res.status(401).json({ error: 'unauthorized' });
+  if (!(await isAuthorized(req, { allowCron: true }))) return res.status(401).json({ error: 'unauthorized' });
 
   try {
     const now = Date.now();

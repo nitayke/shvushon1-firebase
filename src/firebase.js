@@ -214,6 +214,17 @@ export const getAnalyticsSummaryDB = async () => {
   return res.json();
 };
 
+// Data for the per-yeshiva exposure report PDF (admin only)
+export const getYeshivaReportDB = async (yeshivaId) => {
+  const user = auth?.currentUser;
+  if (!user) throw new Error("Not signed in");
+  const res = await fetch(`/api/yeshiva-report?id=${encodeURIComponent(yeshivaId)}`, {
+    headers: { Authorization: `Bearer ${await user.getIdToken()}` }
+  });
+  if (!res.ok) throw new Error(`Report request failed (${res.status})`);
+  return res.json();
+};
+
 // 6. Approve Yeshiva Request (For Admin)
 export const approveYeshivaRequestDB = async (request) => {
   await authenticateAdminDB();

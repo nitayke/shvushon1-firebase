@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { ShieldCheck, Plus, Check, RefreshCw, Trash2, Edit3, LogOut, Inbox, Users, Database, TrendingUp, Link2, Copy, UserCheck } from 'lucide-react';
+import { ShieldCheck, Plus, Check, RefreshCw, Trash2, Edit3, LogOut, Inbox, Users, Database, TrendingUp, Link2, Copy, UserCheck, FileText } from 'lucide-react';
 import { 
   getYeshivotDB, 
   getYeshivaRequestsDB, 
@@ -16,6 +16,8 @@ import { createManagerInviteDB, getManagersDB } from '../manager';
 import CustomSelect from './CustomSelect';
 // Charts (recharts) are heavy: load them only when the analytics tab is opened
 const AnalyticsTab = lazy(() => import('./AnalyticsTab'));
+// The report modal pulls in the PDF libraries, so it is loaded on demand too
+const YeshivaReportModal = lazy(() => import('./YeshivaReportModal'));
 
 const formatDateTime = (iso) => {
   const d = iso ? new Date(iso) : null;
@@ -33,6 +35,7 @@ export default function AdminDashboard({ onExitAdmin }) {
   const [managers, setManagers] = useState([]);
   const [inviteResult, setInviteResult] = useState(null); // { yeshivaName, url }
   const [onlyWithManager, setOnlyWithManager] = useState(false);
+  const [reportYeshiva, setReportYeshiva] = useState(null);
 
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
@@ -497,6 +500,14 @@ export default function AdminDashboard({ onExitAdmin }) {
 
                     <div style={{ display: 'flex', gap: '0.4rem' }}>
                       <button
+                        onClick={() => setReportYeshiva(y)}
+                        className="btn-secondary"
+                        style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem' }}
+                        title="הפקת דו&quot;ח חשיפה (PDF) לשליחה לישיבה"
+                      >
+                        <FileText style={{ width: 14, height: 14 }} />
+                      </button>
+                      <button
                         onClick={() => handleCreateInvite(y)}
                         className="btn-secondary"
                         style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem' }}
@@ -543,6 +554,12 @@ export default function AdminDashboard({ onExitAdmin }) {
       {activeTab === 'analytics' && (
         <Suspense fallback={<div className="glass-card" style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>טוען נתונים...</div>}>
           <AnalyticsTab refreshTick={analyticsTick} />
+        </Suspense>
+      )}
+
+      {reportYeshiva && (
+        <Suspense fallback={null}>
+          <YeshivaReportModal yeshiva={reportYeshiva} onClose={() => setReportYeshiva(null)} />
         </Suspense>
       )}
 
