@@ -159,20 +159,48 @@ const PARAM_WEIGHTS = {
   karviut: 1.2
 };
 
+// "How important is X to you" questions: everyone prefers more of X (the target is always 5), and the answer
+// only sets how much the parameter counts: 1 = doesn't matter at all, 5 = full weight.
+export const IMPORTANCE_PARAMS = new Set(['conditions', 'social']);
+const IMPORTANCE_TARGET = 5;
+
+// The user's answers as per-parameter targets and weights (weight 0 = parameter not counted).
+const userProfile = (ratings, ignoreParams) => {
+  const targets = [];
+  const weights = [];
+  PARAM_DEFINITIONS.forEach(param => {
+    const baseWeight = PARAM_WEIGHTS[param.id] || 1.0;
+    const answer = Number(ratings[param.id]) || 3;
+    if (ignoreParams[param.id]) {
+      targets.push(0);
+      weights.push(0);
+    } else if (IMPORTANCE_PARAMS.has(param.id)) {
+      targets.push(IMPORTANCE_TARGET);
+      weights.push(baseWeight * (answer - 1) / 4);
+    } else {
+      targets.push(answer);
+      weights.push(baseWeight);
+    }
+  });
+  return { targets, weights };
+};
+
+const yeshivaValues = (yeshiva) =>
+  PARAM_DEFINITIONS.map(p => Number(yeshiva.ratings ? yeshiva.ratings[p.id] : 3) || 3);
+
 // Hybrid distance: 85% weighted normalized Euclidean (RMS) + 15% cosine angular alignment.
-const preferenceDistance = (ratings, ignoreParams, yeshiva) => {
+const profileDistance = ({ targets, weights }, values) => {
   let dotProduct = 0;
   let normU = 0;
   let normV = 0;
   let weightedDistSq = 0;
   let totalWeight = 0;
 
-  PARAM_DEFINITIONS.forEach(param => {
-    if (ignoreParams[param.id]) return;
-
-    const userVal = Number(ratings[param.id]) || 3;
-    const yeshivaVal = Number(yeshiva.ratings ? yeshiva.ratings[param.id] : 3) || 3;
-    const weight = PARAM_WEIGHTS[param.id] || 1.0;
+  for (let i = 0; i < weights.length; i++) {
+    const weight = weights[i];
+    if (!weight) continue;
+    const userVal = targets[i];
+    const yeshivaVal = values[i];
 
     dotProduct += weight * userVal * yeshivaVal;
     normU += weight * userVal * userVal;
@@ -181,7 +209,7 @@ const preferenceDistance = (ratings, ignoreParams, yeshiva) => {
     const normDiff = (userVal - yeshivaVal) / 4.0;
     weightedDistSq += weight * (normDiff * normDiff);
     totalWeight += weight;
-  });
+  }
 
   const cosineSim = (normU > 0 && normV > 0) ? (dotProduct / (Math.sqrt(normU) * Math.sqrt(normV))) : 1.0;
   const rmsDistance = totalWeight > 0 ? Math.sqrt(weightedDistSq / totalWeight) : 0;
@@ -282,25 +310,10 @@ export const computeExposureBoosts = (yeshivotList) => {
   const boosts = new Array(n).fill(0);
   if (n > 3) {
     const crowd = getReferenceCrowd();
-    // Same formula as preferenceDistance, on flat arrays (this runs crowd x yeshivot times).
-    const P = PARAM_DEFINITIONS.length;
-    const weights = PARAM_DEFINITIONS.map(p => PARAM_WEIGHTS[p.id] || 1.0);
-    const yVals = yeshivotList.map(y => PARAM_DEFINITIONS.map(p => Number(y.ratings ? y.ratings[p.id] : 3) || 3));
+    const yVals = yeshivotList.map(yeshivaValues);
     const distances = crowd.map(u => {
-      const uVals = PARAM_DEFINITIONS.map(p => (u.ignoreParams[p.id] ? 0 : u.ratings[p.id]));
-      return yeshivotList.map((y, j) => {
-        const v = yVals[j];
-        let dot = 0, nu = 0, nv = 0, sq = 0, tw = 0;
-        for (let i = 0; i < P; i++) {
-          const a = uVals[i];
-          if (!a) continue;
-          const w = weights[i], b = v[i], diff = (a - b) / 4;
-          dot += w * a * b; nu += w * a * a; nv += w * b * b; sq += w * diff * diff; tw += w;
-        }
-        const cos = nu > 0 && nv > 0 ? dot / Math.sqrt(nu * nv) : 1.0;
-        const rms = tw > 0 ? Math.sqrt(sq / tw) : 0;
-        return 0.85 * rms + 0.15 * (1 - Math.min(1.0, cos)) + filterPenalty(u.types, u.regions, y);
-      });
+      const profile = userProfile(u.ratings, u.ignoreParams);
+      return yeshivotList.map((y, j) => profileDistance(profile, yVals[j]) + filterPenalty(u.types, u.regions, y));
     });
     const minCount = EXPOSURE_FLOOR * crowd.length;
 
@@ -392,8 +405,10 @@ export const calculateKNNMatches = (userPreferences, yeshivotList, k = 3) => {
 
   const boosts = computeExposureBoosts(yeshivotList);
 
+  const profile = userProfile(ratings, ignoreParams);
+
   const scoredYeshivot = yeshivotList.map((yeshiva, index) => {
-    const rawDistance = preferenceDistance(ratings, ignoreParams, yeshiva) + filterPenalty(types, regions, yeshiva);
+    const rawDistance = profileDistance(profile, yeshivaValues(yeshiva)) + filterPenalty(types, regions, yeshiva);
     const hybridDistance = Math.abs(rawDistance) < 1e-6 ? 0 : rawDistance;
     // Exact matches always stay first; otherwise the exposure bonus shortens the distance a little.
     const rankDistance = hybridDistance === 0 ? -Infinity : Math.max(1e-6, hybridDistance - boosts[index]);

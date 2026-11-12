@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateKNNMatches, PARAM_DEFINITIONS } from './knn.js';
+import { calculateKNNMatches, PARAM_DEFINITIONS, IMPORTANCE_PARAMS } from './knn.js';
 
 const sampleYeshivot = [
   {
@@ -49,7 +49,7 @@ test('Exact match returns 100% matchScore for identical yeshiva parameters', () 
     type: targetYeshiva.type,
     region: targetYeshiva.region,
     ratings: { ...targetYeshiva.ratings },
-    ignoreParams: {}
+    ignoreParams: { conditions: true, social: true } // importance questions aim at 5, not at the yeshiva value
   };
 
   const matches = calculateKNNMatches(userPreferences, sampleYeshivot, 3);
@@ -65,7 +65,7 @@ test('Exact match for second yeshiva returns 100% matchScore', () => {
     type: targetYeshiva.type,
     region: targetYeshiva.region,
     ratings: { ...targetYeshiva.ratings },
-    ignoreParams: {}
+    ignoreParams: { conditions: true, social: true } // importance questions aim at 5, not at the yeshiva value
   };
 
   const matches = calculateKNNMatches(userPreferences, sampleYeshivot, 3);
@@ -146,4 +146,26 @@ test('A combined hesder+gvoha yeshiva is not penalized for either selection', ()
   assert.equal(score(['hesder']), score('all'));
   assert.equal(score(['gvoha']), score('all'));
   assert.ok(score(['mechina']) < score('all'));
+});
+
+test('Importance questions: the answer is a weight, the target is always the top rating', () => {
+  const neutral = Object.fromEntries(PARAM_DEFINITIONS.map((p, i) => [p.id, (i % 3) + 2])); // not uniform (Easter egg)
+  const mk = (id, conditions) => ({ id, name: id, type: 'hesder', region: 'north', ratings: { ...neutral, conditions } });
+  const list = [mk('low', 1), mk('mid', 3), mk('high', 5)];
+  const rank = (answer) => calculateKNNMatches(
+    { type: 'all', region: 'all', ratings: { ...neutral, conditions: answer }, ignoreParams: {} }, list, 3
+  ).map(m => m.id);
+  const scores = (answer) => Object.fromEntries(calculateKNNMatches(
+    { type: 'all', region: 'all', ratings: { ...neutral, conditions: answer }, ignoreParams: {} }, list, 3
+  ).map(m => [m.id, m.matchScore]));
+
+  assert.ok(IMPORTANCE_PARAMS.has('conditions') && IMPORTANCE_PARAMS.has('social'));
+  // Answering 1 ("not important") doesn't push the user away from a yeshiva with great conditions
+  const notImportant = scores(1);
+  assert.equal(notImportant.high, notImportant.low);
+  assert.equal(notImportant.high, notImportant.mid);
+  // Any higher answer prefers better conditions, and a higher answer separates them more
+  assert.equal(rank(3)[0], 'high');
+  assert.equal(rank(5)[0], 'high');
+  assert.ok(scores(5).high - scores(5).low > scores(3).high - scores(3).low);
 });
