@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { ShieldCheck, Plus, Check, RefreshCw, Trash2, Edit3, LogOut, Inbox, Users, Database, TrendingUp, Link2, Copy, UserCheck, FileText } from 'lucide-react';
+import { ShieldCheck, Plus, Check, RefreshCw, Trash2, Edit3, LogOut, Inbox, Users, Database, TrendingUp, Link2, Copy, UserCheck, FileText, Megaphone, Star } from 'lucide-react';
 import { 
   getYeshivotDB, 
   getYeshivaRequestsDB, 
@@ -14,10 +14,13 @@ import {
 import { PARAM_DEFINITIONS, REGIONS, YESHIVA_TYPES, REGION_TRANSLATIONS, TYPE_TRANSLATIONS } from '../knn';
 import { createManagerInviteDB, getManagersDB } from '../manager';
 import CustomSelect from './CustomSelect';
+import { bannerStatus, nextBannerBooking, hasPaidListing, todayKey } from '../listing';
 // Charts (recharts) are heavy: load them only when the analytics tab is opened
 const AnalyticsTab = lazy(() => import('./AnalyticsTab'));
 // The report modal pulls in the PDF libraries, so it is loaded on demand too
 const YeshivaReportModal = lazy(() => import('./YeshivaReportModal'));
+
+const formatDay = (key) => key ? new Date(`${key}T12:00:00`).toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric', year: 'numeric' }) : '';
 
 const formatDateTime = (iso) => {
   const d = iso ? new Date(iso) : null;
@@ -158,6 +161,39 @@ export default function AdminDashboard({ onExitAdmin }) {
     } catch (err) {
       console.error("Error saving yeshiva:", err);
       setMsg("שגיאה בשמירת הישיבה/מכינה.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Queues a one-month banner slot for the yeshiva right after the last existing booking.
+  const handleBookBanner = async (y) => {
+    const { start, end } = nextBannerBooking(yeshivot);
+    if (!window.confirm(`לשריין את הבאנר ל"${y.name}" מ-${formatDay(start)} עד ${formatDay(end)}?`)) return;
+    setLoading(true);
+    try {
+      await saveYeshivaDB({ ...y, banner_bookings: [...(y.banner_bookings || []), { start, end }] });
+      setMsg(`✓ הבאנר שוריין ל"${y.name}" מ-${formatDay(start)} עד ${formatDay(end)}.`);
+      await loadActiveTabData(activeTab, true);
+    } catch (err) {
+      console.error("Error booking banner:", err);
+      setMsg("שגיאה בשריון הבאנר.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelBanner = async (booking) => {
+    const y = yeshivot.find(x => x.id === booking.yeshivaId);
+    if (!y || !window.confirm(`לבטל את שריון הבאנר של "${y.name}" (${formatDay(booking.start)} עד ${formatDay(booking.end)})? שריונים מאוחרים יותר לא יוזזו.`)) return;
+    setLoading(true);
+    try {
+      await saveYeshivaDB({ ...y, banner_bookings: (y.banner_bookings || []).filter(b => !(b.start === booking.start && b.end === booking.end)) });
+      setMsg(`✓ שריון הבאנר של "${y.name}" בוטל.`);
+      await loadActiveTabData(activeTab, true);
+    } catch (err) {
+      console.error("Error cancelling banner:", err);
+      setMsg("שגיאה בביטול שריון הבאנר.");
     } finally {
       setLoading(false);
     }
@@ -479,6 +515,34 @@ export default function AdminDashboard({ onExitAdmin }) {
             </div>
           </div>
 
+          {yeshivot.length > 0 && (() => {
+            const banner = bannerStatus(yeshivot);
+            const paidCount = yeshivot.filter(y => hasPaidListing(y)).length;
+            return (
+              <div style={{ background: '#f8f4ec', border: '1px solid #e2d9c8', borderRadius: 10, padding: '0.9rem 1rem', marginBottom: '1.2rem', fontSize: '0.9rem', color: '#374151', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, color: '#52341d' }}>
+                  <Megaphone style={{ width: 16, height: 16 }} />
+                  באנר בדף התוצאות
+                </div>
+                <div>
+                  {banner.current
+                    ? <>כרגע בבאנר: <strong>{banner.current.yeshivaName}</strong> עד {formatDay(banner.current.end)}</>
+                    : <>הבאנר פנוי כרגע.</>}
+                  {' '}· השריון הפנוי הבא מתחיל ב-<strong>{formatDay(banner.nextFree)}</strong>
+                </div>
+                {[banner.current, ...banner.upcoming].filter(Boolean).map(b => (
+                  <div key={`${b.yeshivaId}-${b.start}`} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+                    <span>{formatDay(b.start)} – {formatDay(b.end)}: {b.yeshivaName}</span>
+                    <button type="button" onClick={() => handleCancelBanner(b)} className="btn-secondary" style={{ padding: '0.15rem 0.45rem', fontSize: '0.75rem' }}>ביטול</button>
+                  </div>
+                ))}
+                <div style={{ fontSize: '0.82rem', color: '#6b7280' }}>
+                  כרטיס מורחב פעיל: {paidCount} מוסדות. רק להם מוצגים טלפון ואתר בדף התוצאות (עורכים בכפתור העריכה של כל מוסד).
+                </div>
+              </div>
+            );
+          })()}
+
           {loading && yeshivot.length === 0 ? (
             <p style={{ color: '#94a3b8' }}>טוען נתונים...</p>
           ) : yeshivot.length === 0 ? (
@@ -496,6 +560,17 @@ export default function AdminDashboard({ onExitAdmin }) {
                       <div style={{ color: '#94a3b8', fontSize: '0.78rem', marginTop: 2 }}>
                         נוספה: {formatDateTime(y.created_at)}
                       </div>
+                      {hasPaidListing(y) && (
+                        <div style={{ color: '#b47828', fontSize: '0.8rem', fontWeight: 700, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <Star style={{ width: 13, height: 13 }} />
+                          כרטיס מורחב עד {formatDay(y.listing_until)}
+                        </div>
+                      )}
+                      {(y.banner_bookings || []).filter(b => b.end >= todayKey()).map(b => (
+                        <div key={b.start} style={{ color: '#b47828', fontSize: '0.8rem', fontWeight: 700, marginTop: 2 }}>
+                          באנר: {formatDay(b.start)} – {formatDay(b.end)}
+                        </div>
+                      ))}
                     </div>
 
                     <div style={{ display: 'flex', gap: '0.4rem' }}>
@@ -506,6 +581,14 @@ export default function AdminDashboard({ onExitAdmin }) {
                         title="הפקת דו&quot;ח חשיפה (PDF) לשליחה לישיבה"
                       >
                         <FileText style={{ width: 14, height: 14 }} />
+                      </button>
+                      <button
+                        onClick={() => handleBookBanner(y)}
+                        className="btn-secondary"
+                        style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem' }}
+                        title="שריון הבאנר בדף התוצאות לחודש (בתור, אחרי השריון האחרון)"
+                      >
+                        <Megaphone style={{ width: 14, height: 14 }} />
                       </button>
                       <button
                         onClick={() => handleCreateInvite(y)}
@@ -633,6 +716,32 @@ export default function AdminDashboard({ onExitAdmin }) {
                     options={regionOptions}
                     value={editingYeshiva.region}
                     onChange={(val) => setEditingYeshiva({ ...editingYeshiva, region: val })}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.2rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.3rem', color: '#111827' }}>כרטיס מורחב בתשלום עד (כולל)</label>
+                  <input
+                    type="date"
+                    className="input-field"
+                    style={{ marginBottom: 0 }}
+                    value={editingYeshiva.listing_until || ''}
+                    onChange={(e) => setEditingYeshiva({ ...editingYeshiva, listing_until: e.target.value })}
+                  />
+                  <div style={{ fontSize: '0.78rem', color: '#6b7280', marginTop: 4 }}>ריק או תאריך שעבר: הטלפון לא יוצג בתוצאות</div>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.3rem', color: '#111827' }}>אתר המוסד</label>
+                  <input
+                    type="text"
+                    dir="ltr"
+                    className="input-field"
+                    style={{ marginBottom: 0 }}
+                    value={editingYeshiva.website || ''}
+                    onChange={(e) => setEditingYeshiva({ ...editingYeshiva, website: e.target.value.trim() })}
+                    placeholder="www.example.co.il"
                   />
                 </div>
               </div>

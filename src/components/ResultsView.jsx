@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { Award, CheckCircle, RefreshCw, HelpCircle, Save, Edit2, MailCheck, Phone } from 'lucide-react';
+import { Award, CheckCircle, RefreshCw, HelpCircle, Save, Edit2, MailCheck, Phone, Globe } from 'lucide-react';
 import { saveStudentSubmissionDB, saveYeshivaRequestDB, recordManagerContactClickDB } from '../firebase';
 import { getManagerContactsDB, whatsappUrl, telUrl, contactMessage } from '../manager';
 import WhatsAppIcon from './WhatsAppIcon';
 import { PARAM_DEFINITIONS, REGION_TRANSLATIONS, TYPE_TRANSLATIONS } from '../knn';
 import AutocompleteYeshivaSelect from './AutocompleteYeshivaSelect';
+import { hasPaidListing, bannerStatus, websiteUrl } from '../listing';
 
 const LOCAL_SURVEY_SAVED_KEY = 'shvushon_has_submitted_student_survey';
 
@@ -139,6 +140,39 @@ export default function ResultsView({ results, userPreferences, yeshivotList, te
 
   const topMatch = results[0];
 
+  // Phone and website are shown only for yeshivot with a paid (expanded) card, and for the banner holder.
+  const contactLinks = (y) => {
+    const contact = managerContacts[y.id];
+    const site = websiteUrl(y.website);
+    if (!contact?.phone && !site) return null;
+    return (
+      <div className="result-contact-row">
+        {contact?.phone && (contact.hasWhatsapp ? (
+          <a href={whatsappUrl(contact.phone, contactMessage(contact.name))} onClick={() => trackContactClick(y.id)} target="_blank" rel="noopener noreferrer" className="btn-secondary">
+            <WhatsAppIcon />
+            ווצאפ לאחראי הישיבה · <span dir="ltr">{contact.phone}</span>
+          </a>
+        ) : (
+          <a href={telUrl(contact.phone)} onClick={() => trackContactClick(y.id)} className="btn-secondary">
+            <Phone style={{ width: 14, height: 14 }} />
+            טלפון לאחראי הישיבה · <span dir="ltr">{contact.phone}</span>
+          </a>
+        ))}
+        {site && (
+          <a href={site} target="_blank" rel="noopener noreferrer" className="btn-secondary">
+            <Globe style={{ width: 14, height: 14 }} />
+            לאתר הישיבה
+          </a>
+        )}
+      </div>
+    );
+  };
+
+  const bannerYeshiva = (() => {
+    const current = bannerStatus(yeshivotList || []).current;
+    return current ? (yeshivotList || []).find(y => y.id === current.yeshivaId) : null;
+  })();
+
   return (
     <div className="results-container">
       {/* Top Match Banner */}
@@ -171,12 +205,26 @@ export default function ResultsView({ results, userPreferences, yeshivotList, te
           הישיבות והמכינות שהכי מתאימות לך:
         </h2>
 
+        {bannerYeshiva && (
+          <div className="results-banner">
+            <div>
+              <div className="banner-kicker">מוסד מומלץ החודש</div>
+              <div className="banner-name">{bannerYeshiva.name}</div>
+              <div className="banner-meta">
+                {[TYPE_TRANSLATIONS[bannerYeshiva.type], REGION_TRANSLATIONS[bannerYeshiva.region]].filter(Boolean).join(' · ')}
+              </div>
+            </div>
+            {contactLinks(bannerYeshiva)}
+          </div>
+        )}
+
         {results.map((item, index) => {
           const regionHebrew = REGION_TRANSLATIONS[item.region] || item.region;
           const typeHebrew = TYPE_TRANSLATIONS[item.type] || item.type;
+          const featured = hasPaidListing(item);
 
           return (
-            <div key={item.id} className="yeshiva-result-card">
+            <div key={item.id} className={`yeshiva-result-card${featured ? ' featured' : ''}`}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem' }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.4rem' }}>
@@ -194,21 +242,7 @@ export default function ResultsView({ results, userPreferences, yeshivotList, te
                 </div>
               </div>
 
-              {managerContacts[item.id]?.phone && (
-                <div style={{ marginTop: '0.7rem' }}>
-                  {managerContacts[item.id].hasWhatsapp ? (
-                    <a href={whatsappUrl(managerContacts[item.id].phone, contactMessage(managerContacts[item.id].name))} onClick={() => trackContactClick(item.id)} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ textDecoration: 'none', padding: '0.3rem 0.7rem', fontSize: '0.85rem' }}>
-                      <WhatsAppIcon />
-                      ווצאפ לאחראי הישיבה
-                    </a>
-                  ) : (
-                    <a href={telUrl(managerContacts[item.id].phone)} onClick={() => trackContactClick(item.id)} className="btn-secondary" style={{ textDecoration: 'none', padding: '0.3rem 0.7rem', fontSize: '0.85rem' }}>
-                      <Phone style={{ width: 14, height: 14 }} />
-                      טלפון לאחראי הישיבה
-                    </a>
-                  )}
-                </div>
-              )}
+              {featured && contactLinks(item)}
             </div>
           );
         })}

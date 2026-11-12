@@ -1,5 +1,7 @@
 // Per-yeshiva exposure report (the PDF the admin sends to a yeshiva). Pure computation over the raw
 // all_test_results of the last REPORT_WINDOW_DAYS days, so the server function and tests share it.
+import { bannerStatus, todayKey } from './listing.js';
+
 export const REPORT_WINDOW_DAYS = 30;
 // The yeshiva's own exposure numbers are printed only above this many recipients in the window.
 export const REPORT_MIN_RECIPIENTS = 20;
@@ -76,7 +78,9 @@ export const buildYeshivaReport = ({ yeshiva, yeshivot, results, now = Date.now(
   const rank = 1 + [...names].filter(n => (top3ByName[n] || 0) > top3).length;
 
   return {
-    yeshiva: { id: yeshiva.id, name: yeshiva.name, type: yeshiva.type || '', region: yeshiva.region || '' },
+    yeshiva: { id: yeshiva.id, name: yeshiva.name, type: yeshiva.type || '', region: yeshiva.region || '', listingUntil: yeshiva.listing_until || '' },
+    // Who holds the results-page banner and when it frees up (yeshivot carry their banner_bookings).
+    banner: bannerStatus(yeshivot, todayKey(now)),
     generatedAt: new Date(now).toISOString(),
     windowStart: start.toISOString(),
     windowDays: REPORT_WINDOW_DAYS,

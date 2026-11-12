@@ -18,14 +18,14 @@ export default async function handler(req, res) {
 
     const [yeshivaSnap, yeshivotSnap, recentSnap] = await Promise.all([
       db.collection('yeshivot').doc(id).get(),
-      db.collection('yeshivot').select('name').get(),
+      db.collection('yeshivot').select('name', 'banner_bookings').get(),
       results.where('created_at', '>=', since).select('created_at', 'top_matches', 'top_match', 'contact_clicks', 'preferences').get()
     ]);
     if (!yeshivaSnap.exists) return res.status(404).json({ error: 'yeshiva not found' });
 
     const report = buildYeshivaReport({
       yeshiva: { id, ...yeshivaSnap.data() },
-      yeshivot: yeshivotSnap.docs.map(d => ({ id: d.id, name: d.get('name') })),
+      yeshivot: yeshivotSnap.docs.map(d => ({ id: d.id, name: d.get('name'), banner_bookings: d.get('banner_bookings') })),
       results: recentSnap.docs.map(d => d.data()),
       now
     });
