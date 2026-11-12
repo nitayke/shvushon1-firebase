@@ -2,6 +2,7 @@ import React, { forwardRef } from 'react';
 import { PARAM_DEFINITIONS, REGION_TRANSLATIONS, TYPE_TRANSLATIONS } from '../knn';
 import { REPORT_MIN_RECIPIENTS } from '../yeshivaReport';
 import { PRICE_TIERS, tierFor } from '../listing';
+import WhatsAppIcon from './WhatsAppIcon';
 
 // Three A4 pages (exposure, audience, price quote) (794 x 1123 CSS px at 96dpi) rendered as plain DOM, then rasterized into the PDF.
 export const PAGE_W = 794;
@@ -258,7 +259,7 @@ export const ReportPageOne = forwardRef(({ r, f, recipient }, ref) => {
       <div style={{ marginTop: 'auto', paddingBottom: 22 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10 }}>
           <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 19, color: C.ink }}>
-            {f.showOwn ? `${yeshiva.name} בתוצאות, יום אחרי יום` : 'שאלונים שהושלמו, יום אחרי יום'}
+            {f.showOwn ? `${yeshiva.name} בתוצאות` : 'שאלונים שהושלמו'}
           </div>
           <div style={{ fontSize: 12, color: C.muted }}>
             {f.showOwn ? 'מספר התלמידים שקיבלו אתכם בטופ 3, בכל יום' : 'כל האתר'}
@@ -365,14 +366,10 @@ const CardMock = ({ name, featured }) => (
       <div style={{ fontWeight: 800, fontSize: 15, color: featured ? C.espresso : C.ink, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</div>
       <div style={{ fontSize: 11, fontWeight: 700, color: '#047857', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 99, padding: '1px 8px', whiteSpace: 'nowrap' }}>87% התאמה</div>
     </div>
-    {featured ? (
+    {featured && (
       <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 11, border: `1px solid ${C.rule}`, borderRadius: 6, padding: '3px 8px', color: C.ink, background: '#fff' }}>ווצאפ לאחראי הישיבה · <span dir="ltr">05X-XXX-XXXX</span></span>
+        <span style={{ fontSize: 11, border: `1px solid ${C.rule}`, borderRadius: 6, padding: '3px 8px', color: C.ink, background: '#fff', display: 'inline-flex', alignItems: 'center', gap: 4 }}><WhatsAppIcon size={12} />ווצאפ לאחראי הישיבה · <span dir="ltr">05X-XXX-XXXX</span></span>
         <span style={{ fontSize: 11, border: `1px solid ${C.rule}`, borderRadius: 6, padding: '3px 8px', color: C.ink, background: '#fff' }}>לאתר הישיבה</span>
-      </div>
-    ) : (
-      <div style={{ marginTop: 10, fontSize: 11, color: LOSS, border: `1px dashed ${LOSS}`, borderRadius: 6, padding: '3px 8px', display: 'inline-block', background: '#fdf3f0' }}>
-        אין טלפון · אין קישור · אין איך לחזור אליכם
       </div>
     )}
   </div>
