@@ -321,7 +321,9 @@ export const ReportPageTwo = forwardRef(({ r, f, note, sender, phone }, ref) => 
       </div>
 
       <div style={{ marginTop: 34 }}>
-        <SectionTitle>איך שבושון עובד</SectionTitle>
+        <SectionTitle sub="שבושון פועל כבר יותר מחמש שנים כדי לעזור לשמיניסטים למצוא ישיבה או מכינה, ומאות אלפי משתמשים נכנסו אליו מאז.">
+          איך שבושון עובד
+        </SectionTitle>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 26, borderTop: `1px solid ${C.ink}`, paddingTop: 16 }}>
           {steps.map((s, i) => (
             <div key={s.t}>
