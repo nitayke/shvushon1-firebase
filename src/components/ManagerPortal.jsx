@@ -402,7 +402,7 @@ function ManagerDashboard({ user }) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.2rem' }}>
         <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: '#111827' }}>{profile.yeshivaName}</h2>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>{profile.yeshivaName}</h2>
           <div style={{ color: '#6b7280', fontSize: '0.9rem', marginTop: 2 }}>
             {profile.email}
           </div>
@@ -431,7 +431,7 @@ function ManagerDashboard({ user }) {
       </form>
 
       <form onSubmit={addEvent} style={{ marginBottom: '1.5rem' }}>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.7rem', color: '#111827' }}>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.7rem', color: 'var(--text-primary)' }}>
           הוספת יום פתוח / שבת שבושים
         </h3>
         {evMsg && <div style={okBox}>{evMsg}</div>}
@@ -462,7 +462,7 @@ function ManagerDashboard({ user }) {
       </form>
 
       <div>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.6rem', color: '#111827' }}>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.6rem', color: 'var(--text-primary)' }}>
           האירועים שהוספתם
         </h3>
         {events.length === 0 ? (

@@ -252,7 +252,7 @@ export default function AdminDashboard({ onExitAdmin }) {
       {/* TAB 1: YESHIVA ADDITION REQUESTS */}
       {activeTab === 'requests' && (
         <div className="glass-card">
-          <h2 className="section-title" style={{ color: '#111827' }}>
+          <h2 className="section-title" style={{ color: 'var(--text-primary)' }}>
             <Inbox className="w-5 h-5 text-amber-700" />
             בקשות שהוגשו ע"י משתמשים להוספת ישיבות/מכינות חדשות
           </h2>
@@ -267,7 +267,7 @@ export default function AdminDashboard({ onExitAdmin }) {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                      <h3 style={{ fontSize: '1.3rem', fontWeight: 800, margin: 0, color: '#111827' }}>{req.yeshiva_name}</h3>
+                      <h3 style={{ fontSize: '1.3rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>{req.yeshiva_name}</h3>
                       {req.status === 'approved' && (
                         <span style={{ background: '#059669', color: 'white', fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: 4, fontWeight: 700 }}>
                           ✓ אושר ונוסף
@@ -339,7 +339,7 @@ export default function AdminDashboard({ onExitAdmin }) {
           <div className="glass-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
-                <h2 className="section-title" style={{ margin: 0, color: '#111827' }}>
+                <h2 className="section-title" style={{ margin: 0, color: 'var(--text-primary)' }}>
                   <Users className="w-5 h-5 text-emerald-600" />
                   תשובות שנאספו מתלמידים כיום
                 </h2>
@@ -396,7 +396,7 @@ export default function AdminDashboard({ onExitAdmin }) {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem' }}>
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: 4 }}>
-                        <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: '#111827' }}>{sub.yeshiva_name}</h3>
+                        <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>{sub.yeshiva_name}</h3>
                         {sub.processed === true ? (
                           <span className="tag" style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0' }}>עודכן במאגר ✓</span>
                         ) : (
@@ -567,7 +567,7 @@ export default function AdminDashboard({ onExitAdmin }) {
       {inviteResult && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
           <div className="glass-card" style={{ maxWidth: 560, width: '100%', background: '#ffffff', border: '1px solid #e2d9c8' }}>
-            <h2 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '0.6rem', color: '#111827' }}>
+            <h2 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '0.6rem', color: 'var(--text-primary)' }}>
               קישור הרשמה לאחראי שבושים – {inviteResult.yeshivaName}
             </h2>
             <p style={{ color: '#374151', marginBottom: '0.8rem' }}>
@@ -601,7 +601,7 @@ export default function AdminDashboard({ onExitAdmin }) {
       {editingYeshiva && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
           <div className="glass-card" style={{ maxWidth: 650, width: '100%', maxHeight: '90vh', overflowY: 'auto', background: '#ffffff', border: '1px solid #e2d9c8' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1.2rem', color: '#111827' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1.2rem', color: 'var(--text-primary)' }}>
               {editingYeshiva.name ? `עריכת ישיבה/מכינה: ${editingYeshiva.name}` : 'הוספת ישיבה/מכינה חדשה למאגר'}
             </h2>
 

@@ -58,7 +58,7 @@ export default function ContactModal({ isOpen, onClose }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 450 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0, color: '#111827' }}>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
             יצירת קשר
           </h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer' }}>
@@ -71,7 +71,7 @@ export default function ContactModal({ isOpen, onClose }) {
             <div style={{ display: 'inline-flex', padding: '1rem', borderRadius: '50%', background: '#ecfdf5', color: '#047857', marginBottom: '1rem' }}>
               <CheckCircle style={{ width: 48, height: 48 }} />
             </div>
-            <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#111827', marginBottom: '0.5rem' }}>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
               הודעתך נשלחה בהצלחה!
             </h3>
             <p style={{ color: '#4b5563' }}>ניצור איתך קשר בהקדם האפשרי.</p>

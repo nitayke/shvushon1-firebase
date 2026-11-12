@@ -3,7 +3,7 @@ import { ShieldCheck } from 'lucide-react';
 
 export const PRIVACY_VERSION = '2026-10';
 
-const h3 = { fontSize: '1.1rem', fontWeight: 700, margin: '1.1rem 0 0.4rem', color: '#111827' };
+const h3 = { fontSize: '1.1rem', fontWeight: 700, margin: '1.1rem 0 0.4rem', color: 'var(--text-primary)' };
 const li = { marginBottom: '0.3rem' };
 
 export default function PrivacyPolicy() {

@@ -73,7 +73,7 @@ export default function YeshivaReportModal({ yeshiva, onClose, initialReport = n
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
       <div className="glass-card" style={{ maxWidth: 1100, width: '100%', maxHeight: '94vh', overflowY: 'auto', background: '#ffffff', border: '1px solid #e2d9c8', marginBottom: 0 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-          <h2 style={{ fontSize: '1.3rem', fontWeight: 800, margin: 0, color: '#111827' }}>דו"ח חשיפה לשליחה – {yeshiva.name}</h2>
+          <h2 style={{ fontSize: '1.3rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>דו"ח חשיפה לשליחה – {yeshiva.name}</h2>
           <button type="button" className="btn-secondary" onClick={onClose} style={{ padding: '0.4rem 0.6rem' }} aria-label="סגור">
             <X style={{ width: 16, height: 16 }} />
           </button>

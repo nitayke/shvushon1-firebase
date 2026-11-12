@@ -120,7 +120,7 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin, yesh
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: '#111827' }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
             בקשה להוספת ישיבה / מכינה חדשה
           </h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer' }}>
@@ -133,7 +133,7 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin, yesh
             <div style={{ display: 'inline-flex', padding: '1rem', borderRadius: '50%', background: '#ecfdf5', color: '#047857', marginBottom: '1rem' }}>
               <CheckCircle style={{ width: 48, height: 48 }} />
             </div>
-            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.5rem', color: '#111827' }}>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
               הבקשה נשלחה בהצלחה והיא בבדיקה.
             </h3>
             <p style={{ color: '#4b5563', marginBottom: '1.5rem', lineHeight: 1.6 }}>

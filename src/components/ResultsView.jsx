@@ -181,7 +181,7 @@ export default function ResultsView({ results, userPreferences, yeshivotList, te
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.4rem' }}>
                     <span style={{ fontWeight: 900, color: '#52341d', fontSize: '1.2rem' }}>#{index + 1}</span>
-                    <h3 style={{ fontSize: '1.35rem', fontWeight: 800, margin: 0, color: '#111827' }}>{item.name}</h3>
+                    <h3 style={{ fontSize: '1.35rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>{item.name}</h3>
                   </div>
                   <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                     <span className="tag">סוג: {typeHebrew}</span>
@@ -216,7 +216,7 @@ export default function ResultsView({ results, userPreferences, yeshivotList, te
 
       {/* CURRENT STUDENT SURVEY & COMPACT RATING EDITOR */}
       <div className="glass-card" style={{ borderColor: '#d9ccb9', background: '#fcfaf7' }}>
-        <h2 className="section-title" style={{ color: '#111827' }}>
+        <h2 className="section-title" style={{ color: 'var(--text-primary)' }}>
           <HelpCircle className="w-6 h-6 text-amber-700" />
           לומד כרגע בישיבה/מכינה? עזור לנו לשפר ולדייק את הנתונים!
         </h2>

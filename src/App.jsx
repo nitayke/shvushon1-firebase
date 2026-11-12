@@ -197,7 +197,7 @@ export default function App() {
       <main>
         {loading && view !== 'questionnaire' ? (
           <div className="glass-card" style={{ textAlign: 'center', padding: '3rem' }}>
-            <h3 style={{ fontSize: '1.3rem', color: '#111827', marginBottom: '0.5rem' }}>
+            <h3 style={{ fontSize: '1.3rem', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
               טוען נתוני ישיבות/מכינות מהמאגר...
             </h3>
             <p style={{ color: '#4b5563', fontSize: '0.9rem' }}>אנא המתן מספר שניות</p>
