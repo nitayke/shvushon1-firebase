@@ -1,16 +1,17 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { tierFor, monthEnd, addDays, hasPaidListing, bannerStatus, nextBannerBooking, websiteUrl, todayKey } from './listing.js';
+import { buildPriceList, PRICE_PRESETS, monthEnd, addDays, hasPaidListing, bannerStatus, nextBannerBooking, websiteUrl, todayKey } from './listing.js';
 
-test('price tiers follow the monthly top-3 count', () => {
-  assert.equal(tierFor(0).id, 'small');
-  assert.equal(tierFor(19).id, 'small');
-  assert.equal(tierFor(20).id, 'medium');
-  assert.equal(tierFor(100).id, 'medium');
-  assert.equal(tierFor(101).id, 'large');
-  assert.deepEqual([tierFor(5).quarter, tierFor(5).year], [450, 750]);
-  assert.deepEqual([tierFor(50).quarter, tierFor(50).year], [700, 1100]);
-  assert.deepEqual([tierFor(500).quarter, tierFor(500).year], [950, 1500]);
+test('price list derives the longer periods from the key prices', () => {
+  const low = buildPriceList(PRICE_PRESETS.low);
+  assert.deepEqual(low.card.map(r => r[2]), [500, 900, 1100]);
+  assert.deepEqual(low.questionBanner.map(r => r[2]), [250, 450, 600]);
+  assert.equal(low.mainBanner[0][2], 800);
+  assert.equal(low.bundle, 1500);
+  const high = buildPriceList(PRICE_PRESETS.high);
+  assert.equal(high.bundle, 2600);
+  // a year is always cheaper per month than a quarter
+  for (const list of [low, high]) assert.ok(list.card[2][2] / 12 < list.card[0][2] / 3);
 });
 
 test('date helpers', () => {

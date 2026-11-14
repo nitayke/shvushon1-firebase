@@ -1,4 +1,4 @@
-// Paid listings ("expanded card") and the monthly results-page banner. Pure helpers shared by the site,
+// Paid listings ("expanded card") and the monthly home-page banner. Pure helpers shared by the site,
 // the admin panel and the report API.
 //
 // Stored on the yeshivot documents (public read, admin write):
@@ -7,14 +7,25 @@
 //   banner_bookings: [{ start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' }], inclusive, one month each.
 //                    Only one yeshiva holds the banner at a time; a new booking queues after the last one.
 
-// Prices by exposure: how many students got the yeshiva in their top 3 in the last 30 days.
-export const PRICE_TIERS = [
-  { id: 'small', label: 'עד 20 תלמידים בחודש', max: 19, quarter: 450, year: 750, bundle: 1700 },
-  { id: 'medium', label: '20 עד 100 תלמידים בחודש', max: 100, quarter: 700, year: 1100, bundle: 2100 },
-  { id: 'large', label: 'מעל 100 תלמידים בחודש', max: Infinity, quarter: 950, year: 1500, bundle: 2500 }
-];
+// The price list (the same for every yeshiva). Three key prices are set by hand; the longer periods and
+// the bundle follow from them, so a long commitment is always clearly cheaper per month.
+export const PRICE_PRESETS = {
+  low: { card: 500, mainBanner: 800, questionBanner: 250 },
+  high: { card: 800, mainBanner: 1500, questionBanner: 450 }
+};
+const roundTo = (v, step) => Math.round(v / step) * step;
 
-export const tierFor = (monthlyTop3) => PRICE_TIERS.find(t => Number(monthlyTop3 || 0) <= t.max);
+// -> { card, mainBanner, questionBanner: [[label, months, price], ...], bundle }
+export const buildPriceList = ({ card, mainBanner, questionBanner }) => {
+  const cardYear = roundTo(card * 2.2, 50);
+  return {
+    card: [['רבעון', 3, card], ['חצי שנה', 6, roundTo(card * 1.8, 50)], ['שנה', 12, cardYear]],
+    mainBanner: [['חודש', 1, mainBanner], ['רבעון', 3, roundTo(mainBanner * 1.9, 50)], ['חצי שנה', 6, roundTo(mainBanner * 2.6, 50)]],
+    questionBanner: [['חודש', 1, questionBanner], ['רבעון', 3, roundTo(questionBanner * 1.8, 25)], ['חצי שנה', 6, roundTo(questionBanner * 2.4, 25)]],
+    // a year of the card plus one month of the main banner, about 20% off
+    bundle: roundTo((cardYear + mainBanner) * 0.8, 50)
+  };
+};
 
 const pad = (n) => String(n).padStart(2, '0');
 // Israel local date, so the server (UTC) and the browser agree on "today".

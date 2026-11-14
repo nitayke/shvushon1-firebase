@@ -6,7 +6,7 @@ import { getManagerContactsDB, whatsappUrl, telUrl, contactMessage } from '../ma
 import WhatsAppIcon from './WhatsAppIcon';
 import { PARAM_DEFINITIONS, REGION_TRANSLATIONS, TYPE_TRANSLATIONS } from '../knn';
 import AutocompleteYeshivaSelect from './AutocompleteYeshivaSelect';
-import { hasPaidListing, bannerStatus, websiteUrl } from '../listing';
+import { hasPaidListing, websiteUrl } from '../listing';
 
 const LOCAL_SURVEY_SAVED_KEY = 'shvushon_has_submitted_student_survey';
 
@@ -140,7 +140,7 @@ export default function ResultsView({ results, userPreferences, yeshivotList, te
 
   const topMatch = results[0];
 
-  // Phone and website are shown only for yeshivot with a paid (expanded) card, and for the banner holder.
+  // Phone and website are shown only for yeshivot with a paid (expanded) card.
   const contactLinks = (y) => {
     const contact = managerContacts[y.id];
     const site = websiteUrl(y.website);
@@ -167,11 +167,6 @@ export default function ResultsView({ results, userPreferences, yeshivotList, te
       </div>
     );
   };
-
-  const bannerYeshiva = (() => {
-    const current = bannerStatus(yeshivotList || []).current;
-    return current ? (yeshivotList || []).find(y => y.id === current.yeshivaId) : null;
-  })();
 
   return (
     <div className="results-container">
@@ -204,19 +199,6 @@ export default function ResultsView({ results, userPreferences, yeshivotList, te
           <CheckCircle className="w-5 h-5 text-emerald-600" />
           הישיבות והמכינות שהכי מתאימות לך:
         </h2>
-
-        {bannerYeshiva && (
-          <div className="results-banner">
-            <div>
-              <div className="banner-kicker">מוסד מומלץ החודש</div>
-              <div className="banner-name">{bannerYeshiva.name}</div>
-              <div className="banner-meta">
-                {[TYPE_TRANSLATIONS[bannerYeshiva.type], REGION_TRANSLATIONS[bannerYeshiva.region]].filter(Boolean).join(' · ')}
-              </div>
-            </div>
-            {contactLinks(bannerYeshiva)}
-          </div>
-        )}
 
         {results.map((item, index) => {
           const regionHebrew = REGION_TRANSLATIONS[item.region] || item.region;

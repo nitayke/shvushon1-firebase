@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { PARAM_DEFINITIONS, REGIONS, TYPES } from '../knn';
 import { MapPin, GraduationCap, ChevronRight, ChevronLeft, Check, Play } from 'lucide-react';
 
-export default function Questionnaire({ onStartQuiz, onCalculateMatches, onRequestAddYeshiva }) {
+export default function Questionnaire({ onStartQuiz, onCalculateMatches, onRequestAddYeshiva, banner = null }) {
   const [isStarted, setIsStarted] = useState(false);
   // Step 0: Type & Region. Steps 1..11: The 11 parameters. Total 12 steps.
   const [currentStep, setCurrentStep] = useState(0);
@@ -105,6 +105,7 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
 
   if (!isStarted) {
     return (
+      <>
       <div className="glass-card hero-card fade-in">
         <h1 className="hero-title">ברוכים הבאים ל"שבושון"</h1>
         <p className="hero-lead">
@@ -127,6 +128,8 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
           המידע נאסף מתלמידים ובוגרים רבים ומתעדכן באופן שוטף.
         </p>
       </div>
+      {banner}
+      </>
     );
   }
 

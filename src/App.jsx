@@ -2,6 +2,7 @@ import React, { useState, useEffect, Suspense, lazy } from 'react';
 // Shvushon 2.0.1 - Male phrasing & 100% Live Firestore
 import Questionnaire from './components/Questionnaire';
 import ResultsView from './components/ResultsView';
+import HomeBanner from './components/HomeBanner';
 const ManagerPortal = lazy(() => import('./components/ManagerPortal'));
 import CalendarView from './components/CalendarView';
 import PrivacyPolicy from './components/PrivacyPolicy';
@@ -138,6 +139,11 @@ export default function App() {
     }
   }, []);
 
+  // The home page shows the paid banner, which needs the list (the quiz loads it anyway on start).
+  useEffect(() => {
+    if (view === 'questionnaire') loadYeshivot();
+  }, [view]);
+
   const handleCalculateMatches = async (preferences) => {
     setUserPreferences(preferences);
     // Ensure yeshivot data is loaded before calculating matches
@@ -224,6 +230,7 @@ export default function App() {
                 onStartQuiz={loadYeshivot}
                 onCalculateMatches={handleCalculateMatches}
                 onRequestAddYeshiva={() => setIsRequestModalOpen(true)}
+                banner={<HomeBanner yeshivotList={yeshivotList} />}
               />
             )}
 

@@ -1,15 +1,15 @@
 import React, { forwardRef } from 'react';
 import { PARAM_DEFINITIONS, REGION_TRANSLATIONS, TYPE_TRANSLATIONS } from '../knn';
 import { REPORT_MIN_RECIPIENTS } from '../yeshivaReport';
-import { PRICE_TIERS, tierFor } from '../listing';
 import WhatsAppIcon from './WhatsAppIcon';
+import BannerArt from './BannerArt';
 
-// Three A4 pages (exposure, audience, price quote) (794 x 1123 CSS px at 96dpi) rendered as plain DOM, then rasterized into the PDF.
+// Three A4 pages (about + exposure, audience, ways to stand out) (794 x 1123 CSS px at 96dpi) rendered as plain DOM, then rasterized into the PDF.
 export const PAGE_W = 794;
 export const PAGE_H = 1123;
 export const PAGE_COUNT = 3;
 
-const C = {
+export const C = {
   paper: '#fbf8f2',
   ink: '#1c1410',
   body: '#3d342b',
@@ -19,8 +19,8 @@ const C = {
   sand: '#ece2d0',
   rule: '#d6c7ad'
 };
-const SERIF = "'Frank Ruhl Libre', 'Frank Ruehl CLM', serif";
-const SANS = "'IBM Plex Sans Hebrew', 'Heebo', Arial, sans-serif";
+export const SERIF = "'Frank Ruhl Libre', 'Frank Ruehl CLM', serif";
+export const SANS = "'IBM Plex Sans Hebrew', 'Heebo', Arial, sans-serif";
 
 const n = (v) => Number(v || 0).toLocaleString('he-IL');
 // 1..999 in Hebrew letters with geresh/gershayim (15 and 16 as ט״ו, ט״ז), e.g. 787 -> תשפ״ז
@@ -32,14 +32,14 @@ const gematria = (num) => {
   const s = hundreds[Math.floor(num / 100)] + (rest === 15 ? 'טו' : rest === 16 ? 'טז' : tens[Math.floor(rest / 10)] + ones[rest % 10]);
   return s.length > 1 ? `${s.slice(0, -1)}״${s.slice(-1)}` : `${s}׳`;
 };
-const hebDate = (d) => {
+export const hebDate = (d) => {
   try {
     const parts = Object.fromEntries(new Intl.DateTimeFormat('he-IL-u-ca-hebrew', { day: 'numeric', month: 'long', year: 'numeric' })
       .formatToParts(new Date(d)).map(p => [p.type, p.value]));
     return `${gematria(Number(parts.day))} ב${parts.month} ${gematria(Number(parts.year) % 1000)}`;
   } catch { return ''; }
 };
-const civDate = (d) => new Date(d).toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
+export const civDate = (d) => new Date(d).toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
 const dayDate = (key) => civDate(`${key}T12:00:00`);
 const shortDate = (d) => new Date(d).toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric' });
 const paramLabel = (id) => PARAM_DEFINITIONS.find(p => p.id === id)?.label || id;
@@ -59,7 +59,6 @@ export const reportFacts = (r) => {
   const showOwn = own.top3 > REPORT_MIN_RECIPIENTS;
   const oneIn = showOwn && own.top3 ? Math.round(site.monthTotal / own.top3) : null;
   return {
-    tier: tierFor(own.top3),
     showOwn,
     oneIn: oneIn && oneIn >= 2 && oneIn <= 25 ? oneIn : null,
     showFirst: showOwn && own.first >= 5,
@@ -71,7 +70,7 @@ export const reportFacts = (r) => {
   };
 };
 
-const Mark = ({ size = 26 }) => (
+export const Mark = ({ size = 26 }) => (
   <svg width={size} height={size} viewBox="0 0 512 512" fill="none" aria-hidden="true">
     <rect width="512" height="512" rx="112" fill={C.espresso} />
     <circle cx="256" cy="256" r="178" stroke="#e6dac5" strokeWidth="22" />
@@ -81,7 +80,7 @@ const Mark = ({ size = 26 }) => (
   </svg>
 );
 
-const Page = forwardRef(({ children, r, number }, ref) => (
+export const Page = forwardRef(({ children, r, number, total = PAGE_COUNT, footer }, ref) => (
   <div
     ref={ref}
     dir="rtl"
@@ -107,13 +106,17 @@ const Page = forwardRef(({ children, r, number }, ref) => (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>{children}</div>
 
     <footer style={{ display: 'flex', justifyContent: 'space-between', borderTop: `1px solid ${C.rule}`, paddingTop: 10, fontSize: 11, color: C.muted }}>
-      <span>{r.yeshiva.name} · {civDate(r.generatedAt)}</span>
-      <span>מס׳ <span dir="ltr">{docRef(r)}</span> · עמוד {number} מתוך {PAGE_COUNT}</span>
+      {footer || (
+        <>
+          <span>{r.yeshiva.name} · {civDate(r.generatedAt)}</span>
+          <span>מס׳ <span dir="ltr">{docRef(r)}</span> · עמוד {number} מתוך {total}</span>
+        </>
+      )}
     </footer>
   </div>
 ));
 
-const SectionTitle = ({ children, sub }) => (
+export const SectionTitle = ({ children, sub }) => (
   <div style={{ marginBottom: 14 }}>
     <h2 style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 25, color: C.ink, margin: 0, lineHeight: 1.2 }}>{children}</h2>
     {sub && <div style={{ color: C.muted, fontSize: 13, marginTop: 4 }}>{sub}</div>}
@@ -121,7 +124,7 @@ const SectionTitle = ({ children, sub }) => (
 );
 
 const StatRow = ({ value, label, note }) => (
-  <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, padding: '11px 0', borderBottom: `1px solid ${C.rule}` }}>
+  <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, padding: '8px 0', borderBottom: `1px solid ${C.rule}` }}>
     <div style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 34, color: C.espresso, minWidth: 96, lineHeight: 1 }}>{value}</div>
     <div>
       <div style={{ color: C.ink, fontWeight: 500, fontSize: 14, lineHeight: 1.35 }}>{label}</div>
@@ -129,33 +132,6 @@ const StatRow = ({ value, label, note }) => (
     </div>
   </div>
 );
-
-// Daily bars for the window, oldest on the left.
-const DailyChart = ({ days, start }) => {
-  const W = 670, H = 150, padB = 22, padT = 8;
-  const max = Math.max(1, ...days);
-  const slot = W / days.length;
-  const bw = slot * 0.62;
-  const y = (v) => H - padB - (v / max) * (H - padB - padT);
-  const labelAt = [0, Math.floor(days.length / 2), days.length - 1];
-  return (
-    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} style={{ display: 'block', direction: 'ltr' }}>
-      {[0.5, 1].map(f => (
-        <line key={f} x1="0" x2={W} y1={y(max * f)} y2={y(max * f)} stroke={C.rule} strokeDasharray="2 4" strokeWidth="1" />
-      ))}
-      {days.map((v, i) => (
-        <rect key={i} x={i * slot + (slot - bw) / 2} y={y(v)} width={bw} height={H - padB - y(v)} fill={C.espresso} rx="1.5" />
-      ))}
-      <line x1="0" x2={W} y1={H - padB} y2={H - padB} stroke={C.ink} strokeWidth="1" />
-      {labelAt.map(i => (
-        <text key={i} x={i * slot + slot / 2} y={H - 6} fontSize="11" fill={C.muted} textAnchor={i === 0 ? 'start' : i === days.length - 1 ? 'end' : 'middle'} fontFamily={SANS}>
-          {shortDate(new Date(start).getTime() + (i + 1) * 864e5)}
-        </text>
-      ))}
-      <text x={W} y={y(max) - 2 < 10 ? 10 : y(max) - 2} fontSize="10" fill={C.muted} textAnchor="end" fontFamily={SANS}>{n(max)}</text>
-    </svg>
-  );
-};
 
 // Rows of 1-5 bars: the yeshiva's audience (filled) against the whole site (gold tick).
 const ParamBars = ({ rows, withSite }) => (
@@ -188,30 +164,47 @@ export const ReportPageOne = forwardRef(({ r, f, recipient }, ref) => {
       f.showFirst && { value: n(own.first), label: `פעמים ש${yeshiva.name} יצאה במקום הראשון`, note: 'ההתאמה הכי גבוהה של התלמיד מכל המאגר' },
       f.showScore && { value: `${own.avgScore}%`, label: 'ציון התאמה ממוצע', note: 'אצל התלמידים שקיבלו אתכם' },
       f.showRank && { value: `${own.rank}`, label: `מקום בדירוג החשיפה, מתוך ${site.institutions} מוסדות`, note: 'לפי מספר ההופעות בשלוש ההתאמות המובילות' },
-      f.showClicks && { value: n(own.clicks), label: 'פניות לאחראי השבושים שלכם', note: 'ישירות מדף התוצאות' },
-      { value: n(site.monthTotal), label: 'תלמידים מילאו את השאלון החודש', note: 'בכל האתר' }
+      f.showClicks && { value: n(own.clicks), label: 'פניות לאחראי השבושים שלכם', note: 'ישירות מדף התוצאות' }
     ]
     : [
       { value: n(Math.round(site.monthTotal / r.windowDays)), label: 'שאלונים מתמלאים בממוצע בכל יום' },
       f.showType && { value: n(site.typeInterest), label: `סיננו במפורש ${typeLabel}`, note: 'ב־30 הימים האחרונים' },
-      f.showRegion && { value: n(site.regionInterest), label: `חיפשו מוסד באזור ${regionLabel}`, note: 'ב־30 הימים האחרונים' },
-      { value: n(site.institutions), label: 'ישיבות ומכינות במאגר' }
+      f.showRegion && { value: n(site.regionInterest), label: `חיפשו מוסד באזור ${regionLabel}`, note: 'ב־30 הימים האחרונים' }
     ];
 
   return (
     <Page ref={ref} r={r} number={1}>
-      <div style={{ marginTop: 46, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div style={{ color: C.gold, fontWeight: 500, fontSize: 13 }}>
-          דו״ח חשיפה · 30 הימים האחרונים
-        </div>
+      <div style={{ marginTop: 22, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div style={{ color: C.gold, fontWeight: 500, fontSize: 13 }}>על שבושון</div>
         <div style={{ textAlign: 'left', color: C.muted, fontSize: 12, lineHeight: 1.5 }}>
           <div>{hebDate(r.generatedAt)}</div>
           <div>{civDate(r.generatedAt)}</div>
         </div>
       </div>
+      <h2 style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 32, lineHeight: 1.15, color: C.ink, margin: '2px 0 10px' }}>
+        המקום שבו שמיניסטים מחפשים ישיבה
+      </h2>
+      <p style={{ margin: 0, maxWidth: 640, fontSize: 15, lineHeight: 1.75 }}>
+        שבושון הוקם לפני יותר מחמש שנים כדי לעזור לשמיניסטים למצוא ישיבה או מכינה שמתאימה להם באמת.
+        {' '}התלמיד עונה על שאלון קצר של 12 שאלות, ומקבל רשימה של המוסדות שהכי מתאימים לו, עם ציון התאמה לכל אחד.
+        {' '}מאז שעלה לאוויר נרשמו באתר יותר מ־200,000 כניסות.
+      </p>
+      <div style={{ marginTop: 18, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', background: C.sand, borderRight: `4px solid ${C.gold}` }}>
+        {[
+          { v: <span dir="ltr">5+</span>, l: 'שנים באוויר' },
+          { v: <span dir="ltr">200,000+</span>, l: 'כניסות לאתר מאז שהוקם' },
+          { v: n(site.institutions), l: 'ישיבות ומכינות במאגר' }
+        ].map((x, i) => (
+          <div key={i} style={{ padding: '14px 18px', borderInlineStart: i ? `1px solid ${C.rule}` : 'none' }}>
+            <div style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 30, color: C.espresso, lineHeight: 1.05 }}>{x.v}</div>
+            <div style={{ fontSize: 13, color: C.ink, marginTop: 4 }}>{x.l}</div>
+          </div>
+        ))}
+      </div>
 
-      <div style={{ marginTop: 18 }}>
-        <h1 style={{ fontFamily: SERIF, fontWeight: 900, fontSize: yeshiva.name.length > 22 ? 48 : 62, lineHeight: 1.08, color: C.espresso, margin: '4px 0 8px' }}>
+      <div style={{ marginTop: 26, borderTop: `1px solid ${C.ink}`, paddingTop: 16 }}>
+        <div style={{ color: C.gold, fontWeight: 500, fontSize: 13 }}>דו״ח חשיפה · 30 הימים האחרונים</div>
+        <h1 style={{ fontFamily: SERIF, fontWeight: 900, fontSize: yeshiva.name.length > 22 ? 40 : 50, lineHeight: 1.08, color: C.espresso, margin: '4px 0 6px' }}>
           {yeshiva.name}
         </h1>
         <div style={{ color: C.muted, fontSize: 14 }}>
@@ -219,8 +212,8 @@ export const ReportPageOne = forwardRef(({ r, f, recipient }, ref) => {
         </div>
       </div>
 
-      <div style={{ marginTop: 26, maxWidth: 600, fontSize: 16, lineHeight: 1.75, color: C.body }}>
-        {recipient && <p style={{ margin: '0 0 10px', color: C.ink, fontWeight: 500 }}>לכבוד {recipient},</p>}
+      <div style={{ marginTop: 16, maxWidth: 620, fontSize: 15.5, lineHeight: 1.75, color: C.body }}>
+        {recipient && <p style={{ margin: '0 0 8px', color: C.ink, fontWeight: 500 }}>לכבוד {recipient},</p>}
         {f.showOwn ? (
           <p style={{ margin: 0 }}>
             בחודש האחרון מילאו את שאלון ההתאמה בשבושון {n(site.monthTotal)} תלמידים.
@@ -230,16 +223,15 @@ export const ReportPageOne = forwardRef(({ r, f, recipient }, ref) => {
           </p>
         ) : (
           <p style={{ margin: 0 }}>
-            שבושון עוזר לתלמידים לבחור ישיבה או מכינה: שאלון קצר, ובסופו רשימת המוסדות שהכי מתאימים להם.
-            {' '}בחודש האחרון מילאו אותו {n(site.monthTotal)} תלמידים. ריכזנו כאן מה הם מחפשים,
+            בחודש האחרון מילאו את השאלון {n(site.monthTotal)} תלמידים. ריכזנו כאן מה הם מחפשים,
             {' '}ואיך {yeshiva.name} יכולה להגיע ליותר מהם.
           </p>
         )}
       </div>
 
-      <div style={{ marginTop: 34, display: 'grid', gridTemplateColumns: '1fr 1.15fr', gap: 44, alignItems: 'start' }}>
+      <div style={{ marginTop: 22, display: 'grid', gridTemplateColumns: '0.9fr 1.3fr', gap: 40, alignItems: 'start' }}>
         <div style={{ borderTop: `3px solid ${C.espresso}`, paddingTop: 16 }}>
-          <div style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 112, lineHeight: 0.9, color: C.ink, letterSpacing: -2 }}>
+          <div style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 104, lineHeight: 0.9, color: C.ink, letterSpacing: -2 }}>
             {n(f.showOwn ? own.top3 : site.monthTotal)}
           </div>
           <div style={{ marginTop: 14, fontSize: 15, color: C.ink, fontWeight: 500, lineHeight: 1.5 }}>
@@ -254,18 +246,6 @@ export const ReportPageOne = forwardRef(({ r, f, recipient }, ref) => {
         <div style={{ borderTop: `1px solid ${C.ink}` }}>
           {side.filter(Boolean).map((s, i) => <StatRow key={i} {...s} />)}
         </div>
-      </div>
-
-      <div style={{ marginTop: 'auto', paddingBottom: 22 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10 }}>
-          <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 19, color: C.ink }}>
-            {f.showOwn ? `${yeshiva.name} בתוצאות` : 'שאלונים שהושלמו'}
-          </div>
-          <div style={{ fontSize: 12, color: C.muted }}>
-            {f.showOwn ? 'מספר התלמידים שקיבלו אתכם בטופ 3, בכל יום' : 'כל האתר'}
-          </div>
-        </div>
-        <DailyChart days={f.showOwn ? own.daily : site.daily} start={r.windowStart} />
       </div>
     </Page>
   );
@@ -326,7 +306,7 @@ export const ReportPageTwo = forwardRef(({ r, f }, ref) => {
       </div>
 
       <div style={{ marginTop: 34 }}>
-        <SectionTitle sub="שבושון פועל כבר יותר מחמש שנים כדי לעזור לשמיניסטים למצוא ישיבה או מכינה, ומאות אלפי משתמשים נכנסו אליו מאז.">
+        <SectionTitle sub="משאלון של כמה דקות לשיחה עם המוסד המתאים.">
           איך שבושון עובד
         </SectionTitle>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 26, borderTop: `1px solid ${C.ink}`, paddingTop: 16 }}>
@@ -349,27 +329,36 @@ export const ReportPageTwo = forwardRef(({ r, f }, ref) => {
   );
 });
 
-const ils = (v) => `${Number(v).toLocaleString('he-IL')} ₪`;
-
 const LOSS = '#9a3b2a';
+const WA_GREEN = '#1f9d55';
+const SITE_SERIF = "'Noto Serif Hebrew', 'Frank Ruhl Libre', serif";
 
-// A results card as the student sees it, regular vs. expanded. The regular one is faded on purpose.
-const CardMock = ({ name, featured }) => (
+// A results card as the student sees it. The regular one is faded on purpose; the expanded one is drawn
+// a bit louder than the site's, so the difference reads on paper.
+const CardMock = ({ name, meta, featured }) => (
   <div style={{
-    background: featured ? 'linear-gradient(to left, #fbf4e6, #ffffff 70%)' : '#f6f3ee',
-    opacity: featured ? 1 : 0.85,
-    border: `${featured ? 1.5 : 1}px solid ${featured ? C.gold : C.rule}`,
-    borderRightWidth: featured ? 5 : 1,
-    borderRadius: 8, padding: '12px 14px', fontFamily: SANS, minHeight: 74, boxSizing: 'border-box'
+    position: 'relative',
+    background: featured ? 'linear-gradient(to left, #f7e6c4, #fffaf0 75%)' : '#f3efe8',
+    opacity: featured ? 1 : 0.8,
+    border: featured ? `2px solid ${C.gold}` : `1px solid ${C.rule}`,
+    borderRightWidth: featured ? 8 : 1,
+    borderRadius: 10, padding: featured ? '16px 18px' : '11px 14px', fontFamily: SANS, boxSizing: 'border-box',
+    boxShadow: featured ? '0 8px 22px rgba(180, 120, 40, 0.28)' : 'none'
   }}>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-      <div style={{ fontWeight: 800, fontSize: 15, color: featured ? C.espresso : C.ink, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</div>
-      <div style={{ fontSize: 11, fontWeight: 700, color: '#047857', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 99, padding: '1px 8px', whiteSpace: 'nowrap' }}>87% התאמה</div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, minWidth: 0 }}>
+        <span style={{ fontWeight: 900, color: C.espresso, fontSize: featured ? 17 : 14 }}>#2</span>
+        <span style={{ fontWeight: 800, fontSize: featured ? 20 : 15, color: featured ? C.espresso : C.ink, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</span>
+      </div>
+      <div style={{ fontSize: featured ? 12.5 : 11, fontWeight: 700, color: '#047857', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 99, padding: '2px 10px', whiteSpace: 'nowrap' }}>87% התאמה</div>
     </div>
+    {meta && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 3 }}>{meta}</div>}
     {featured && (
-      <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 11, border: `1px solid ${C.rule}`, borderRadius: 6, padding: '3px 8px', color: C.ink, background: '#fff', display: 'inline-flex', alignItems: 'center', gap: 4 }}><WhatsAppIcon size={12} />ווצאפ לאחראי הישיבה · <span dir="ltr">05X-XXX-XXXX</span></span>
-        <span style={{ fontSize: 11, border: `1px solid ${C.rule}`, borderRadius: 6, padding: '3px 8px', color: C.ink, background: '#fff' }}>לאתר הישיבה</span>
+      <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+        <span style={{ fontSize: 12.5, fontWeight: 700, borderRadius: 8, padding: '7px 14px', color: '#fff', background: WA_GREEN, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <WhatsAppIcon size={14} />ווצאפ לאחראי הישיבה
+        </span>
+        <span style={{ fontSize: 12.5, fontWeight: 700, borderRadius: 8, padding: '7px 14px', color: '#fff', background: C.espresso }}>לאתר הישיבה ←</span>
       </div>
     )}
   </div>
@@ -377,89 +366,167 @@ const CardMock = ({ name, featured }) => (
 
 // What an unpaid card costs: the student liked you, had no way to reach you, and moved on.
 const MissedCallout = ({ name }) => (
-  <div style={{ marginTop: 14, background: '#fdf3f0', borderRight: `4px solid ${LOSS}`, padding: '12px 16px' }}>
-    <div style={{ fontWeight: 700, color: LOSS, fontSize: 14.5, marginBottom: 3 }}>מה קורה עם כרטיס רגיל?</div>
-    <div style={{ fontSize: 13.5, lineHeight: 1.65, color: C.body }}>
-      התלמיד רואה את {name} ברשימה ומתעניין, אבל אין לו מספר ואין קישור. הוא עובר לישיבה הבאה שכן אפשר לדבר איתה,
-      {' '}ותוך כמה ימים <strong style={{ color: LOSS }}>שוכח את השם שלכם</strong>. כל תלמיד כזה הוא שיחה שלא קרתה.
-    </div>
+  <div style={{ marginTop: 14, background: '#fdf3f0', borderRight: `4px solid ${LOSS}`, padding: '9px 14px', fontSize: 13, lineHeight: 1.6 }}>
+    <strong style={{ color: LOSS }}>ובכרטיס רגיל? </strong>
+    התלמיד רואה את {name} ומתעניין, אבל אין לו מספר ואין קישור. הוא עובר למוסד הבא שאפשר לדבר איתו,
+    {' '}ותוך כמה ימים <strong style={{ color: LOSS }}>שוכח את השם שלכם</strong>.
   </div>
 );
 
-const PriceRow = ({ title, desc, price, unit, strong }) => (
-  <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'center', gap: 20, padding: '9px 0', borderBottom: `1px solid ${C.rule}` }}>
+// Phone screens drawn at real mobile size (375px wide) and scaled down, in a light frame.
+const PHONE_SCALE = 0.52;
+const PHONE_H = 585;
+const PhoneFrame = ({ children, caption }) => (
+  <div style={{ direction: 'ltr', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+    <div style={{ padding: 5, background: '#fff', border: `1px solid ${C.rule}`, borderRadius: 26, boxShadow: '0 10px 26px rgba(82, 52, 29, 0.16)' }}>
+      <div style={{ width: 375 * PHONE_SCALE, height: PHONE_H * PHONE_SCALE, overflow: 'hidden', borderRadius: 21, background: '#f4eee3' }}>
+        <div dir="rtl" style={{ width: 375, height: PHONE_H, transform: `scale(${PHONE_SCALE})`, transformOrigin: 'top left', position: 'relative', fontFamily: SANS, color: C.ink, padding: '18px 14px 0', boxSizing: 'border-box' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+            <Mark size={30} />
+            <span style={{ fontFamily: SITE_SERIF, fontWeight: 900, fontSize: 30, color: C.espresso }}>שבושון</span>
+          </div>
+          {children}
+        </div>
+      </div>
+    </div>
+    <div dir="rtl" style={{ fontSize: 12, fontWeight: 700, color: C.muted }}>{caption}</div>
+  </div>
+);
+
+
+// Question 5 of 12, with the question's banner floating at the bottom of the screen.
+const QuestionPhone = ({ name }) => (
+  <PhoneFrame caption="באנר בזמן השאלון">
+    <div style={{ background: '#fff', border: '1px solid #e4dac8', borderRadius: 16, padding: '14px 18px', marginBottom: 12 }}>
+      <div style={{ fontSize: 14, color: C.body }}>שאלה <strong>5</strong> מתוך 12</div>
+      <div style={{ marginTop: 10, height: 9, background: '#e9dcc6', borderRadius: 99, overflow: 'hidden' }}>
+        <div style={{ width: '42%', height: '100%', background: C.espresso, borderRadius: 99 }} />
+      </div>
+    </div>
+    <div style={{ background: '#fff', border: '1px solid #e4dac8', borderRadius: 16, padding: '20px 18px 22px', textAlign: 'center' }}>
+      <div style={{ fontFamily: SITE_SERIF, fontWeight: 800, fontSize: 23, lineHeight: 1.35 }}>איזה דגש אתה מחפש על לימוד גמרא?</div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: C.muted, margin: '16px 2px 8px' }}>
+        <span><strong style={{ color: C.espresso }}>1</strong> · דגש נמוך</span>
+        <span>דגש מרכזי · <strong style={{ color: C.espresso }}>5</strong></span>
+      </div>
+      <div style={{ display: 'flex', gap: 8 }}>
+        {[1, 2, 3, 4, 5].map(v => (
+          <div key={v} style={{ flex: 1, height: 62, borderRadius: 12, background: v === 4 ? C.espresso : '#efe6d6', color: v === 4 ? '#fff' : C.ink, fontWeight: 700, fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{v}</div>
+        ))}
+      </div>
+    </div>
+    <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
+      <div style={{ flex: 1.6, height: 50, borderRadius: 12, background: C.espresso, color: '#fff', fontWeight: 700, fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>הבא</div>
+      <div style={{ flex: 1, height: 50, borderRadius: 12, background: '#efe6d6', border: '1px solid #cfbfa6', fontWeight: 600, fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>הקודם</div>
+    </div>
+
+    <div style={{ position: 'absolute', left: 12, right: 12, bottom: 14, height: 112, borderRadius: 18, overflow: 'hidden', boxShadow: '0 10px 24px rgba(28, 20, 16, 0.35)', border: '1px solid rgba(230, 196, 143, 0.5)' }}>
+      <BannerArt id="q-banner" />
+      <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 12, color: '#f0c97e', fontWeight: 700, letterSpacing: 0.3 }}>ממומן</div>
+          <div style={{ fontFamily: SITE_SERIF, fontWeight: 800, fontSize: 21, lineHeight: 1.3, color: '#fff', marginTop: 2, textShadow: '0 2px 6px rgba(0,0,0,0.35)' }}>בואו לשבת שבושים ב{name}</div>
+        </div>
+        <div style={{ flexShrink: 0, alignSelf: 'flex-end', background: '#e6c48f', color: '#3e2614', fontWeight: 800, fontSize: 15, borderRadius: 12, padding: '10px 16px' }}>לפרטים</div>
+      </div>
+    </div>
+  </PhoneFrame>
+);
+
+// The home page with the main banner at the bottom, under the welcome card.
+const HomePhone = ({ name, kind, meta }) => (
+  <PhoneFrame caption="באנר ראשי בדף הבית">
+    <div style={{ background: '#fff', border: '1px solid #e4dac8', borderRadius: 18, padding: '18px 20px 20px', textAlign: 'center' }}>
+      <div style={{ fontFamily: SITE_SERIF, fontWeight: 900, fontSize: 30, lineHeight: 1.2, color: C.espresso }}>ברוכים הבאים ל״שבושון״</div>
+      <div style={{ width: 80, height: 4, background: C.gold, borderRadius: 2, margin: '10px auto' }} />
+      <div style={{ fontSize: 16, lineHeight: 1.55, color: C.body }}>שמיניסט יקר! שאלון קצר שיעזור לך לגלות איזו ישיבה או מכינה מתאימה לך באמת.</div>
+      <div style={{ display: 'inline-block', marginTop: 14, background: C.espresso, color: '#fff', fontWeight: 800, fontSize: 19, borderRadius: 16, padding: '12px 40px' }}>מתחילים</div>
+    </div>
+    <div style={{ position: 'relative', marginTop: 14, height: 200, borderRadius: 20, overflow: 'hidden', boxShadow: '0 10px 24px rgba(28, 20, 16, 0.3)', border: '1px solid rgba(230, 196, 143, 0.5)' }}>
+      <BannerArt id="h-banner" />
+      <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: '18px 20px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', color: '#f4eee3' }}>
+        <div style={{ fontSize: 16, color: '#f0c97e', fontWeight: 700 }}>בואו {kind} חמה ומשפחתית</div>
+        <div style={{ fontFamily: SITE_SERIF, fontWeight: 900, fontSize: 28, lineHeight: 1.2, color: '#fff', margin: '2px 0', textShadow: '0 2px 8px rgba(0,0,0,0.4)', maxWidth: 300 }}>{name}</div>
+        {meta && <div style={{ fontSize: 13, color: '#e6dac5' }}>{meta}</div>}
+        <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+          <div style={{ background: '#e6c48f', color: '#3e2614', fontWeight: 800, fontSize: 15, borderRadius: 12, padding: '9px 16px' }}>לפרטים והרשמה</div>
+          <div style={{ border: '1.5px solid rgba(244, 238, 227, 0.6)', background: 'rgba(36, 21, 11, 0.35)', color: '#fff', fontWeight: 700, fontSize: 15, borderRadius: 12, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 6 }}><WhatsAppIcon size={15} />ווצאפ</div>
+        </div>
+      </div>
+    </div>
+  </PhoneFrame>
+);
+
+const Option = ({ letter, title, children }) => (
+  <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+    <span style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 24, color: C.gold, lineHeight: 1 }}>{letter}.</span>
     <div>
-      <div style={{ color: C.ink, fontWeight: 700, fontSize: 16 }}>{title}</div>
-      <div style={{ color: C.muted, fontSize: 12.5, marginTop: 2 }}>{desc}</div>
-    </div>
-    <div style={{ textAlign: 'left' }}>
-      <div style={{ fontFamily: SERIF, fontWeight: 900, fontSize: strong ? 34 : 30, color: strong ? C.gold : C.espresso, lineHeight: 1 }}>{ils(price)}</div>
-      <div style={{ color: C.muted, fontSize: 11.5, marginTop: 3 }}>{unit}</div>
+      <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 20, color: C.ink, lineHeight: 1.25 }}>{title}</div>
+      {children && <div style={{ fontSize: 13.5, lineHeight: 1.6, marginTop: 3 }}>{children}</div>}
     </div>
   </div>
 );
 
-export const ReportPageThree = forwardRef(({ r, f, tierId, note, sender, phone }, ref) => {
+export const ReportPageThree = forwardRef(({ r, note, sender, phone }, ref) => {
   const { yeshiva, banner } = r;
-  const tier = PRICE_TIERS.find(t => t.id === tierId) || f.tier;
   const today = banner?.today || r.generatedAt.slice(0, 10);
   const paidUntil = yeshiva.listingUntil && yeshiva.listingUntil >= today ? yeshiva.listingUntil : '';
   const holdsBanner = banner?.current && String(banner.current.yeshivaId) === String(yeshiva.id);
+  const bannerTaken = !!banner?.nextFree && banner.nextFree > today;
+  const meta = [TYPE_TRANSLATIONS[yeshiva.type], REGION_TRANSLATIONS[yeshiva.region]].filter(Boolean).join(' · ');
 
   return (
     <Page ref={ref} r={r} number={3}>
-      <div style={{ marginTop: 22 }}>
-        <div style={{ color: C.gold, fontWeight: 500, fontSize: 13, marginBottom: 6 }}>הצעת מחיר · {civDate(r.generatedAt)}</div>
-        <SectionTitle sub="מעכשיו, טלפון וקישור לאתר מוצגים בדף התוצאות רק למוסדות עם כרטיס מורחב.">
-          כרטיס מורחב ל{yeshiva.name}
+      <div style={{ marginTop: 14 }}>
+        <SectionTitle sub="שלוש דרכים להגיע לתלמידים בדיוק כשהם בוחרים איפה ללמוד בשנה הבאה.">
+          איך בולטים בשבושון
         </SectionTitle>
-        <p style={{ margin: '0 0 16px', fontSize: 15, maxWidth: 640 }}>
-          {paidUntil
-            ? <>הכרטיס המורחב של {yeshiva.name} בתוקף עד {dayDate(paidUntil)}. כך הוא נראה לתלמידים, ואלה המחירים לחידוש.</>
-            : <>תלמידים כבר מקבלים את {yeshiva.name} בתוצאות. בכרטיס המורחב אתם מודגשים, עם טלפון או ווצאפ ישיר לאחראי השבושים וקישור לאתר, והתלמיד פונה אליכם בלחיצה אחת, כל עוד הוא מתלהב.</>}
-        </p>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 22 }}>
-          <div>
-            <div style={{ fontSize: 12, color: LOSS, fontWeight: 700, marginBottom: 6 }}>כרטיס רגיל: התלמיד רואה אתכם וממשיך הלאה</div>
-            <CardMock name={yeshiva.name} />
-          </div>
-          <div>
-            <div style={{ fontSize: 12, color: C.gold, fontWeight: 700, marginBottom: 6 }}>כרטיס מורחב: התלמיד פונה אליכם</div>
-            <CardMock name={yeshiva.name} featured />
-          </div>
+      </div>
+
+      <div>
+        <Option letter="א" title="כרטיס מורחב בדף התוצאות">
+          {paidUntil ? <>הכרטיס המורחב של {yeshiva.name} בתוקף עד {dayDate(paidUntil)}. </> : null}
+          טלפון וקישור לאתר מוצגים בתוצאות רק למוסדות עם כרטיס מורחב. הכרטיס מודגש, עם ווצאפ ישיר לאחראי הישיבה וקישור לאתר,
+          {' '}והתלמיד פונה אליכם בלחיצה אחת, כל עוד הוא מתלהב.
+        </Option>
+        <div style={{ display: 'grid', gridTemplateColumns: '92px minmax(0, 1fr)', gap: '8px 14px', alignItems: 'center', marginTop: 10 }}>
+          <div style={{ fontSize: 12.5, color: C.muted, fontWeight: 700 }}>כרטיס רגיל</div>
+          <CardMock name={yeshiva.name} meta={meta} />
+          <div style={{ fontSize: 12.5, color: C.gold, fontWeight: 700 }}>כרטיס מורחב</div>
+          <div style={{ paddingTop: 8 }}><CardMock name={yeshiva.name} meta={meta} featured /></div>
         </div>
         {!paidUntil && <MissedCallout name={yeshiva.name} />}
       </div>
 
-      <div style={{ marginTop: 20 }}>
-        <div style={{ borderBottom: `1px solid ${C.ink}`, paddingBottom: 8 }}>
-          <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 21, color: C.ink }}>המחירים</div>
-        </div>
-        <PriceRow title="כרטיס מורחב לרבעון" desc="שלושה חודשים בדף התוצאות" price={tier.quarter} unit="לשלושה חודשים" />
-        <PriceRow title="כרטיס מורחב לשנה" desc={`שנה שלמה, במקום ${ils(tier.quarter * 4)} בארבעה רבעונים`} price={tier.year} unit="לשנה" />
-        <PriceRow title="חבילה: כרטיס מורחב לשנה + באנר לחודש" desc="שנה של כרטיס מורחב, ועוד חודש שלם שבו המוסד מוצג בראש דף התוצאות של כל התלמידים" price={tier.bundle} unit="לשנה, כולל חודש באנר" strong />
-      </div>
-
-      <div style={{ marginTop: 18, background: C.sand, padding: '14px 20px', borderRight: `4px solid ${C.gold}` }}>
-        <div style={{ fontWeight: 700, color: C.ink, fontSize: 15, marginBottom: 4 }}>הבאנר בראש דף התוצאות</div>
-        <div style={{ fontSize: 14, lineHeight: 1.65 }}>
-          הבאנר שמור למוסד אחד בכל פעם, לחודש שלם, וכל תלמיד שמסיים את השאלון רואה אותו.
-          {' '}{banner?.current
-            ? (holdsBanner
-              ? <>{yeshiva.name} מוצגת בו כרגע, עד {dayDate(banner.current.end)}.</>
-              : <>כרגע הוא תפוס עד {dayDate(banner.current.end)}.</>)
-            : <>כרגע הוא פנוי.</>}
-          {' '}המועד הקרוב לשריון חדש: <strong style={{ color: C.ink }}>{dayDate(banner?.nextFree || today)}</strong>.
-          {' '}השריונים נכנסים לפי סדר ההרשמה.
-        </div>
-      </div>
-
-      <div style={{ marginTop: 18, borderTop: `3px solid ${C.espresso}`, paddingTop: 14, display: 'grid', gridTemplateColumns: '1fr auto', gap: 30, alignItems: 'end' }}>
+      <div style={{ marginTop: 14, borderTop: `1px solid ${C.ink}`, paddingTop: 14, display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: 22, alignItems: 'start' }}>
         <div>
-          <div style={{ fontSize: 15, lineHeight: 1.7, whiteSpace: 'pre-line' }}>
-            {note?.trim() || `נשמח לשמוע מכם ולענות על כל שאלה, גם אם רק רוצים לשמוע עוד.`}
+          <Option letter="ב" title="באנר בזמן השאלון">
+            באנר בתחתית המסך בזמן שהתלמיד עונה. לכל אחת מ־12 השאלות יש באנר משלה,
+            {' '}כך שהתלמיד רואה אתכם בדיוק כשהוא חושב על מה שחשוב לו.
+          </Option>
+          <div style={{ height: 18 }} />
+          <Option letter="ג" title="באנר ראשי בדף הבית">
+            הבאנר הבולט ביותר באתר, בדף הבית. <strong style={{ color: C.ink }}>100% חשיפה</strong>: כל מי שנכנס לשבושון רואה אותו. מוסד אחד בכל פעם.
+            {' '}{holdsBanner
+              ? <>{yeshiva.name} מוצגת בו כרגע, עד {dayDate(banner.current.end)}.</>
+              : bannerTaken
+                ? <>המועד הקרוב לשריון: <strong style={{ color: C.ink }}>{dayDate(banner.nextFree)}</strong>.</>
+                : <>כרגע הוא פנוי, ואפשר להתחיל מיד.</>}
+          </Option>
+          <div style={{ marginTop: 14, marginInlineStart: 30, fontSize: 12.5, color: C.muted }}>רוב התלמידים נכנסים מהטלפון, וכך זה נראה אצלם.</div>
+        </div>
+        <div style={{ display: 'flex', gap: 14 }}>
+          <QuestionPhone name={yeshiva.name} />
+          <HomePhone name={yeshiva.name} kind={yeshiva.type === 'mechina' ? 'למכינה' : 'לישיבה'} meta={meta} />
+        </div>
+      </div>
+
+      <div style={{ marginTop: 'auto', borderTop: `3px solid ${C.espresso}`, paddingTop: 12, paddingBottom: 12, display: 'grid', gridTemplateColumns: '1fr auto', gap: 30, alignItems: 'end' }}>
+        <div>
+          <div style={{ fontSize: 14.5, lineHeight: 1.65, whiteSpace: 'pre-line' }}>
+            {note?.trim() || 'נשמח לשמוע מכם ולענות על כל שאלה.'}
           </div>
-          <div style={{ marginTop: 10, display: 'flex', gap: 22, flexWrap: 'wrap', fontSize: 13.5, color: C.ink }}>
+          <div style={{ marginTop: 8, display: 'flex', gap: 22, flexWrap: 'wrap', fontSize: 13.5, color: C.ink }}>
             {phone && <span>טלפון: <strong dir="ltr">{phone}</strong></span>}
             <span>מייל: <strong dir="ltr">shvushon@gmail.com</strong></span>
             <span>אתר: <strong dir="ltr">www.shvushon.com</strong></span>

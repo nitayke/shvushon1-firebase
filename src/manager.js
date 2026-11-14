@@ -249,6 +249,12 @@ export const getManagerContactsDB = async () => {
   return Object.fromEntries(snap.docs.map(d => [d.id, d.data()]));
 };
 
+// One yeshiva's contact (for the home-page banner), or null.
+export const getManagerContactDB = async (yeshivaId) => {
+  const snap = await getDoc(doc(getDb(), "manager_contacts", String(yeshivaId)));
+  return snap.exists() ? snap.data() : null;
+};
+
 // Contact links for the public calendar
 export const phoneDigits = (phone) => String(phone || '').replace(/\D/g, '');
 export const telUrl = (phone) => `tel:${phoneDigits(phone)}`;

@@ -4,7 +4,6 @@ import { getYeshivaReportDB } from '../firebase';
 import { ReportPageOne, ReportPageTwo, ReportPageThree, reportFacts, PAGE_W, PAGE_H } from './YeshivaReport';
 import { REPORT_MIN_RECIPIENTS } from '../yeshivaReport';
 import { saveReportPdf } from '../reportPdf';
-import { PRICE_TIERS } from '../listing';
 
 const dayLabel = (key) => new Date(`${key}T12:00:00`).toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric', year: 'numeric' });
 
@@ -26,7 +25,6 @@ export default function YeshivaReportModal({ yeshiva, onClose, initialReport = n
   const [sender, setSender] = useState(() => readSender().sender ?? DEFAULT_SENDER);
   const [phone, setPhone] = useState(() => readSender().phone ?? DEFAULT_PHONE);
   const [scale, setScale] = useState(0.6);
-  const [tierId, setTierId] = useState(''); // '' = by the monthly exposure
   const pageOne = useRef(null);
   const pageTwo = useRef(null);
   const pageThree = useRef(null);
@@ -63,7 +61,7 @@ export default function YeshivaReportModal({ yeshiva, onClose, initialReport = n
     try {
       const date = new Date().toISOString().slice(0, 10);
       const safeName = yeshiva.name.replace(/[\\/:*?"<>|]/g, '').trim();
-      await saveReportPdf([pageOne.current, pageTwo.current, pageThree.current], `שבושון - ${safeName} - ${date}.pdf`, `שבושון · דו"ח חשיפה והצעת מחיר · ${yeshiva.name}`);
+      await saveReportPdf([pageOne.current, pageTwo.current, pageThree.current], `שבושון - ${safeName} - ${date}.pdf`, `שבושון · דו"ח חשיפה · ${yeshiva.name}`);
     } catch (err) {
       console.error('PDF export failed:', err);
       setError('שגיאה ביצירת קובץ ה-PDF.');
@@ -72,14 +70,13 @@ export default function YeshivaReportModal({ yeshiva, onClose, initialReport = n
     }
   };
 
-  const tier = facts ? (PRICE_TIERS.find(t => t.id === tierId) || facts.tier) : null;
-  const pageProps = { r: report, f: facts, recipient: recipient.trim(), note, sender, phone: phone.trim(), tierId: tier?.id };
+  const pageProps = { r: report, f: facts, recipient: recipient.trim(), note, sender, phone: phone.trim() };
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
       <div className="glass-card" style={{ maxWidth: 1100, width: '100%', maxHeight: '94vh', overflowY: 'auto', background: '#ffffff', border: '1px solid #e2d9c8', marginBottom: 0 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-          <h2 style={{ fontSize: '1.3rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>דו"ח חשיפה והצעת מחיר – {yeshiva.name}</h2>
+          <h2 style={{ fontSize: '1.3rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>דו"ח חשיפה – {yeshiva.name}</h2>
           <button type="button" className="btn-secondary" onClick={onClose} style={{ padding: '0.4rem 0.6rem' }} aria-label="סגור">
             <X style={{ width: 16, height: 16 }} />
           </button>
@@ -104,16 +101,6 @@ export default function YeshivaReportModal({ yeshiva, onClose, initialReport = n
                 {' '}(במסמך לא מופיע שם המוסד שבבאנר, רק עד מתי הוא תפוס.)
               </div>
               <div>
-                <label style={label}>מדרגת מחיר</label>
-                <select className="input-field" style={{ marginBottom: 0 }} value={tierId} onChange={e => setTierId(e.target.value)}>
-                  <option value="">לפי החשיפה ({report.own.top3} בטופ 3): {facts.tier.label}</option>
-                  {PRICE_TIERS.map(t => <option key={t.id} value={t.id}>{t.label}: {t.quarter} / {t.year} / {t.bundle} ₪</option>)}
-                </select>
-                <div style={{ fontSize: '0.78rem', color: '#6b7280', marginTop: 4 }}>
-                  רבעון {tier.quarter} ₪ · שנה {tier.year} ₪ · שנה + באנר לחודש {tier.bundle} ₪
-                </div>
-              </div>
-              <div>
                 <label style={label}>לכבוד (לא חובה)</label>
                 <input className="input-field" style={{ marginBottom: 0 }} value={recipient} onChange={e => setRecipient(e.target.value)} placeholder="למשל: הרב ישראל ישראלי, ראש הישיבה" />
               </div>
@@ -126,7 +113,7 @@ export default function YeshivaReportModal({ yeshiva, onClose, initialReport = n
                 <input className="input-field" style={{ marginBottom: 0 }} dir="ltr" value={phone} onChange={e => setPhone(e.target.value)} />
               </div>
               <div>
-                <label style={label}>מילים אחרונות בעמוד ההצעה (ריק = נוסח ברירת המחדל)</label>
+                <label style={label}>מילים אחרונות בעמוד האחרון (ריק = נוסח ברירת המחדל)</label>
                 <textarea className="input-field" style={{ marginBottom: 0, minHeight: 110, resize: 'vertical' }} value={note} onChange={e => setNote(e.target.value)} placeholder="למשל: למי שסוגר עד סוף החודש..." />
               </div>
               <button type="button" className="btn-primary" onClick={handleDownload} disabled={saving}>

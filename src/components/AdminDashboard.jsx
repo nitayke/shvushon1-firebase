@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { ShieldCheck, Plus, Check, RefreshCw, Trash2, Edit3, LogOut, Inbox, Users, Database, TrendingUp, Link2, Copy, UserCheck, FileText, Megaphone, Star } from 'lucide-react';
+import { ShieldCheck, Plus, Check, RefreshCw, Trash2, Edit3, LogOut, Inbox, Users, Database, TrendingUp, Link2, Copy, UserCheck, FileText, Megaphone, Star, Download } from 'lucide-react';
 import { 
   getYeshivotDB, 
   getYeshivaRequestsDB, 
@@ -19,6 +19,7 @@ import { bannerStatus, nextBannerBooking, hasPaidListing, todayKey } from '../li
 const AnalyticsTab = lazy(() => import('./AnalyticsTab'));
 // The report modal pulls in the PDF libraries, so it is loaded on demand too
 const YeshivaReportModal = lazy(() => import('./YeshivaReportModal'));
+const PriceListModal = lazy(() => import('./PriceListModal'));
 
 const formatDay = (key) => key ? new Date(`${key}T12:00:00`).toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric', year: 'numeric' }) : '';
 
@@ -39,6 +40,7 @@ export default function AdminDashboard({ onExitAdmin }) {
   const [inviteResult, setInviteResult] = useState(null); // { yeshivaName, url }
   const [onlyWithManager, setOnlyWithManager] = useState(false);
   const [reportYeshiva, setReportYeshiva] = useState(null);
+  const [priceListOpen, setPriceListOpen] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
@@ -522,7 +524,11 @@ export default function AdminDashboard({ onExitAdmin }) {
               <div style={{ background: '#f8f4ec', border: '1px solid #e2d9c8', borderRadius: 10, padding: '0.9rem 1rem', marginBottom: '1.2rem', fontSize: '0.9rem', color: '#374151', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, color: '#52341d' }}>
                   <Megaphone style={{ width: 16, height: 16 }} />
-                  באנר בדף התוצאות
+                  באנר ראשי בתחתית דף הבית
+                  <button type="button" onClick={() => setPriceListOpen(true)} className="btn-secondary" style={{ marginInlineStart: 'auto', padding: '0.3rem 0.7rem', fontSize: '0.82rem' }}>
+                    <Download style={{ width: 14, height: 14 }} />
+                    מחירון PDF
+                  </button>
                 </div>
                 <div>
                   {banner.current
@@ -646,6 +652,12 @@ export default function AdminDashboard({ onExitAdmin }) {
         </Suspense>
       )}
 
+      {priceListOpen && (
+        <Suspense fallback={null}>
+          <PriceListModal onClose={() => setPriceListOpen(false)} />
+        </Suspense>
+      )}
+
       {/* ONE-TIME MANAGER INVITE LINK */}
       {inviteResult && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
@@ -743,6 +755,19 @@ export default function AdminDashboard({ onExitAdmin }) {
                     onChange={(e) => setEditingYeshiva({ ...editingYeshiva, website: e.target.value.trim() })}
                     placeholder="www.example.co.il"
                   />
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.3rem', color: '#111827' }}>כותרת לבאנר בדף הבית (לא חובה)</label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    style={{ marginBottom: 0 }}
+                    maxLength={60}
+                    value={editingYeshiva.banner_text || ''}
+                    onChange={(e) => setEditingYeshiva({ ...editingYeshiva, banner_text: e.target.value })}
+                    placeholder="למשל: בואו לישיבה חמה ומשפחתית"
+                  />
+                  <div style={{ fontSize: '0.78rem', color: '#6b7280', marginTop: 4 }}>מוצגת מעל שם המוסד כשהוא בבאנר</div>
                 </div>
               </div>
 

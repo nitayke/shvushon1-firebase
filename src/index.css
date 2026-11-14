@@ -599,24 +599,29 @@ button:active, .chip-card:active { transform: scale(0.98); }
 .yeshiva-result-card.featured h3 { color: var(--primary-accent) !important; }
 .result-contact-row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
 .result-contact-row .btn-secondary { text-decoration: none; padding: 0.35rem 0.8rem; font-size: 0.88rem; min-height: 38px; }
-/* The monthly banner at the top of the results list */
-.results-banner {
-  background: var(--primary-accent);
-  color: #f4eee3;
+/* The paid main banner at the bottom of the home page (art behind, text on the right) */
+.home-banner {
+  position: relative;
+  overflow: hidden;
   border-radius: var(--radius-md);
-  padding: 1rem 1.2rem;
-  margin-bottom: 1.1rem;
+  margin-top: 1rem;
+  min-height: 190px;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.8rem;
-  border-right: 5px solid var(--gold-accent);
+  align-items: flex-end;
+  box-shadow: 0 10px 26px rgba(28, 20, 16, 0.28);
+  border: 1px solid rgba(230, 196, 143, 0.45);
 }
-.results-banner .banner-kicker { font-size: 0.78rem; color: #e6c48f; font-weight: 600; letter-spacing: 0.02em; }
-.results-banner .banner-name { font-family: var(--font-display); font-size: 1.35rem; font-weight: 800; color: #fff; margin: 0.1rem 0 0.15rem; }
-.results-banner .banner-meta { font-size: 0.85rem; color: #e6dac5; }
-.results-banner .btn-secondary { background: #fff; color: var(--primary-accent); text-decoration: none; padding: 0.4rem 0.9rem; min-height: 40px; }
+.home-banner-body { position: relative; padding: 1.2rem 1.3rem 1.1rem; max-width: 34rem; color: #f4eee3; }
+.home-banner-kicker { font-size: 0.95rem; font-weight: 700; color: #f0c97e; }
+.home-banner-name { font-family: var(--font-display); font-size: 1.7rem; font-weight: 900; line-height: 1.2; color: #fff; margin: 0.1rem 0 0.15rem; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35); }
+.home-banner-meta { font-size: 0.88rem; color: #e6dac5; }
+.home-banner-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; }
+.home-banner-btn {
+  display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none;
+  min-height: 42px; padding: 0.45rem 1rem; border-radius: 12px; font-weight: 700; font-size: 0.95rem;
+  color: #fff; border: 1.5px solid rgba(244, 238, 227, 0.6); background: rgba(36, 21, 11, 0.35);
+}
+.home-banner-btn.primary { background: #e6c48f; border-color: #e6c48f; color: #3e2614; }
 .tag {
   display: inline-block;
   padding: 0.2rem 0.6rem;
