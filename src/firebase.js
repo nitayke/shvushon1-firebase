@@ -221,7 +221,13 @@ export const getYeshivaReportDB = async (yeshivaId) => {
   const res = await fetch(`/api/yeshiva-report?id=${encodeURIComponent(yeshivaId)}`, {
     headers: { Authorization: `Bearer ${await user.getIdToken()}` }
   });
-  if (!res.ok) throw new Error(`Report request failed (${res.status})`);
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    const err = new Error(`Report request failed (${res.status})`);
+    err.status = res.status;
+    err.code = body.code || body.error || '';
+    throw err;
+  }
   return res.json();
 };
 

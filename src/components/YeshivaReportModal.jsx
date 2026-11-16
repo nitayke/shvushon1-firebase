@@ -14,6 +14,22 @@ const readSender = () => {
   try { return JSON.parse(localStorage.getItem(SENDER_KEY) || '{}'); } catch { return {}; }
 };
 
+// Clear Hebrew message per failure type (err.code comes from api/yeshiva-report.js).
+const reportErrorMessage = (err) => {
+  if (!navigator.onLine || err instanceof TypeError) return 'אין חיבור לאינטרנט, או שהשרת לא הגיב. בדוק את החיבור ונסה שוב.';
+  switch (err?.code) {
+    case 'quota_exceeded': return 'מכסת הקריאות היומית של Firestore נוצלה. אפשר לנסות שוב אחרי איפוס המכסה (בערך 10:00 בבוקר שעון ישראל) או לשדרג ל-Blaze.';
+    case 'unauthorized': return 'אין הרשאה: התחבר מחדש כמנהל (הסשן פג או שהחשבון אינו מנהל).';
+    case 'yeshiva_not_found': return 'הישיבה לא נמצאה במסד הנתונים.';
+    case 'missing_id': return 'חסר מזהה ישיבה.';
+    case 'internal_error': return 'שגיאת שרת פנימית בהכנת הדו"ח. פרטים ב-Vercel Logs.';
+    default:
+      if (err?.message === 'Not signed in') return 'לא מחובר. התחבר מחדש כמנהל ונסה שוב.';
+      if (err?.status === 404) return 'נקודת ה-API של הדו"ח לא נמצאה (ייתכן שהיא לא פורסמה, או שהאפליקציה רצה ללא Vercel).';
+      return `שגיאה בטעינת הנתונים לדו"ח${err?.status ? ` (קוד ${err.status})` : ''}.`;
+  }
+};
+
 const label = { display: 'block', fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.25rem', color: '#111827' };
 
 export default function YeshivaReportModal({ yeshiva, onClose, initialReport = null }) {
@@ -35,7 +51,7 @@ export default function YeshivaReportModal({ yeshiva, onClose, initialReport = n
     let cancelled = false;
     getYeshivaReportDB(yeshiva.id)
       .then(r => { if (!cancelled) setReport(r); })
-      .catch(() => { if (!cancelled) setError('שגיאה בטעינת הנתונים לדו"ח.'); });
+      .catch(err => { console.error('Report load failed:', err); if (!cancelled) setError(reportErrorMessage(err)); });
     return () => { cancelled = true; };
   }, [yeshiva.id, initialReport]);
 
@@ -88,6 +104,14 @@ export default function YeshivaReportModal({ yeshiva, onClose, initialReport = n
         {report && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '1.5rem', alignItems: 'start' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+              {report.stale && (
+                <div style={{ background: '#fef3c7', border: '1px solid #f59e0b', borderRadius: 8, padding: '0.8rem', fontSize: '0.85rem', color: '#92400e' }}>
+                  {report.staleReason === 'quota'
+                    ? 'מכסת Firestore נוצלה, ולכן מוצגים נתונים שמורים מהפעם האחרונה (לא עדכניים).'
+                    : 'הרענון נכשל, ולכן מוצגים נתונים שמורים מהפעם האחרונה (לא עדכניים).'}
+                  {' '}נכון ל-{dayLabel(report.generatedAt.slice(0, 10))}.
+                </div>
+              )}
               <div style={{ background: '#f8f4ec', border: '1px solid #e2d9c8', borderRadius: 8, padding: '0.8rem', fontSize: '0.85rem', color: '#374151' }}>
                 {facts.showOwn
                   ? <>ב-30 הימים האחרונים {report.yeshiva.name} יצאה ל-<strong>{report.own.top3.toLocaleString('he-IL')}</strong> תלמידים בטופ 3, ולכן הנתון מוצג במסמך.</>
