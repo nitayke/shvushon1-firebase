@@ -6,6 +6,8 @@ import { getManagerContactsDB, whatsappUrl, telUrl, contactMessage } from '../ma
 import WhatsAppIcon from './WhatsAppIcon';
 import { PARAM_DEFINITIONS, REGION_TRANSLATIONS, TYPE_TRANSLATIONS } from '../knn';
 import AutocompleteYeshivaSelect from './AutocompleteYeshivaSelect';
+import TimeAllocator from './TimeAllocator';
+import { TIME_CATEGORIES, TIME_TOTAL_HOURS, emptyHours, hoursUsed, hoursToTime, timeToHours, isValidTime } from '../timeAllocation';
 import { hasPaidListing, websiteUrl } from '../listing';
 
 const LOCAL_SURVEY_SAVED_KEY = 'shvushon_has_submitted_student_survey';
@@ -31,9 +33,14 @@ export default function ResultsView({ results, userPreferences, yeshivotList, te
   });
 
   // Initialize editable student ratings with user's quiz answers pre-filled
-  const [studentRatings, setStudentRatings] = useState(
-    userPreferences?.ratings || PARAM_DEFINITIONS.reduce((acc, p) => ({ ...acc, [p.id]: 3 }), {})
+  const [studentRatings, setStudentRatings] = useState(() =>
+    PARAM_DEFINITIONS.reduce((acc, p) => ({ ...acc, [p.id]: Number(userPreferences?.ratings?.[p.id]) || 3 }), {})
   );
+  // How time is split in the student's yeshiva, starting from their own questionnaire split
+  const [studentHours, setStudentHours] = useState(() =>
+    isValidTime(userPreferences?.time) ? timeToHours(userPreferences.time) : emptyHours()
+  );
+  const studentTimeComplete = hoursUsed(studentHours) === TIME_TOTAL_HOURS;
 
   // yeshivaId -> { phone, hasWhatsapp } for yeshivot whose manager is registered
   const [managerContacts, setManagerContacts] = useState({});
@@ -62,7 +69,10 @@ export default function ResultsView({ results, userPreferences, yeshivotList, te
 
   const sendAutomaticEmailToAdmin = async (requestData) => {
     const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || "shvushon@gmail.com";
-    const paramsList = PARAM_DEFINITIONS.map(p => `${p.label}: ${requestData.ratings[p.id] || 3}`).join('\n');
+    const paramsList = [
+      ...TIME_CATEGORIES.map(c => `${c.label}: ${requestData.time?.[c.id] ?? '-'}% מהזמן`),
+      ...PARAM_DEFINITIONS.map(p => `${p.label}: ${requestData.ratings[p.id] || 3}`)
+    ].join('\n');
 
     const emailPayload = {
       to: adminEmail,
@@ -93,7 +103,8 @@ export default function ResultsView({ results, userPreferences, yeshivotList, te
   const handleStudentSubmit = async (e) => {
     e.preventDefault();
     const finalYeshivaName = selectedYeshivaName === 'other' ? customYeshivaInput.trim() : selectedYeshivaName;
-    if (!finalYeshivaName) return;
+    if (!finalYeshivaName || !studentTimeComplete) return;
+    const studentTime = hoursToTime(studentHours);
 
     setIsSubmitting(true);
     try {
@@ -109,6 +120,7 @@ export default function ResultsView({ results, userPreferences, yeshivotList, te
           type: userPreferences.type,
           region: userPreferences.region,
           ratings: studentRatings,
+          time: studentTime,
           submitter_email: '',
           notes: 'הוגש ע"י תלמיד כיום בשאלון התאמה'
         };
@@ -123,7 +135,8 @@ export default function ResultsView({ results, userPreferences, yeshivotList, te
           reflects_yeshiva: reflectsYeshiva,
           region: userPreferences.region,
           type: userPreferences.type,
-          ratings: studentRatings
+          ratings: studentRatings,
+          time: studentTime
         });
         setIsNewYeshivaRequest(false);
         localStorage.removeItem(LOCAL_SURVEY_SAVED_KEY + '_is_new_req');
@@ -321,11 +334,23 @@ export default function ResultsView({ results, userPreferences, yeshivotList, te
                   </div>
                 )}
 
-                {/* COMPACT SINGLE-PAGE 11 PARAMETERS EDITOR FOR CURRENT STUDENTS */}
+                {/* How the time is split in the student's yeshiva */}
+                <div style={{ background: '#f8f4ec', padding: '1rem', borderRadius: 12, marginBottom: '1rem', border: '1px solid #e2d9c8' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem', fontWeight: 700, color: '#52341d', marginBottom: '0.3rem' }}>
+                    <Edit2 style={{ width: 16, height: 16 }} />
+                    איך מתחלק הזמן אצלכם בפועל?
+                  </div>
+                  <div style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '0.8rem' }}>
+                    מתוך {TIME_TOTAL_HOURS} שעות בשבוע, כמה מוקדש בישיבה/מכינה שלך לכל תחום? מילאנו לפי מה שענית בשאלון, עדכן לפי המציאות.
+                  </div>
+                  <TimeAllocator value={studentHours} onChange={setStudentHours} compact />
+                </div>
+
+                {/* The 1-5 parameters for the student's yeshiva */}
                 <div style={{ background: '#f8f4ec', padding: '1rem', borderRadius: 12, marginBottom: '1.2rem', border: '1px solid #e2d9c8' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem', fontWeight: 700, color: '#52341d', marginBottom: '0.8rem' }}>
                     <Edit2 style={{ width: 16, height: 16 }} />
-                    דייק את 11 הפרמטרים עבור הישיבה/מכינה שלך (הכול במסך אחד):
+                    ודרג עוד כמה מאפיינים של הישיבה/מכינה שלך (1-5):
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '0.75rem' }}>
@@ -365,12 +390,12 @@ export default function ResultsView({ results, userPreferences, yeshivotList, te
 
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !studentTimeComplete}
                   className="btn-gold"
                   style={{ width: '100%', justifyContent: 'center' }}
                 >
                   <Save style={{ width: 18, height: 18 }} />
-                  {isSubmitting ? 'שומר במאגר...' : 'שמור תשובות במאגר'}
+                  {isSubmitting ? 'שומר במאגר...' : studentTimeComplete ? 'שמור תשובות במאגר' : `נשארו ${TIME_TOTAL_HOURS - hoursUsed(studentHours)} שעות לחלק`}
                 </button>
               </form>
             )}

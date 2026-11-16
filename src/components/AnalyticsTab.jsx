@@ -3,6 +3,7 @@ import { Search, ArrowDownUp } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { getAnalyticsSummaryDB, getYeshivotDB } from '../firebase';
 import { PARAM_DEFINITIONS, REGION_TRANSLATIONS } from '../knn';
+import { TIME_CATEGORIES } from '../timeAllocation';
 
 const CACHE_KEY = 'shvushon_analytics_cache_v2';
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#a855f7'];
@@ -166,6 +167,27 @@ export default function AnalyticsTab({ refreshTick }) {
           </table>
         </div>
       </div>
+
+      {stats.timeCount > 0 && (
+        <div className="glass-card" style={{ marginBottom: 0 }}>
+          <h3 style={cardTitle}>איך התלמידים מחלקים את הזמן (ממוצע של {stats.timeCount.toLocaleString('he-IL')} שאלונים)</h3>
+          <div className="ta-day" style={{ height: 40 }}>
+            {TIME_CATEGORIES.map(c => (stats.timeAverages?.[c.id] || 0) > 0 && (
+              <div key={c.id} className="ta-day-seg" style={{ flexGrow: stats.timeAverages[c.id], background: c.color }}>
+                <span>{Math.round(stats.timeAverages[c.id])}%</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem 1rem', marginTop: '0.7rem', fontSize: '0.88rem' }}>
+            {TIME_CATEGORIES.map(c => (
+              <span key={c.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <i style={{ width: 12, height: 12, borderRadius: 3, background: c.color, display: 'inline-block' }} />
+                {c.label}: <strong>{stats.timeAverages?.[c.id] ?? 0}%</strong>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))', gap: '1.5rem' }}>
         <div className="glass-card" style={{ marginBottom: 0 }}>

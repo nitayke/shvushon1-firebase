@@ -14,6 +14,8 @@ import {
 import { PARAM_DEFINITIONS, REGIONS, YESHIVA_TYPES, REGION_TRANSLATIONS, TYPE_TRANSLATIONS } from '../knn';
 import { createManagerInviteDB, getManagersDB } from '../manager';
 import CustomSelect from './CustomSelect';
+import TimeAllocator from './TimeAllocator';
+import { TIME_CATEGORIES, TIME_TOTAL_HOURS, hoursUsed, hoursToTime, timeToHours, isValidTime, emptyHours } from '../timeAllocation';
 import { bannerStatus, nextBannerBooking, hasPaidListing, todayKey } from '../listing';
 // Charts (recharts) are heavy: load them only when the analytics tab is opened
 const AnalyticsTab = lazy(() => import('./AnalyticsTab'));
@@ -27,6 +29,15 @@ const formatDateTime = (iso) => {
   const d = iso ? new Date(iso) : null;
   return d && !isNaN(d) ? d.toLocaleString('he-IL', { dateStyle: 'short', timeStyle: 'short' }) : 'לא ידוע';
 };
+
+// One-line view of a stored time split (requests and student reports).
+const TimeSummary = ({ time }) => (
+  <div style={{ fontSize: '0.82rem', color: '#374151', marginBottom: '0.4rem' }}>
+    חלוקת זמן: {isValidTime(time)
+      ? <strong>{TIME_CATEGORIES.map(c => `${c.label} ${time[c.id]}%`).join(' · ')}</strong>
+      : <span style={{ color: '#9ca3af' }}>לא צוינה</span>}
+  </div>
+);
 
 export default function AdminDashboard({ onExitAdmin }) {
 
@@ -48,6 +59,10 @@ export default function AdminDashboard({ onExitAdmin }) {
 
   // Editing state for yeshivot
   const [editingYeshiva, setEditingYeshiva] = useState(null);
+  // Hours in the time-split editor; null until the admin touches it (so the stored percents are kept exactly)
+  const [editingHours, setEditingHours] = useState(null);
+  const editingYeshivaId = editingYeshiva?.id;
+  useEffect(() => { setEditingHours(null); }, [editingYeshivaId]);
 
   const loadActiveTabData = async (tabToLoad = activeTab, force = false) => {
     setLoading(true);
@@ -154,6 +169,7 @@ export default function AdminDashboard({ onExitAdmin }) {
     if (!editingYeshiva.name) return;
     if (!editingYeshiva.type) return alert('אנא בחר סוג מוסד כדי להמשיך.');
     if (!editingYeshiva.region || editingYeshiva.region === 'all') return alert('אנא בחר אזור גאוגרפי כדי להמשיך.');
+    if (!isValidTime(editingYeshiva.time)) return alert(`אנא חלק את כל ${TIME_TOTAL_HOURS} השעות בין התחומים כדי להמשיך.`);
 
     setLoading(true);
     try {
@@ -354,6 +370,7 @@ export default function AdminDashboard({ onExitAdmin }) {
                     <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#52341d', marginBottom: 4 }}>
                       פרמטרים שהציע המשתמש עבור הישיבה/מכינה:
                     </div>
+                    <TimeSummary time={req.time} />
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.4rem', fontSize: '0.8rem' }}>
                       {PARAM_DEFINITIONS.map(p => (
                         <div key={p.id} style={{ color: '#374151' }}>
@@ -466,6 +483,7 @@ export default function AdminDashboard({ onExitAdmin }) {
 
                   {sub.ratings && (
                     <div style={{ marginTop: '0.8rem', background: '#f8f4ec', padding: '0.8rem', borderRadius: 8, border: '1px solid #e2d9c8' }}>
+                      <TimeSummary time={sub.time} />
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.4rem', fontSize: '0.82rem' }}>
                         {PARAM_DEFINITIONS.map(p => (
                           <div key={p.id} style={{ color: '#374151' }}>
@@ -507,6 +525,7 @@ export default function AdminDashboard({ onExitAdmin }) {
                 type: '',
                 region: '',
                 ratings: PARAM_DEFINITIONS.reduce((acc, p) => ({ ...acc, [p.id]: 3 }), {}),
+                time: null,
                 submissions_count: 1,
                 created_at: new Date().toISOString()
               })}
@@ -635,7 +654,7 @@ export default function AdminDashboard({ onExitAdmin }) {
                   </div>
 
                   <div style={{ fontSize: '0.82rem', color: '#cbd5e1', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '0.6rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.3rem' }}>
-                    <div>גמרא: <strong>{y.ratings?.gemara || 3}</strong></div>
+                    <div>גמרא: <strong>{y.time?.gemara ?? '-'}%</strong></div>
                     <div>ליברליות: <strong>{y.ratings?.liberalism || 3}</strong></div>
                     <div>גודל: <strong>{y.ratings?.overall_size || 3}</strong></div>
                     <div>תנאים: <strong>{y.ratings?.conditions || 3}</strong></div>
@@ -784,9 +803,29 @@ export default function AdminDashboard({ onExitAdmin }) {
                 </div>
               </div>
 
-              {/* 11 Parameters Ratings Editors */}
+              {/* Time split editor */}
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.3rem', color: '#52341d' }}>
+                חלוקת הזמן ({TIME_TOTAL_HOURS} שעות בשבוע):
+              </h3>
+              <div style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '0.6rem' }}>
+                {isValidTime(editingYeshiva.time)
+                  ? <>כרגע במאגר: {TIME_CATEGORIES.map(c => `${c.label} ${editingYeshiva.time[c.id]}%`).join(' · ')}. נשמר בדיוק כמו שהוא, אלא אם תשנה כאן.</>
+                  : 'חלק את כל השעות בין התחומים.'}
+              </div>
+              <div style={{ marginBottom: '1.5rem' }}>
+                <TimeAllocator
+                  compact
+                  value={editingHours ?? (isValidTime(editingYeshiva.time) ? timeToHours(editingYeshiva.time) : emptyHours())}
+                  onChange={(h) => {
+                    setEditingHours(h);
+                    setEditingYeshiva({ ...editingYeshiva, time: hoursUsed(h) === TIME_TOTAL_HOURS ? hoursToTime(h) : null });
+                  }}
+                />
+              </div>
+
+              {/* 1-5 Parameters Ratings Editors */}
               <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.8rem', color: '#52341d' }}>
-                דירוגי 11 הפרמטרים במאגר (1 עד 5):
+                דירוגי שאר הפרמטרים במאגר (1 עד 5):
               </h3>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.8rem', marginBottom: '1.5rem' }}>

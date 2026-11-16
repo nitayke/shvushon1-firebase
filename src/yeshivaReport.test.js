@@ -15,9 +15,9 @@ const result = (ids, extra = {}) => ({
 
 test('counts appearances, first places, score, clicks and filters for the yeshiva', () => {
   const results = [
-    result(['y_1', 'y_2'], { contact_clicks: ['y_1'], preferences: { region: ['north'], type: 'gvoha', ratings: { gemara: 5, social: null }, ignoreParams: {} } }),
+    result(['y_1', 'y_2'], { contact_clicks: ['y_1'], preferences: { region: ['north'], type: 'gvoha', ratings: { rav_kook: 5, gemara: 4, chassidut: null }, ignoreParams: {} } }),
     result(['y_2', 'y_1']),
-    result(['y_2', 'y_3'], { preferences: { region: 'all', type: 'mechina', ratings: { gemara: 1 } } }),
+    result(['y_2', 'y_3'], { preferences: { region: 'all', type: 'mechina', ratings: { rav_kook: 1 } } }),
     result(['y_1'], { created_at: daysAgo(40) }) // outside the window
   ];
   const r = buildYeshivaReport({ yeshiva, yeshivot, results, now });
@@ -26,13 +26,13 @@ test('counts appearances, first places, score, clicks and filters for the yeshiv
   assert.equal(r.site.regionInterest, 1);
   assert.equal(r.site.typeInterest, 1);
   assert.equal(r.site.clickers, 1);
-  assert.deepEqual(r.site.paramAverages, { gemara: 3 });
+  assert.deepEqual(r.site.paramAverages, { rav_kook: 3 }); // gemara is no longer a 1-5 question
   assert.equal(r.own.top3, 2);
   assert.equal(r.own.first, 1);
   assert.equal(r.own.avgScore, 75);
   assert.equal(r.own.clicks, 1);
   assert.equal(r.own.rank, 2); // ב appears 3 times
-  assert.deepEqual(r.own.paramAverages, { gemara: 5 });
+  assert.deepEqual(r.own.paramAverages, { rav_kook: 5 });
   assert.equal(r.own.daily.reduce((a, b) => a + b, 0), 2);
 });
 

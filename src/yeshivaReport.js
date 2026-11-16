@@ -1,6 +1,10 @@
 // Per-yeshiva exposure report (the PDF the admin sends to a yeshiva). Pure computation over the raw
 // all_test_results of the last REPORT_WINDOW_DAYS days, so the server function and tests share it.
 import { bannerStatus, todayKey } from './listing.js';
+import { PARAM_DEFINITIONS } from './knn.js';
+
+// Only the current 1-5 questions (older results also hold answers to questions replaced by the time split).
+const PARAM_IDS = new Set(PARAM_DEFINITIONS.map(p => p.id));
 
 export const REPORT_WINDOW_DAYS = 30;
 // The yeshiva's own exposure numbers are printed only above this many recipients in the window.
@@ -23,7 +27,7 @@ const typeFilterIds = (type) => (type === 'hesder_gvoha' ? ['hesder', 'gvoha'] :
 
 const addRatings = (totals, counts, prefs) => {
   Object.entries(prefs?.ratings || {}).forEach(([id, val]) => {
-    if (val == null || prefs?.ignoreParams?.[id]) return;
+    if (val == null || prefs?.ignoreParams?.[id] || !PARAM_IDS.has(id)) return;
     totals[id] = (totals[id] || 0) + Number(val);
     counts[id] = (counts[id] || 0) + 1;
   });

@@ -1,5 +1,7 @@
 // Aggregation of all_test_results documents. The aggregate is additive (plain sums), so the server
 // can fold new documents into a stored aggregate instead of re-reading every result on each load.
+import { TIME_IDS, isValidTime } from './timeAllocation.js';
+
 const IGNORED_NAMES = new Set(['לא ידוע', 'N/A']);
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -16,6 +18,8 @@ export const createAggregate = () => ({
   yeshivot: {}, // name -> { first, top3, clicks }
   paramTotals: {},
   paramCounts: {},
+  timeTotals: {}, // category -> sum of percents (tests with a time split only)
+  timeCount: 0,
   regionCounts: {},
   daily: {} // 'YYYY-MM-DD' (UTC) -> number of tests
 });
@@ -57,6 +61,12 @@ export const addResult = (agg, res) => {
     });
   }
 
+  const time = res.preferences?.time;
+  if (isValidTime(time)) {
+    agg.timeCount++;
+    TIME_IDS.forEach(id => { agg.timeTotals[id] = (agg.timeTotals[id] || 0) + Number(time[id]); });
+  }
+
   // region is 'all', a single id (old records) or a list of ids (multi-select)
   const rawRegion = res.preferences?.region;
   const regionList = Array.isArray(rawRegion) && rawRegion.length > 0 ? rawRegion : [rawRegion || 'all'];
@@ -77,6 +87,8 @@ export const mergeAggregates = (a, b) => {
     out.clickers += src.clickers || 0;
     sumInto(out.paramTotals, src.paramTotals);
     sumInto(out.paramCounts, src.paramCounts);
+    sumInto(out.timeTotals, src.timeTotals);
+    out.timeCount += src.timeCount || 0;
     sumInto(out.regionCounts, src.regionCounts);
     sumInto(out.daily, src.daily);
     Object.entries(src.yeshivot || {}).forEach(([name, y]) => {
@@ -99,12 +111,21 @@ export const summarize = (agg, now = Date.now()) => {
     paramAverages[id] = Number((agg.paramTotals[id] / agg.paramCounts[id]).toFixed(1));
   });
 
+  const timeAverages = {};
+  if (agg.timeCount > 0) {
+    Object.keys(agg.timeTotals).forEach(id => {
+      timeAverages[id] = Number((agg.timeTotals[id] / agg.timeCount).toFixed(1));
+    });
+  }
+
   return {
     total: agg.total,
     last7,
     clickers: agg.clickers,
     yeshivot: Object.entries(agg.yeshivot).map(([name, y]) => ({ name, ...y })),
     paramAverages,
+    timeAverages,
+    timeCount: agg.timeCount,
     regionCounts: agg.regionCounts,
     updatedAt: new Date(now).toISOString()
   };

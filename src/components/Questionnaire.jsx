@@ -1,10 +1,15 @@
 import React, { useState, useRef } from 'react';
 import { PARAM_DEFINITIONS, REGIONS, TYPES } from '../knn';
+import { TIME_TOTAL_HOURS, emptyHours, hoursUsed, hoursToTime } from '../timeAllocation';
+import TimeAllocator from './TimeAllocator';
 import { MapPin, GraduationCap, ChevronRight, ChevronLeft, Check, Play } from 'lucide-react';
+
+// Step 0: type & region. Step 1: time split. Then one step per 1-5 parameter.
+const TIME_STEP = 1;
+const FIRST_PARAM_STEP = 2;
 
 export default function Questionnaire({ onStartQuiz, onCalculateMatches, onRequestAddYeshiva, banner = null }) {
   const [isStarted, setIsStarted] = useState(false);
-  // Step 0: Type & Region. Steps 1..11: The 11 parameters. Total 12 steps.
   const [currentStep, setCurrentStep] = useState(0);
 
   // Multi-select; an empty list means "all" (the default)
@@ -17,7 +22,7 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
   };
   const toPreference = (list) => (list.length === 0 ? 'all' : list);
 
-  // Initialize all 11 rating parameters to null (NOTHING SELECTED BY DEFAULT)
+  // Initialize all rating parameters to null (NOTHING SELECTED BY DEFAULT)
   const initialRatings = PARAM_DEFINITIONS.reduce((acc, p) => {
     acc[p.id] = null;
     return acc;
@@ -30,9 +35,19 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
 
   const [ratings, setRatings] = useState(initialRatings);
   const [ignoreParams, setIgnoreParams] = useState(initialIgnoreParams);
+  const [hours, setHours] = useState(emptyHours);
+  const timeComplete = hoursUsed(hours) === TIME_TOTAL_HOURS;
 
-  const totalSteps = PARAM_DEFINITIONS.length + 1; // 12 steps total
+  const totalSteps = PARAM_DEFINITIONS.length + FIRST_PARAM_STEP;
   const timerRef = useRef(null);
+
+  const buildPreferences = (finalRatings, finalIgnore) => ({
+    region: toPreference(regions),
+    type: toPreference(types),
+    ratings: finalRatings,
+    ignoreParams: finalIgnore,
+    time: hoursToTime(hours)
+  });
 
   // Smooth Auto-Advance timer function (400ms delay so user can see selection)
   const triggerAutoAdvance = (updatedRatings = ratings, updatedIgnore = ignoreParams) => {
@@ -43,12 +58,7 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
         setCurrentStep(currentStep + 1);
       } else {
         // Final question completed -> calculate matches!
-        onCalculateMatches({
-          region: toPreference(regions),
-          type: toPreference(types),
-          ratings: updatedRatings,
-          ignoreParams: updatedIgnore
-        });
+        onCalculateMatches(buildPreferences(updatedRatings, updatedIgnore));
       }
     }, 400);
   };
@@ -78,15 +88,11 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
   const handleNext = () => {
     if (timerRef.current) clearTimeout(timerRef.current);
 
+    if (currentStep === TIME_STEP && !timeComplete) return;
     if (currentStep < totalSteps - 1) {
       setCurrentStep(prev => prev + 1);
     } else {
-      onCalculateMatches({
-        region: toPreference(regions),
-        type: toPreference(types),
-        ratings,
-        ignoreParams
-      });
+      onCalculateMatches(buildPreferences(ratings, ignoreParams));
     }
   };
 
@@ -100,7 +106,7 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
     }
   };
 
-  const currentParam = currentStep > 0 ? PARAM_DEFINITIONS[currentStep - 1] : null;
+  const currentParam = currentStep >= FIRST_PARAM_STEP ? PARAM_DEFINITIONS[currentStep - FIRST_PARAM_STEP] : null;
   const progressPercent = currentStep === 0 ? 0 : Math.round((currentStep / (totalSteps - 1)) * 100);
 
   if (!isStarted) {
@@ -109,7 +115,7 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
       <div className="glass-card hero-card fade-in">
         <h1 className="hero-title">ברוכים הבאים ל"שבושון"</h1>
         <p className="hero-lead">
-          שמיניסט יקר! שאלון קצר שיעזור לך לגלות איזו ישיבה או מכינה מתאימה לך באמת. עליך לדרג 11 מאפיינים מ־1 עד 5, לפי מה שחשוב לך.
+          שמיניסט יקר! שאלון קצר שיעזור לך לגלות איזו ישיבה או מכינה מתאימה לך באמת. תחלק את הזמן הפנוי שלך בין גמרא, אמונה, תנ"ך, אימונים וחברים, ותענה על עוד {PARAM_DEFINITIONS.length} שאלות קצרות.
         </p>
 
         <button
@@ -203,8 +209,19 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
         </div>
       )}
 
-      {/* STEPS 1..11: The 11 Parameters (no default selections) */}
-      {currentStep > 0 && currentParam && (
+      {/* STEP 1: split the free hours */}
+      {currentStep === TIME_STEP && (
+        <div className="glass-card question-card fade-in">
+          <h2 className="question-title">איך היית מחלק את הזמן שלך?</h2>
+          <p className="ta-lead">
+            נניח שיש לך {TIME_TOTAL_HOURS} שעות פנויות בשבוע. כמה מהן היית רוצה להקדיש לכל תחום? אי אפשר לתת הכול לכולם, אז תבחר מה באמת חשוב לך.
+          </p>
+          <TimeAllocator value={hours} onChange={setHours} />
+        </div>
+      )}
+
+      {/* The 1-5 parameters (no default selections) */}
+      {currentParam && (
         <div className="glass-card question-card fade-in" key={currentParam.id}>
           <h2 className="question-title">{currentParam.question || currentParam.label}</h2>
 
@@ -256,6 +273,12 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
           <button onClick={handleNext} className="btn-primary">
             הבא
             <ChevronLeft style={{ width: 18, height: 18 }} />
+          </button>
+        )}
+        {currentStep === TIME_STEP && (
+          <button onClick={handleNext} className="btn-primary" disabled={!timeComplete}>
+            {timeComplete ? 'הבא' : `עוד ${TIME_TOTAL_HOURS - hoursUsed(hours)} שעות לחלק`}
+            {timeComplete && <ChevronLeft style={{ width: 18, height: 18 }} />}
           </button>
         )}
       </div>

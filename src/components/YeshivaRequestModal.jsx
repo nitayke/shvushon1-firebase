@@ -3,6 +3,8 @@ import { X, Send, CheckCircle, MailCheck, Mail } from 'lucide-react';
 import { saveYeshivaRequestDB } from '../firebase';
 import { PARAM_DEFINITIONS, REGIONS, YESHIVA_TYPES, REGION_TRANSLATIONS, TYPE_TRANSLATIONS } from '../knn';
 import CustomSelect from './CustomSelect';
+import TimeAllocator from './TimeAllocator';
+import { TIME_TOTAL_HOURS, emptyHours, hoursUsed, hoursToTime, timeLines } from '../timeAllocation';
 
 export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin, yeshivotList = [] }) {
   const [yeshivaName, setYeshivaName] = useState('');
@@ -18,6 +20,8 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin, yesh
   }, {});
 
   const [ratings, setRatings] = useState(initialRatings);
+  const [hours, setHours] = useState(emptyHours);
+  const timeComplete = hoursUsed(hours) === TIME_TOTAL_HOURS;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedRequest, setSubmittedRequest] = useState(null);
 
@@ -44,7 +48,7 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin, yesh
   const generateMailtoLink = (req) => {
     const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || "shvushon@gmail.com";
     const subject = encodeURIComponent(`[שבושון] בקשה להוספת ישיבה חדשה: ${req.yeshiva_name}`);
-    const paramsList = PARAM_DEFINITIONS.map(p => `- ${p.label}: ${req.ratings[p.id] || 3}`).join('\n');
+    const paramsList = [...timeLines(req.time), ...PARAM_DEFINITIONS.map(p => `${p.label}: ${req.ratings[p.id] || 3}`)].map(l => `- ${l}`).join('\n');
     const body = encodeURIComponent(
       `שלום אדמין שבושון,\n\nהתקבלה בקשה חדשה להוספת ישיבה/מכינה למערכת:\n\n` +
       `שם המוסד: ${req.yeshiva_name}\n` +
@@ -60,7 +64,7 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin, yesh
 
   const sendAutomaticEmailToAdmin = async (requestData) => {
     const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || "shvushon@gmail.com";
-    const paramsList = PARAM_DEFINITIONS.map(p => `- ${p.label}: ${requestData.ratings[p.id] || 3}`).join('\n');
+    const paramsList = [...timeLines(requestData.time), ...PARAM_DEFINITIONS.map(p => `${p.label}: ${requestData.ratings[p.id] || 3}`)].map(l => `- ${l}`).join('\n');
 
     try {
       // Send real email via FormSubmit service directly to shvushon@gmail.com!
@@ -91,6 +95,7 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin, yesh
     if (!yeshivaName.trim()) return;
     if (!type) return alert("אנא בחר סוג מוסד כדי להמשיך.");
     if (!region) return alert("אנא בחר אזור גאוגרפי כדי להמשיך.");
+    if (!timeComplete) return alert(`אנא חלק את כל ${TIME_TOTAL_HOURS} השעות בין התחומים כדי להמשיך.`);
 
     setIsSubmitting(true);
     const requestPayload = {
@@ -98,6 +103,7 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin, yesh
       type,
       region,
       ratings,
+      time: hoursToTime(hours),
       submitter_email: submitterEmail,
       notes
     };
@@ -208,10 +214,21 @@ export default function YeshivaRequestModal({ isOpen, onClose, onOpenAdmin, yesh
               </div>
             </div>
 
-            {/* Ratings Sliders for the 11 Parameters */}
+            {/* How the time is split in the yeshiva */}
+            <div style={{ background: '#f8f4ec', padding: '1rem', borderRadius: 12, marginBottom: '1rem', border: '1px solid #e2d9c8' }}>
+              <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.3rem', color: '#52341d' }}>
+                איך מתחלק הזמן בישיבה/מכינה?
+              </h4>
+              <div style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '0.8rem' }}>
+                מתוך {TIME_TOTAL_HOURS} שעות בשבוע, כמה מוקדש לכל תחום?
+              </div>
+              <TimeAllocator value={hours} onChange={setHours} compact />
+            </div>
+
+            {/* Ratings Sliders for the 1-5 Parameters */}
             <div style={{ background: '#f8f4ec', padding: '1rem', borderRadius: 12, marginBottom: '1.2rem', border: '1px solid #e2d9c8' }}>
               <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.8rem', color: '#52341d' }}>
-                הצע דירוג (1-5) ל-11 הפרמטרים של הישיבה/מכינה:
+                הצע דירוג (1-5) לשאר המאפיינים של הישיבה/מכינה:
               </h4>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.8rem' }}>

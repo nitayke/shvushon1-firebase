@@ -1,3 +1,5 @@
+import { TIME_IDS, isValidTime, ratingsToTime, hoursToTime, timeToHours } from './timeAllocation.js';
+
 // A preference may be 'all', empty, a single id, or a list of ids; an empty list means no restriction.
 const toList = (v) => {
   const list = Array.isArray(v) ? v : (v ? [v] : []);
@@ -5,8 +7,9 @@ const toList = (v) => {
 };
 
 /**
- * Advanced Weighted KNN Matching Engine for Shvushon
- * Includes Uniform Answer Easter Egg Edge Cases from Shvushon 1 (Only when ALL 11 parameters are identical and active)
+ * Weighted KNN matching engine for Shvushon.
+ * The profile has two parts: 1-5 answers for PARAM_DEFINITIONS, and a split of the free hours between the
+ * TIME_CATEGORIES (gemara, emunah, tanach, training, friends; see timeAllocation.js).
  */
 
 export const PARAM_DEFINITIONS = [
@@ -27,14 +30,6 @@ export const PARAM_DEFINITIONS = [
     type: 'preference'
   },
   { 
-    id: 'gemara', 
-    label: 'לימוד גמרא', 
-    question: 'איזה דגש אתה מחפש על לימוד גמרא?', 
-    minLabel: 'דגש נמוך / משולב', 
-    maxLabel: 'דגש מרכזי ואינטנסיבי',
-    type: 'preference'
-  },
-  { 
     id: 'chassidut', 
     label: 'חסידות', 
     question: 'כמה דגש אתה מחפש על חסידות (לימוד, אווירה ורגש)?', 
@@ -43,35 +38,11 @@ export const PARAM_DEFINITIONS = [
     type: 'preference'
   },
   { 
-    id: 'tanach', 
-    label: 'לימוד תנ"ך', 
-    question: 'כמה דגש אתה מחפש על לימוד תנ"ך?', 
-    minLabel: 'בסיסי', 
-    maxLabel: 'לימוד תנ"ך מורחב ומעמיק',
-    type: 'preference'
-  },
-  { 
-    id: 'emunah', 
-    label: 'לימוד אמונה', 
-    question: 'כמה דגש אתה מחפש על לימוד אמונה ומחשבת ישראל?', 
-    minLabel: 'בסיסי', 
-    maxLabel: 'עיסוק מורחב ומעמיק באמונה',
-    type: 'preference'
-  },
-  { 
     id: 'rav_kook', 
     label: 'לימוד הרב קוק', 
     question: 'כמה דגש אתה מחפש על לימוד תורת הרב קוק?', 
     minLabel: 'ללא דגש מיוחד', 
     maxLabel: 'לימוד מעמיק בתורת הרב קוק',
-    type: 'preference'
-  },
-  { 
-    id: 'social', 
-    label: 'חברתיות', 
-    question: 'כמה חשוב לך החברתיות והגיבוש?', 
-    minLabel: 'לא חשוב בכלל', 
-    maxLabel: 'חשוב מאוד (חברתיות וגיבוש חזק)',
     type: 'preference'
   },
   { 
@@ -88,14 +59,6 @@ export const PARAM_DEFINITIONS = [
     question: 'לאיזה סגנון רוחני ופתיחות מחשבתית אתה מתחבר?', 
     minLabel: 'שמרני ומסורתי', 
     maxLabel: 'ליברלי ופתוח',
-    type: 'preference'
-  },
-  { 
-    id: 'karviut', 
-    label: 'קרביוּת', 
-    question: 'איזה דגש אתה מחפש על אווירה צבאית, הכנה לקרבי וסיירות?', 
-    minLabel: 'ללא דגש צבאי', 
-    maxLabel: 'אווירה צבאית והכנה מורחבת',
     type: 'preference'
   }
 ];
@@ -148,24 +111,36 @@ export const typeMatches = (selectedTypes, yeshivaType) =>
 const PARAM_WEIGHTS = {
   overall_size: 1.8,
   conditions: 1.0,
-  gemara: 1.3,
   chassidut: 1.3,
-  tanach: 1.0,
-  emunah: 1.1,
   rav_kook: 1.4,
-  social: 1.0,
   personal_relation: 1.0,
-  liberalism: 1.8,
-  karviut: 1.2
+  liberalism: 1.8
 };
+
+const TIME_WEIGHTS = {
+  gemara: 1.3,
+  emunah: 1.1,
+  tanach: 1.0,
+  training: 1.2,
+  social: 1.0
+};
+
+// A share of the time is placed on the same 1-5 scale as the answers: 0% -> 1, TIME_FULL_SCALE% and up -> 5.
+// So a 15-point gap in a category weighs like a one-step gap in a 1-5 answer.
+const TIME_FULL_SCALE = 60;
+const timeValue = (percent) => 1 + 4 * Math.min(1, Math.max(0, Number(percent) || 0) / TIME_FULL_SCALE);
+
+// A yeshiva's time split (yeshivot not migrated yet fall back to converting their old 1-5 ratings).
+const yeshivaTime = (yeshiva) => (isValidTime(yeshiva.time) ? yeshiva.time : ratingsToTime(yeshiva.ratings));
 
 // "How important is X to you" questions: everyone prefers more of X (the target is always 5), and the answer
 // only sets how much the parameter counts: 1 = doesn't matter at all, 5 = full weight.
-export const IMPORTANCE_PARAMS = new Set(['conditions', 'social']);
+export const IMPORTANCE_PARAMS = new Set(['conditions']);
 const IMPORTANCE_TARGET = 5;
 
 // The user's answers as per-parameter targets and weights (weight 0 = parameter not counted).
-const userProfile = (ratings, ignoreParams) => {
+// Order: PARAM_DEFINITIONS, then TIME_IDS (same order as yeshivaValues).
+const userProfile = (ratings = {}, ignoreParams = {}, time = null) => {
   const targets = [];
   const weights = [];
   PARAM_DEFINITIONS.forEach(param => {
@@ -182,11 +157,21 @@ const userProfile = (ratings, ignoreParams) => {
       weights.push(baseWeight);
     }
   });
+  const hasTime = isValidTime(time);
+  TIME_IDS.forEach(id => {
+    targets.push(hasTime ? timeValue(time[id]) : 0);
+    weights.push(hasTime ? TIME_WEIGHTS[id] : 0);
+  });
   return { targets, weights };
 };
 
-const yeshivaValues = (yeshiva) =>
-  PARAM_DEFINITIONS.map(p => Number(yeshiva.ratings ? yeshiva.ratings[p.id] : 3) || 3);
+const yeshivaValues = (yeshiva) => {
+  const time = yeshivaTime(yeshiva);
+  return [
+    ...PARAM_DEFINITIONS.map(p => Number(yeshiva.ratings ? yeshiva.ratings[p.id] : 3) || 3),
+    ...TIME_IDS.map(id => timeValue(time[id]))
+  ];
+};
 
 // Hybrid distance: 85% weighted normalized Euclidean (RMS) + 15% cosine angular alignment.
 const profileDistance = ({ targets, weights }, values) => {
@@ -237,17 +222,21 @@ const EXPOSURE_MAX_ITERATIONS = 80;
 const REFERENCE_CROWD_SIZE = 1500;
 
 // Answer distribution of ~5,900 real tests (Sep-Nov 2026): per parameter, % of [ignored, 1, 2, 3, 4, 5].
+// The time split of the reference crowd is drawn from the old 1-5 answers on the topics it replaced
+// (gemara, emunah, tanach, karviut, social), converted the same way the yeshivot were migrated.
 const ANSWER_DISTRIBUTION = {
   overall_size: [20, 7, 10, 32, 20, 12],
   conditions: [10, 10, 12, 27, 25, 16],
-  gemara: [4, 9, 10, 20, 30, 27],
   chassidut: [5, 17, 19, 22, 21, 15],
+  rav_kook: [7, 11, 11, 20, 24, 26],
+  personal_relation: [6, 6, 5, 17, 34, 33],
+  liberalism: [6, 17, 21, 25, 16, 15]
+};
+const LEGACY_TIME_DISTRIBUTION = {
+  gemara: [4, 9, 10, 20, 30, 27],
   tanach: [6, 10, 13, 28, 25, 17],
   emunah: [5, 7, 7, 18, 32, 31],
-  rav_kook: [7, 11, 11, 20, 24, 26],
   social: [6, 6, 6, 14, 29, 40],
-  personal_relation: [6, 6, 5, 17, 34, 33],
-  liberalism: [6, 17, 21, 25, 16, 15],
   karviut: [9, 18, 15, 20, 17, 20]
 };
 const TYPE_FILTER_DISTRIBUTION = [
@@ -289,9 +278,17 @@ const getReferenceCrowd = () => {
       if (answer === 0) ignoreParams[p.id] = true;
       else ratings[p.id] = answer;
     });
+    const legacy = {};
+    Object.entries(LEGACY_TIME_DISTRIBUTION).forEach(([id, dist]) => {
+      const answer = pickWeighted(rand, dist.map((w, i) => [i, w]));
+      if (answer > 0) legacy[id] = answer;
+    });
+    // as entered in the allocator: whole hours
+    const time = hoursToTime(timeToHours(ratingsToTime(legacy)));
     return {
       ratings,
       ignoreParams,
+      time,
       types: pickWeighted(rand, TYPE_FILTER_DISTRIBUTION),
       regions: pickWeighted(rand, REGION_FILTER_DISTRIBUTION)
     };
@@ -304,7 +301,7 @@ const boostCache = { key: null, boosts: null };
 // Distance bonus per yeshiva (same order as the list); 0 for yeshivot already above the floor.
 export const computeExposureBoosts = (yeshivotList) => {
   const n = yeshivotList.length;
-  const key = JSON.stringify(yeshivotList.map(y => [y.id, y.type, y.region, y.ratings]));
+  const key = JSON.stringify(yeshivotList.map(y => [y.id, y.type, y.region, y.ratings, y.time]));
   if (boostCache.key === key) return boostCache.boosts;
 
   const boosts = new Array(n).fill(0);
@@ -312,7 +309,7 @@ export const computeExposureBoosts = (yeshivotList) => {
     const crowd = getReferenceCrowd();
     const yVals = yeshivotList.map(yeshivaValues);
     const distances = crowd.map(u => {
-      const profile = userProfile(u.ratings, u.ignoreParams);
+      const profile = userProfile(u.ratings, u.ignoreParams, u.time);
       return yeshivotList.map((y, j) => profileDistance(profile, yVals[j]) + filterPenalty(u.types, u.regions, y));
     });
     const minCount = EXPOSURE_FLOOR * crowd.length;
@@ -355,57 +352,16 @@ export const computeExposureBoosts = (yeshivotList) => {
 };
 
 /**
- * Advanced Weighted KNN Distance Matching Algorithm + Strict Uniform Answer Edge Cases
+ * Weighted KNN distance matching: the k yeshivot closest to the user's answers and time split.
  */
 export const calculateKNNMatches = (userPreferences, yeshivotList, k = 3) => {
-  const { region, type, ratings, ignoreParams = {} } = userPreferences;
+  const { region, type, ratings, ignoreParams = {}, time } = userPreferences;
   const types = toList(type);
   const regions = toList(region);
 
-  // Strict Easter Egg check: Trigger ONLY if ALL 11 parameters are rated (none ignored) AND all 11 ratings are 100% identical!
-  const hasIgnoredParams = PARAM_DEFINITIONS.some(p => ignoreParams[p.id]);
-  const allRatings = PARAM_DEFINITIONS.map(p => Number(ratings[p.id]) || 3);
-  const allIdentical = allRatings.every(val => val === allRatings[0]);
-
-  if (!hasIgnoredParams && allIdentical) {
-    const val = allRatings[0];
-    if (val === 1) {
-      return [{
-        id: 'tsahal',
-        name: 'צבא ההגנה לישראל',
-        type: 'all',
-        region: 'all',
-        matchScore: 100,
-        isEasterEgg: true
-      }];
-    }
-
-    if ([2, 3, 4].includes(val)) {
-      return [{
-        id: 'chevron',
-        name: 'חברון החדשה',
-        type: 'all',
-        region: 'all',
-        matchScore: 100,
-        isEasterEgg: true
-      }];
-    }
-
-    if (val === 5) {
-      return [{
-        id: 'ponovezh',
-        name: "פוניבז'",
-        type: 'all',
-        region: 'all',
-        matchScore: 100,
-        isEasterEgg: true
-      }];
-    }
-  }
-
   const boosts = computeExposureBoosts(yeshivotList);
 
-  const profile = userProfile(ratings, ignoreParams);
+  const profile = userProfile(ratings, ignoreParams, time);
 
   const scoredYeshivot = yeshivotList.map((yeshiva, index) => {
     const rawDistance = profileDistance(profile, yeshivaValues(yeshiva)) + filterPenalty(types, regions, yeshiva);

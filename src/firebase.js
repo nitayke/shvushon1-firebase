@@ -13,6 +13,8 @@ import {
 } from "firebase/firestore";
 import { initializeAuth, browserSessionPersistence } from "firebase/auth";
 import { getAnalytics, isSupported } from "firebase/analytics";
+import { PARAM_DEFINITIONS } from "./knn";
+import { isValidTime, ratingsToTime, mergeTime } from "./timeAllocation";
 
 // Read Firebase keys from environment variables
 const firebaseConfig = {
@@ -240,6 +242,7 @@ export const approveYeshivaRequestDB = async (request) => {
     type: request.type,
     region: request.region,
     ratings: request.ratings,
+    time: isValidTime(request.time) ? request.time : ratingsToTime(request.ratings),
     submissions_count: 1,
     created_at: new Date().toISOString()
   };
@@ -337,10 +340,14 @@ export const recalculateYeshivaAveragesDB = async () => {
           const paramSums = {};
           const count = subs.length;
 
+          const paramCounts = {};
           subs.forEach(s => {
             if (s.ratings) {
-              Object.entries(s.ratings).forEach(([paramKey, score]) => {
-                paramSums[paramKey] = (paramSums[paramKey] || 0) + Number(score);
+              PARAM_DEFINITIONS.forEach(({ id: paramKey }) => {
+                const score = Number(s.ratings[paramKey]);
+                if (!Number.isFinite(score) || score <= 0) return;
+                paramSums[paramKey] = (paramSums[paramKey] || 0) + score;
+                paramCounts[paramKey] = (paramCounts[paramKey] || 0) + 1;
               });
             }
           });
@@ -352,10 +359,13 @@ export const recalculateYeshivaAveragesDB = async () => {
           Object.keys(paramSums).forEach(paramKey => {
             const oldSum = (targetYeshiva.ratings[paramKey] || 3) * currentCount;
             const newSum = oldSum + paramSums[paramKey];
-            newRatings[paramKey] = Number((newSum / totalCount).toFixed(1));
+            newRatings[paramKey] = Number((newSum / (currentCount + paramCounts[paramKey])).toFixed(1));
           });
 
           targetYeshiva.ratings = newRatings;
+          // Time split: weighted average with the reports that include one (older reports have none)
+          const newTime = mergeTime(targetYeshiva.time, currentCount, subs.map(s => s.time));
+          if (newTime) targetYeshiva.time = newTime;
           targetYeshiva.submissions_count = totalCount;
 
           batch.set(doc(db, "yeshivot", targetYeshiva.id), targetYeshiva, { merge: true });

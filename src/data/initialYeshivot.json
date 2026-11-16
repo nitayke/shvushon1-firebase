@@ -8,17 +8,19 @@
     "ratings": {
       "overall_size": 5,
       "conditions": 3,
-      "gemara": 5,
       "chassidut": 2,
-      "tanach": 1,
-      "emunah": 4,
       "rav_kook": 4,
-      "social": 3,
       "personal_relation": 2,
-      "liberalism": 2,
-      "karviut": 1
+      "liberalism": 2
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 73,
+      "emunah": 18,
+      "tanach": 3,
+      "training": 2,
+      "social": 4
+    }
   },
   {
     "id": "y_3",
@@ -29,17 +31,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 4,
-      "gemara": 3,
       "chassidut": 2,
-      "tanach": 5,
-      "emunah": 2,
       "rav_kook": 3,
-      "social": 4,
       "personal_relation": 4,
-      "liberalism": 3,
-      "karviut": 3
+      "liberalism": 3
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 23,
+      "emunah": 5,
+      "tanach": 52,
+      "training": 9,
+      "social": 11
+    }
   },
   {
     "id": "y_4",
@@ -50,17 +54,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 4,
-      "gemara": 3,
       "chassidut": 3,
-      "tanach": 3,
-      "emunah": 3,
       "rav_kook": 3,
-      "social": 5,
       "personal_relation": 3,
-      "liberalism": 3,
-      "karviut": 2
+      "liberalism": 3
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 31,
+      "emunah": 15,
+      "tanach": 18,
+      "training": 6,
+      "social": 30
+    }
   },
   {
     "id": "y_5",
@@ -71,17 +77,19 @@
     "ratings": {
       "overall_size": 3,
       "conditions": 4,
-      "gemara": 3,
       "chassidut": 2,
-      "tanach": 3,
-      "emunah": 3,
       "rav_kook": 3,
-      "social": 4,
       "personal_relation": 3,
-      "liberalism": 3,
-      "karviut": 3
+      "liberalism": 3
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 34,
+      "emunah": 16,
+      "tanach": 20,
+      "training": 14,
+      "social": 16
+    }
   },
   {
     "id": "y_6",
@@ -92,17 +100,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 4,
-      "gemara": 4,
       "chassidut": 4,
-      "tanach": 4,
-      "emunah": 4,
       "rav_kook": 3,
-      "social": 4,
       "personal_relation": 3,
-      "liberalism": 4,
-      "karviut": 3
+      "liberalism": 4
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 40,
+      "emunah": 19,
+      "tanach": 23,
+      "training": 8,
+      "social": 10
+    }
   },
   {
     "id": "y_7",
@@ -113,17 +123,19 @@
     "ratings": {
       "overall_size": 3,
       "conditions": 2,
-      "gemara": 4,
       "chassidut": 3,
-      "tanach": 2,
-      "emunah": 4,
       "rav_kook": 3,
-      "social": 4,
       "personal_relation": 3,
-      "liberalism": 4,
-      "karviut": 3
+      "liberalism": 4
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 48,
+      "emunah": 23,
+      "tanach": 7,
+      "training": 10,
+      "social": 12
+    }
   },
   {
     "id": "y_8",
@@ -134,17 +146,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 4,
-      "gemara": 2,
       "chassidut": 5,
-      "tanach": 4,
-      "emunah": 3,
       "rav_kook": 5,
-      "social": 4,
       "personal_relation": 4,
-      "liberalism": 2,
-      "karviut": 3
+      "liberalism": 2
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 16,
+      "emunah": 16,
+      "tanach": 38,
+      "training": 14,
+      "social": 16
+    }
   },
   {
     "id": "y_9",
@@ -155,17 +169,19 @@
     "ratings": {
       "overall_size": 3,
       "conditions": 4,
-      "gemara": 4,
       "chassidut": 2,
-      "tanach": 2,
-      "emunah": 2,
       "rav_kook": 2,
-      "social": 3,
       "personal_relation": 3,
-      "liberalism": 2,
-      "karviut": 2
+      "liberalism": 2
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 67,
+      "emunah": 8,
+      "tanach": 10,
+      "training": 7,
+      "social": 8
+    }
   },
   {
     "id": "y_10",
@@ -176,17 +192,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 4,
-      "gemara": 3,
       "chassidut": 4,
-      "tanach": 5,
-      "emunah": 2,
       "rav_kook": 2,
-      "social": 4,
       "personal_relation": 3,
-      "liberalism": 5,
-      "karviut": 3
+      "liberalism": 5
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 23,
+      "emunah": 5,
+      "tanach": 52,
+      "training": 9,
+      "social": 11
+    }
   },
   {
     "id": "y_11",
@@ -197,17 +215,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 5,
-      "gemara": 4,
       "chassidut": 2,
-      "tanach": 2,
-      "emunah": 3,
       "rav_kook": 3,
-      "social": 4,
       "personal_relation": 4,
-      "liberalism": 3,
-      "karviut": 3
+      "liberalism": 3
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 55,
+      "emunah": 13,
+      "tanach": 8,
+      "training": 11,
+      "social": 13
+    }
   },
   {
     "id": "y_12",
@@ -218,17 +238,19 @@
     "ratings": {
       "overall_size": 4,
       "conditions": 3,
-      "gemara": 5,
       "chassidut": 2,
-      "tanach": 4,
-      "emunah": 3,
       "rav_kook": 1,
-      "social": 3,
       "personal_relation": 2,
-      "liberalism": 4,
-      "karviut": 3
+      "liberalism": 4
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 63,
+      "emunah": 8,
+      "tanach": 18,
+      "training": 7,
+      "social": 4
+    }
   },
   {
     "id": "y_13",
@@ -239,17 +261,19 @@
     "ratings": {
       "overall_size": 4,
       "conditions": 3,
-      "gemara": 4,
       "chassidut": 2,
-      "tanach": 2,
-      "emunah": 4,
       "rav_kook": 4,
-      "social": 5,
       "personal_relation": 3,
-      "liberalism": 2,
-      "karviut": 5
+      "liberalism": 2
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 34,
+      "emunah": 16,
+      "tanach": 5,
+      "training": 29,
+      "social": 16
+    }
   },
   {
     "id": "y_14",
@@ -260,17 +284,19 @@
     "ratings": {
       "overall_size": 3,
       "conditions": 3,
-      "gemara": 4,
       "chassidut": 2,
-      "tanach": 2,
-      "emunah": 4,
       "rav_kook": 4,
-      "social": 4,
       "personal_relation": 3,
-      "liberalism": 2,
-      "karviut": 5
+      "liberalism": 2
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 37,
+      "emunah": 18,
+      "tanach": 5,
+      "training": 31,
+      "social": 9
+    }
   },
   {
     "id": "y_15",
@@ -281,17 +307,19 @@
     "ratings": {
       "overall_size": 3,
       "conditions": 4,
-      "gemara": 3,
       "chassidut": 4,
-      "tanach": 3,
-      "emunah": 3,
       "rav_kook": 3,
-      "social": 4,
       "personal_relation": 3,
-      "liberalism": 4,
-      "karviut": 3
+      "liberalism": 4
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 34,
+      "emunah": 16,
+      "tanach": 20,
+      "training": 14,
+      "social": 16
+    }
   },
   {
     "id": "y_16",
@@ -302,17 +330,19 @@
     "ratings": {
       "overall_size": 3,
       "conditions": 4,
-      "gemara": 4,
       "chassidut": 2,
-      "tanach": 2,
-      "emunah": 3,
       "rav_kook": 2,
-      "social": 3,
       "personal_relation": 3,
-      "liberalism": 4,
-      "karviut": 3
+      "liberalism": 4
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 58,
+      "emunah": 14,
+      "tanach": 9,
+      "training": 12,
+      "social": 7
+    }
   },
   {
     "id": "y_17",
@@ -323,17 +353,19 @@
     "ratings": {
       "overall_size": 1,
       "conditions": 4,
-      "gemara": 3,
       "chassidut": 5,
-      "tanach": 3,
-      "emunah": 3,
       "rav_kook": 2,
-      "social": 4,
       "personal_relation": 3,
-      "liberalism": 4,
-      "karviut": 3
+      "liberalism": 4
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 34,
+      "emunah": 16,
+      "tanach": 20,
+      "training": 14,
+      "social": 16
+    }
   },
   {
     "id": "y_18",
@@ -344,17 +376,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 4,
-      "gemara": 3,
       "chassidut": 2,
-      "tanach": 3,
-      "emunah": 2,
       "rav_kook": 2,
-      "social": 4,
       "personal_relation": 4,
-      "liberalism": 3,
-      "karviut": 3
+      "liberalism": 3
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 37,
+      "emunah": 9,
+      "tanach": 21,
+      "training": 15,
+      "social": 18
+    }
   },
   {
     "id": "y_19",
@@ -365,17 +399,19 @@
     "ratings": {
       "overall_size": 3,
       "conditions": 5,
-      "gemara": 3,
       "chassidut": 3,
-      "tanach": 3,
-      "emunah": 3,
       "rav_kook": 3,
-      "social": 4,
       "personal_relation": 4,
-      "liberalism": 3,
-      "karviut": 3
+      "liberalism": 3
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 34,
+      "emunah": 16,
+      "tanach": 20,
+      "training": 14,
+      "social": 16
+    }
   },
   {
     "id": "y_20",
@@ -386,17 +422,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 3,
-      "gemara": 4,
       "chassidut": 2,
-      "tanach": 1,
-      "emunah": 4,
       "rav_kook": 4,
-      "social": 4,
       "personal_relation": 3,
-      "liberalism": 2,
-      "karviut": 2
+      "liberalism": 2
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 53,
+      "emunah": 25,
+      "tanach": 4,
+      "training": 5,
+      "social": 13
+    }
   },
   {
     "id": "y_21",
@@ -407,17 +445,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 4,
-      "gemara": 3,
       "chassidut": 3,
-      "tanach": 3,
-      "emunah": 2,
       "rav_kook": 3,
-      "social": 5,
       "personal_relation": 4,
-      "liberalism": 3,
-      "karviut": 3
+      "liberalism": 3
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 31,
+      "emunah": 8,
+      "tanach": 18,
+      "training": 13,
+      "social": 30
+    }
   },
   {
     "id": "y_22",
@@ -428,17 +468,19 @@
     "ratings": {
       "overall_size": 3,
       "conditions": 4,
-      "gemara": 5,
       "chassidut": 2,
-      "tanach": 1,
-      "emunah": 4,
       "rav_kook": 4,
-      "social": 3,
       "personal_relation": 3,
-      "liberalism": 2,
-      "karviut": 1
+      "liberalism": 2
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 73,
+      "emunah": 18,
+      "tanach": 3,
+      "training": 2,
+      "social": 4
+    }
   },
   {
     "id": "y_23",
@@ -449,17 +491,19 @@
     "ratings": {
       "overall_size": 1,
       "conditions": 4,
-      "gemara": 3,
       "chassidut": 3,
-      "tanach": 2,
-      "emunah": 3,
       "rav_kook": 4,
-      "social": 5,
       "personal_relation": 5,
-      "liberalism": 3,
-      "karviut": 3
+      "liberalism": 3
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 32,
+      "emunah": 15,
+      "tanach": 9,
+      "training": 13,
+      "social": 31
+    }
   },
   {
     "id": "y_24",
@@ -470,17 +514,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 4,
-      "gemara": 4,
       "chassidut": 2,
-      "tanach": 3,
-      "emunah": 4,
       "rav_kook": 4,
-      "social": 4,
       "personal_relation": 3,
-      "liberalism": 3,
-      "karviut": 3
+      "liberalism": 3
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 45,
+      "emunah": 22,
+      "tanach": 13,
+      "training": 9,
+      "social": 11
+    }
   },
   {
     "id": "y_25",
@@ -491,17 +537,19 @@
     "ratings": {
       "overall_size": 1,
       "conditions": 4,
-      "gemara": 3,
       "chassidut": 2,
-      "tanach": 4,
-      "emunah": 3,
       "rav_kook": 3,
-      "social": 4,
       "personal_relation": 4,
-      "liberalism": 2,
-      "karviut": 3
+      "liberalism": 2
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 28,
+      "emunah": 14,
+      "tanach": 33,
+      "training": 12,
+      "social": 13
+    }
   },
   {
     "id": "y_26",
@@ -512,17 +560,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 3,
-      "gemara": 3,
       "chassidut": 3,
-      "tanach": 3,
-      "emunah": 2,
       "rav_kook": 2,
-      "social": 3,
       "personal_relation": 3,
-      "liberalism": 5,
-      "karviut": 3
+      "liberalism": 5
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 40,
+      "emunah": 10,
+      "tanach": 23,
+      "training": 17,
+      "social": 10
+    }
   },
   {
     "id": "y_27",
@@ -533,17 +583,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 4,
-      "gemara": 4,
       "chassidut": 4,
-      "tanach": 3,
-      "emunah": 2,
       "rav_kook": 3,
-      "social": 4,
       "personal_relation": 4,
-      "liberalism": 2,
-      "karviut": 3
+      "liberalism": 2
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 54,
+      "emunah": 6,
+      "tanach": 16,
+      "training": 11,
+      "social": 13
+    }
   },
   {
     "id": "y_28",
@@ -554,17 +606,19 @@
     "ratings": {
       "overall_size": 1,
       "conditions": 3,
-      "gemara": 4,
       "chassidut": 2,
-      "tanach": 3,
-      "emunah": 4,
       "rav_kook": 4,
-      "social": 5,
       "personal_relation": 4,
-      "liberalism": 2,
-      "karviut": 3
+      "liberalism": 2
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 41,
+      "emunah": 19,
+      "tanach": 12,
+      "training": 9,
+      "social": 19
+    }
   },
   {
     "id": "y_29",
@@ -575,17 +629,19 @@
     "ratings": {
       "overall_size": 3,
       "conditions": 4,
-      "gemara": 3,
       "chassidut": 2,
-      "tanach": 2,
-      "emunah": 2,
       "rav_kook": 2,
-      "social": 4,
       "personal_relation": 3,
-      "liberalism": 3,
-      "karviut": 3
+      "liberalism": 3
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 41,
+      "emunah": 10,
+      "tanach": 12,
+      "training": 17,
+      "social": 20
+    }
   },
   {
     "id": "y_30",
@@ -596,17 +652,19 @@
     "ratings": {
       "overall_size": 1,
       "conditions": 4,
-      "gemara": 3,
       "chassidut": 3,
-      "tanach": 3,
-      "emunah": 3,
       "rav_kook": 3,
-      "social": 4,
       "personal_relation": 5,
-      "liberalism": 4,
-      "karviut": 3
+      "liberalism": 4
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 34,
+      "emunah": 16,
+      "tanach": 20,
+      "training": 14,
+      "social": 16
+    }
   },
   {
     "id": "y_31",
@@ -617,17 +675,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 4,
-      "gemara": 4,
       "chassidut": 3,
-      "tanach": 2,
-      "emunah": 3,
       "rav_kook": 3,
-      "social": 5,
       "personal_relation": 3,
-      "liberalism": 2,
-      "karviut": 3
+      "liberalism": 2
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 48,
+      "emunah": 12,
+      "tanach": 7,
+      "training": 10,
+      "social": 23
+    }
   },
   {
     "id": "y_32",
@@ -638,17 +698,19 @@
     "ratings": {
       "overall_size": 1,
       "conditions": 4,
-      "gemara": 4,
       "chassidut": 3,
-      "tanach": 1,
-      "emunah": 1,
       "rav_kook": 2,
-      "social": 5,
       "personal_relation": 4,
-      "liberalism": 1,
-      "karviut": 1
+      "liberalism": 1
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 60,
+      "emunah": 4,
+      "tanach": 4,
+      "training": 3,
+      "social": 29
+    }
   },
   {
     "id": "y_33",
@@ -659,17 +721,19 @@
     "ratings": {
       "overall_size": 1,
       "conditions": 3,
-      "gemara": 3,
       "chassidut": 5,
-      "tanach": 1,
-      "emunah": 3,
       "rav_kook": 2,
-      "social": 5,
       "personal_relation": 4,
-      "liberalism": 2,
-      "karviut": 2
+      "liberalism": 2
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 36,
+      "emunah": 17,
+      "tanach": 5,
+      "training": 8,
+      "social": 34
+    }
   },
   {
     "id": "y_34",
@@ -680,17 +744,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 4,
-      "gemara": 4,
       "chassidut": 2,
-      "tanach": 3,
-      "emunah": 3,
       "rav_kook": 4,
-      "social": 5,
       "personal_relation": 3,
-      "liberalism": 1,
-      "karviut": 4
+      "liberalism": 1
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 41,
+      "emunah": 10,
+      "tanach": 12,
+      "training": 17,
+      "social": 20
+    }
   },
   {
     "id": "y_35",
@@ -701,17 +767,19 @@
     "ratings": {
       "overall_size": 5,
       "conditions": 4,
-      "gemara": 3,
       "chassidut": 2,
-      "tanach": 3,
-      "emunah": 3,
       "rav_kook": 3,
-      "social": 4,
       "personal_relation": 3,
-      "liberalism": 2,
-      "karviut": 3
+      "liberalism": 2
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 34,
+      "emunah": 16,
+      "tanach": 20,
+      "training": 14,
+      "social": 16
+    }
   },
   {
     "id": "y_36",
@@ -722,17 +790,19 @@
     "ratings": {
       "overall_size": 1,
       "conditions": 3,
-      "gemara": 3,
       "chassidut": 3,
-      "tanach": 5,
-      "emunah": 2,
       "rav_kook": 2,
-      "social": 4,
       "personal_relation": 4,
-      "liberalism": 3,
-      "karviut": 1
+      "liberalism": 3
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 24,
+      "emunah": 6,
+      "tanach": 56,
+      "training": 2,
+      "social": 12
+    }
   },
   {
     "id": "y_37",
@@ -743,17 +813,19 @@
     "ratings": {
       "overall_size": 1,
       "conditions": 3,
-      "gemara": 2,
       "chassidut": 4,
-      "tanach": 2,
-      "emunah": 3,
       "rav_kook": 2,
-      "social": 5,
       "personal_relation": 4,
-      "liberalism": 5,
-      "karviut": 3
+      "liberalism": 5
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 19,
+      "emunah": 18,
+      "tanach": 11,
+      "training": 16,
+      "social": 36
+    }
   },
   {
     "id": "y_38",
@@ -764,17 +836,19 @@
     "ratings": {
       "overall_size": 1,
       "conditions": 3,
-      "gemara": 3,
       "chassidut": 3,
-      "tanach": 2,
-      "emunah": 4,
       "rav_kook": 4,
-      "social": 5,
       "personal_relation": 4,
-      "liberalism": 2,
-      "karviut": 4
+      "liberalism": 2
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 24,
+      "emunah": 24,
+      "tanach": 7,
+      "training": 21,
+      "social": 24
+    }
   },
   {
     "id": "y_39",
@@ -785,17 +859,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 3,
-      "gemara": 3,
       "chassidut": 2,
-      "tanach": 2,
-      "emunah": 5,
       "rav_kook": 5,
-      "social": 5,
       "personal_relation": 4,
-      "liberalism": 2,
-      "karviut": 5
+      "liberalism": 2
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 17,
+      "emunah": 33,
+      "tanach": 5,
+      "training": 29,
+      "social": 16
+    }
   },
   {
     "id": "y_40",
@@ -806,17 +882,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 4,
-      "gemara": 4,
       "chassidut": 4,
-      "tanach": 2,
-      "emunah": 3,
       "rav_kook": 3,
-      "social": 3,
       "personal_relation": 3,
-      "liberalism": 2,
-      "karviut": 3
+      "liberalism": 2
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 58,
+      "emunah": 14,
+      "tanach": 9,
+      "training": 12,
+      "social": 7
+    }
   },
   {
     "id": "y_41",
@@ -827,17 +905,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 5,
-      "gemara": 3,
       "chassidut": 2,
-      "tanach": 3,
-      "emunah": 3,
       "rav_kook": 4,
-      "social": 4,
       "personal_relation": 4,
-      "liberalism": 4,
-      "karviut": 3
+      "liberalism": 4
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 34,
+      "emunah": 16,
+      "tanach": 20,
+      "training": 14,
+      "social": 16
+    }
   },
   {
     "id": "y_42",
@@ -848,17 +928,19 @@
     "ratings": {
       "overall_size": 3,
       "conditions": 3,
-      "gemara": 4,
       "chassidut": 2,
-      "tanach": 2,
-      "emunah": 3,
       "rav_kook": 4,
-      "social": 4,
       "personal_relation": 3,
-      "liberalism": 2,
-      "karviut": 3
+      "liberalism": 2
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 55,
+      "emunah": 13,
+      "tanach": 8,
+      "training": 11,
+      "social": 13
+    }
   },
   {
     "id": "y_43",
@@ -869,17 +951,19 @@
     "ratings": {
       "overall_size": 1,
       "conditions": 4,
-      "gemara": 3,
       "chassidut": 2,
-      "tanach": 2,
-      "emunah": 4,
       "rav_kook": 3,
-      "social": 5,
       "personal_relation": 4,
-      "liberalism": 2,
-      "karviut": 4
+      "liberalism": 2
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 24,
+      "emunah": 24,
+      "tanach": 7,
+      "training": 21,
+      "social": 24
+    }
   },
   {
     "id": "y_44",
@@ -890,17 +974,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 4,
-      "gemara": 2,
       "chassidut": 3,
-      "tanach": 3,
-      "emunah": 4,
       "rav_kook": 5,
-      "social": 4,
       "personal_relation": 4,
-      "liberalism": 3,
-      "karviut": 3
+      "liberalism": 3
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 17,
+      "emunah": 33,
+      "tanach": 20,
+      "training": 14,
+      "social": 16
+    }
   },
   {
     "id": "y_45",
@@ -911,17 +997,19 @@
     "ratings": {
       "overall_size": 5,
       "conditions": 3,
-      "gemara": 5,
       "chassidut": 2,
-      "tanach": 1,
-      "emunah": 4,
       "rav_kook": 5,
-      "social": 2,
       "personal_relation": 2,
-      "liberalism": 1,
-      "karviut": 1
+      "liberalism": 1
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 75,
+      "emunah": 18,
+      "tanach": 3,
+      "training": 2,
+      "social": 2
+    }
   },
   {
     "id": "y_46",
@@ -932,17 +1020,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 4,
-      "gemara": 3,
       "chassidut": 3,
-      "tanach": 3,
-      "emunah": 3,
       "rav_kook": 4,
-      "social": 4,
       "personal_relation": 3,
-      "liberalism": 3,
-      "karviut": 3
+      "liberalism": 3
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 34,
+      "emunah": 16,
+      "tanach": 20,
+      "training": 14,
+      "social": 16
+    }
   },
   {
     "id": "y_47",
@@ -953,17 +1043,19 @@
     "ratings": {
       "overall_size": 1,
       "conditions": 3,
-      "gemara": 4,
       "chassidut": 3,
-      "tanach": 3,
-      "emunah": 3,
       "rav_kook": 4,
-      "social": 5,
       "personal_relation": 4,
-      "liberalism": 3,
-      "karviut": 3
+      "liberalism": 3
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 45,
+      "emunah": 11,
+      "tanach": 13,
+      "training": 9,
+      "social": 22
+    }
   },
   {
     "id": "y_48",
@@ -974,17 +1066,19 @@
     "ratings": {
       "overall_size": 1,
       "conditions": 4,
-      "gemara": 3,
       "chassidut": 3,
-      "tanach": 3,
-      "emunah": 3,
       "rav_kook": 3,
-      "social": 5,
       "personal_relation": 4,
-      "liberalism": 3,
-      "karviut": 3
+      "liberalism": 3
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 29,
+      "emunah": 14,
+      "tanach": 17,
+      "training": 12,
+      "social": 28
+    }
   },
   {
     "id": "y_49",
@@ -995,17 +1089,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 3,
-      "gemara": 3,
       "chassidut": 3,
-      "tanach": 1,
-      "emunah": 4,
       "rav_kook": 3,
-      "social": 5,
       "personal_relation": 4,
-      "liberalism": 3,
-      "karviut": 3
+      "liberalism": 3
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 29,
+      "emunah": 28,
+      "tanach": 4,
+      "training": 12,
+      "social": 27
+    }
   },
   {
     "id": "y_50",
@@ -1016,17 +1112,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 3,
-      "gemara": 3,
       "chassidut": 3,
-      "tanach": 2,
-      "emunah": 2,
       "rav_kook": 3,
-      "social": 5,
       "personal_relation": 5,
-      "liberalism": 1,
-      "karviut": 3
+      "liberalism": 1
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 34,
+      "emunah": 8,
+      "tanach": 10,
+      "training": 15,
+      "social": 33
+    }
   },
   {
     "id": "y_51",
@@ -1037,17 +1135,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 4,
-      "gemara": 3,
       "chassidut": 3,
-      "tanach": 2,
-      "emunah": 3,
       "rav_kook": 3,
-      "social": 5,
       "personal_relation": 4,
-      "liberalism": 2,
-      "karviut": 3
+      "liberalism": 2
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 32,
+      "emunah": 15,
+      "tanach": 9,
+      "training": 13,
+      "social": 31
+    }
   },
   {
     "id": "y_52",
@@ -1058,17 +1158,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 3,
-      "gemara": 3,
       "chassidut": 2,
-      "tanach": 3,
-      "emunah": 3,
       "rav_kook": 4,
-      "social": 3,
       "personal_relation": 4,
-      "liberalism": 3,
-      "karviut": 3
+      "liberalism": 3
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 37,
+      "emunah": 18,
+      "tanach": 21,
+      "training": 15,
+      "social": 9
+    }
   },
   {
     "id": "y_53",
@@ -1079,17 +1181,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 4,
-      "gemara": 2,
       "chassidut": 3,
-      "tanach": 2,
-      "emunah": 2,
       "rav_kook": 4,
-      "social": 5,
       "personal_relation": 3,
-      "liberalism": 3,
-      "karviut": 4
+      "liberalism": 3
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 18,
+      "emunah": 8,
+      "tanach": 10,
+      "training": 30,
+      "social": 34
+    }
   },
   {
     "id": "y_54",
@@ -1100,17 +1204,19 @@
     "ratings": {
       "overall_size": 1,
       "conditions": 4,
-      "gemara": 3,
       "chassidut": 5,
-      "tanach": 4,
-      "emunah": 2,
       "rav_kook": 3,
-      "social": 3,
       "personal_relation": 5,
-      "liberalism": 4,
-      "karviut": 2
+      "liberalism": 4
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 35,
+      "emunah": 9,
+      "tanach": 41,
+      "training": 7,
+      "social": 8
+    }
   },
   {
     "id": "y_55",
@@ -1121,17 +1227,19 @@
     "ratings": {
       "overall_size": 1,
       "conditions": 3,
-      "gemara": 1,
       "chassidut": 4,
-      "tanach": 5,
-      "emunah": 3,
       "rav_kook": 3,
-      "social": 5,
       "personal_relation": 4,
-      "liberalism": 4,
-      "karviut": 4
+      "liberalism": 4
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 5,
+      "emunah": 10,
+      "tanach": 48,
+      "training": 17,
+      "social": 20
+    }
   },
   {
     "id": "y_56",
@@ -1142,17 +1250,19 @@
     "ratings": {
       "overall_size": 1,
       "conditions": 4,
-      "gemara": 5,
       "chassidut": 2,
-      "tanach": 1,
-      "emunah": 2,
       "rav_kook": 2,
-      "social": 3,
       "personal_relation": 4,
-      "liberalism": 1,
-      "karviut": 1
+      "liberalism": 1
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 85,
+      "emunah": 5,
+      "tanach": 3,
+      "training": 2,
+      "social": 5
+    }
   },
   {
     "id": "y_57",
@@ -1163,17 +1273,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 5,
-      "gemara": 2,
       "chassidut": 2,
-      "tanach": 3,
-      "emunah": 3,
       "rav_kook": 4,
-      "social": 4,
       "personal_relation": 4,
-      "liberalism": 3,
-      "karviut": 3
+      "liberalism": 3
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 20,
+      "emunah": 20,
+      "tanach": 24,
+      "training": 17,
+      "social": 19
+    }
   },
   {
     "id": "y_58",
@@ -1184,17 +1296,19 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 3,
-      "gemara": 3,
       "chassidut": 5,
-      "tanach": 3,
-      "emunah": 2,
       "rav_kook": 2,
-      "social": 5,
       "personal_relation": 4,
-      "liberalism": 2,
-      "karviut": 2
+      "liberalism": 2
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 34,
+      "emunah": 8,
+      "tanach": 19,
+      "training": 7,
+      "social": 32
+    }
   },
   {
     "id": "y_59",
@@ -1205,17 +1319,19 @@
     "ratings": {
       "overall_size": 1,
       "conditions": 3,
-      "gemara": 2,
       "chassidut": 4,
-      "tanach": 3,
-      "emunah": 2,
       "rav_kook": 3,
-      "social": 4,
       "personal_relation": 4,
-      "liberalism": 2,
-      "karviut": 3
+      "liberalism": 2
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 22,
+      "emunah": 11,
+      "tanach": 26,
+      "training": 19,
+      "social": 22
+    }
   },
   {
     "id": "y_60",
@@ -1226,16 +1342,18 @@
     "ratings": {
       "overall_size": 2,
       "conditions": 2,
-      "gemara": 5,
       "chassidut": 2,
-      "tanach": 3,
-      "emunah": 3,
       "rav_kook": 3,
-      "social": 4,
       "personal_relation": 3,
-      "liberalism": 1,
-      "karviut": 3
+      "liberalism": 1
     },
-    "submissions_count": 1
+    "submissions_count": 1,
+    "time": {
+      "gemara": 67,
+      "emunah": 8,
+      "tanach": 10,
+      "training": 7,
+      "social": 8
+    }
   }
 ]
