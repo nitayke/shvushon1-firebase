@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { ShieldCheck, Plus, Check, RefreshCw, Trash2, Edit3, LogOut, Inbox, Users, Database, TrendingUp, Link2, Copy, UserCheck, FileText, Megaphone, Star, Download } from 'lucide-react';
+import { ShieldCheck, Plus, Check, RefreshCw, Trash2, Edit3, LogOut, Inbox, Users, Database, TrendingUp, Link2, Copy, UserCheck, FileText, Megaphone, Star, Download, Search } from 'lucide-react';
 import { 
   getYeshivotDB, 
   getYeshivaRequestsDB, 
@@ -39,6 +39,7 @@ export default function AdminDashboard({ onExitAdmin }) {
   const [managers, setManagers] = useState([]);
   const [inviteResult, setInviteResult] = useState(null); // { yeshivaName, url }
   const [onlyWithManager, setOnlyWithManager] = useState(false);
+  const [yeshivotQuery, setYeshivotQuery] = useState('');
   const [reportYeshiva, setReportYeshiva] = useState(null);
   const [priceListOpen, setPriceListOpen] = useState(false);
 
@@ -549,13 +550,25 @@ export default function AdminDashboard({ onExitAdmin }) {
             );
           })()}
 
+          <div style={{ position: 'relative', marginBottom: '1rem' }}>
+            <Search style={{ position: 'absolute', insetInlineStart: 12, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: '#94a3b8' }} />
+            <input
+              type="search"
+              className="input-field"
+              placeholder="חיפוש ישיבה..."
+              value={yeshivotQuery}
+              onChange={(e) => setYeshivotQuery(e.target.value)}
+              style={{ marginBottom: 0, paddingInlineStart: '2.4rem' }}
+            />
+          </div>
+
           {loading && yeshivot.length === 0 ? (
             <p style={{ color: '#94a3b8' }}>טוען נתונים...</p>
           ) : yeshivot.length === 0 ? (
             <p style={{ color: '#94a3b8' }}>אין ישיבות/מכינות במאגר.</p>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-              {yeshivot.filter(y => !onlyWithManager || managers.some(m => m.yeshivaId === y.id)).map(y => (
+              {yeshivot.filter(y => (!onlyWithManager || managers.some(m => m.yeshivaId === y.id)) && (!yeshivotQuery.trim() || (y.name || '').includes(yeshivotQuery.trim()))).map(y => (
                 <div key={y.id} className="yeshiva-result-card" style={{ margin: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.8rem' }}>
                     <div>
