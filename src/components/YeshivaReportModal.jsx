@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Download, X } from 'lucide-react';
 import { getYeshivaReportDB } from '../firebase';
-import { ReportPageOne, ReportPageTwo, ReportPageThree, reportFacts, PAGE_W, PAGE_H } from './YeshivaReport';
+import { ReportPageOne, ReportPageTwo, ReportPageThree, reportFacts, reportOptions, PAGE_W, PAGE_H } from './YeshivaReport';
 import { REPORT_MIN_RECIPIENTS } from '../yeshivaReport';
 import { saveReportPdf } from '../reportPdf';
 
@@ -38,6 +38,7 @@ export default function YeshivaReportModal({ yeshiva, onClose, initialReport = n
   const [saving, setSaving] = useState(false);
   const [recipient, setRecipient] = useState('');
   const [note, setNote] = useState('');
+  const [choices, setChoices] = useState({}); // checkbox overrides of the suggested defaults
   const [sender, setSender] = useState(() => readSender().sender ?? DEFAULT_SENDER);
   const [phone, setPhone] = useState(() => readSender().phone ?? DEFAULT_PHONE);
   const [scale, setScale] = useState(0.6);
@@ -69,7 +70,8 @@ export default function YeshivaReportModal({ yeshiva, onClose, initialReport = n
     try { localStorage.setItem(SENDER_KEY, JSON.stringify({ sender, phone })); } catch { /* storage unavailable */ }
   }, [sender, phone]);
 
-  const facts = report ? reportFacts(report) : null;
+  const options = report ? reportOptions(report) : [];
+  const facts = report ? reportFacts(report, choices) : null;
 
   const handleDownload = async () => {
     setSaving(true);
@@ -113,9 +115,26 @@ export default function YeshivaReportModal({ yeshiva, onClose, initialReport = n
                 </div>
               )}
               <div style={{ background: '#f8f4ec', border: '1px solid #e2d9c8', borderRadius: 8, padding: '0.8rem', fontSize: '0.85rem', color: '#374151' }}>
-                {facts.showOwn
-                  ? <>ב-30 הימים האחרונים {report.yeshiva.name} יצאה ל-<strong>{report.own.top3.toLocaleString('he-IL')}</strong> תלמידים בטופ 3, ולכן הנתון מוצג במסמך.</>
-                  : <>ב-30 הימים האחרונים {report.yeshiva.name} יצאה ל-{report.own.top3} תלמידים בלבד בטופ 3 (עד {REPORT_MIN_RECIPIENTS}), ולכן המסמך מציג נתוני אתר כלליים במקום.</>}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.4rem' }}>
+                  <strong style={{ color: '#111827' }}>מה יוצג במסמך</strong>
+                  {Object.keys(choices).length > 0 && (
+                    <button type="button" onClick={() => setChoices({})} style={{ background: 'none', border: 'none', color: '#b47828', cursor: 'pointer', fontSize: '0.8rem', padding: 0 }}>
+                      חזרה להמלצה
+                    </button>
+                  )}
+                </div>
+                {options.filter(o => o.available && (!o.group || (o.group === 'own') === facts.showOwn)).map(o => (
+                  <label key={o.key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.2rem 0', paddingInlineStart: o.group === 'own' ? '1.4rem' : 0, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={o.key === 'showOwn' ? facts.showOwn : !!facts[o.key]} onChange={e => setChoices(c => ({ ...c, [o.key]: e.target.checked }))} />
+                    <span style={{ flex: 1 }}>{o.label}</span>
+                    {o.value && <span style={{ color: '#7a6d5e', unicodeBidi: 'plaintext' }}>{o.value}</span>}
+                  </label>
+                ))}
+                {!facts.showOwn && (
+                  <div style={{ marginTop: '0.3rem', color: '#7a6d5e', fontSize: '0.8rem' }}>
+                    בלי נתוני הישיבה המסמך מציג נתוני אתר כלליים.{report.own.top3 <= REPORT_MIN_RECIPIENTS && ` (ההמלצה: להציג רק מעל ${REPORT_MIN_RECIPIENTS} תלמידים.)`}
+                  </div>
+                )}
               </div>
               <div style={{ background: '#f8f4ec', border: '1px solid #e2d9c8', borderRadius: 8, padding: '0.8rem', fontSize: '0.85rem', color: '#374151' }}>
                 {report.banner?.current

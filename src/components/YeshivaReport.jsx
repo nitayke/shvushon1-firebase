@@ -53,20 +53,52 @@ const docRef = (r) => {
   return `${String(d.getFullYear()).slice(2)}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${code}`;
 };
 
-// What the report is allowed to say, decided once from the numbers.
-export const reportFacts = (r) => {
-  const { own, site } = r;
-  const showOwn = own.top3 > REPORT_MIN_RECIPIENTS;
-  const oneIn = showOwn && own.top3 ? Math.round(site.monthTotal / own.top3) : null;
+// Top-5 topics where the yeshiva's audience differs most from the whole site (page two).
+const audienceRowsOf = (r) => {
+  const ownParams = r.own.paramAverages || {};
+  const siteParams = r.site.paramAverages || {};
+  return Object.keys(ownParams)
+    .filter(id => siteParams[id] != null && !PROFILE_SKIP.has(id))
+    .map(id => ({ id, value: ownParams[id], site: siteParams[id], diff: ownParams[id] - siteParams[id] }))
+    .sort((a, b) => b.diff - a.diff)
+    .slice(0, 5);
+};
+
+// Every optional item in the report, with a suggested default the admin can override with a checkbox.
+// group 'own' items appear only while showOwn is on; group 'site' items only while it is off.
+export const reportOptions = (r) => {
+  const { own, site, yeshiva } = r;
+  const enough = own.top3 > REPORT_MIN_RECIPIENTS;
+  const oneIn = own.top3 ? Math.round(site.monthTotal / own.top3) : null;
+  const audience = audienceRowsOf(r);
+  return [
+    { key: 'showOwn', label: 'כמה תלמידים קיבלו את הישיבה בטופ 3', value: n(own.top3), def: enough },
+    { key: 'oneIn', group: 'own', label: 'בערך אחד מכל X תלמידים', value: oneIn ? `1:${oneIn}` : '', available: oneIn >= 1, def: oneIn >= 2 && oneIn <= 25 },
+    { key: 'showFirst', group: 'own', label: 'פעמים במקום הראשון', value: n(own.first), def: own.first >= 5 },
+    { key: 'showScore', group: 'own', label: 'ציון התאמה ממוצע', value: own.avgScore != null ? `${own.avgScore}%` : '', available: own.avgScore != null, def: own.avgScore >= 50 },
+    { key: 'showRank', group: 'own', label: 'מקום בדירוג החשיפה', value: `${own.rank} מתוך ${site.institutions}`, def: own.rank <= Math.ceil(site.institutions / 3) },
+    { key: 'showClicks', group: 'own', label: 'פניות לאחראי השבושים', value: n(own.clicks), def: own.clicks >= 5 },
+    { key: 'showAudience', group: 'own', label: 'מה חשוב לתלמידים שקיבלו אתכם (עמוד 2)', available: audience.length >= 3, def: audience[0]?.diff > 0.1 },
+    { key: 'showType', group: 'site', label: 'כמה סיננו את סוג המוסד', value: n(site.typeInterest), available: !!TYPE_TRANSLATIONS[yeshiva.type], def: site.typeInterest >= 20 },
+    { key: 'showRegion', group: 'site', label: 'כמה חיפשו את האזור', value: n(site.regionInterest), available: !!REGION_TRANSLATIONS[yeshiva.region] && yeshiva.region !== 'all', def: site.regionInterest >= 20 }
+  ].map(o => ({ available: true, ...o }));
+};
+
+// What the report says: the suggested defaults, overridden by the admin's choices ({ key: bool }).
+export const reportFacts = (r, choices = {}) => {
+  const on = Object.fromEntries(reportOptions(r).map(o => [o.key, o.available && (choices[o.key] ?? o.def)]));
+  const showOwn = on.showOwn;
+  const own = (k) => showOwn && on[k];
   return {
     showOwn,
-    oneIn: oneIn && oneIn >= 2 && oneIn <= 25 ? oneIn : null,
-    showFirst: showOwn && own.first >= 5,
-    showRank: showOwn && own.rank <= Math.ceil(site.institutions / 3),
-    showScore: showOwn && own.avgScore != null && own.avgScore >= 50,
-    showClicks: showOwn && own.clicks >= 5,
-    showRegion: site.regionInterest >= 20 && !!REGION_TRANSLATIONS[r.yeshiva.region] && r.yeshiva.region !== 'all',
-    showType: site.typeInterest >= 20 && !!TYPE_TRANSLATIONS[r.yeshiva.type]
+    oneIn: own('oneIn') ? Math.round(r.site.monthTotal / r.own.top3) : null,
+    showFirst: own('showFirst'),
+    showRank: own('showRank'),
+    showScore: own('showScore'),
+    showClicks: own('showClicks'),
+    showAudience: own('showAudience'),
+    showRegion: !showOwn && on.showRegion,
+    showType: !showOwn && on.showType
   };
 };
 
@@ -252,14 +284,9 @@ export const ReportPageOne = forwardRef(({ r, f, recipient }, ref) => {
 });
 
 export const ReportPageTwo = forwardRef(({ r, f }, ref) => {
-  const { yeshiva, own, site } = r;
-  const ownParams = own.paramAverages || {};
-  const audienceRows = Object.keys(ownParams)
-    .filter(id => site.paramAverages[id] != null && !PROFILE_SKIP.has(id))
-    .map(id => ({ id, value: ownParams[id], site: site.paramAverages[id], diff: ownParams[id] - site.paramAverages[id] }))
-    .sort((a, b) => b.diff - a.diff)
-    .slice(0, 5);
-  const withAudience = f.showOwn && audienceRows.length >= 3 && audienceRows[0].diff > 0.1;
+  const { yeshiva, site } = r;
+  const audienceRows = audienceRowsOf(r);
+  const withAudience = f.showAudience && audienceRows.length >= 3;
   const siteRows = Object.entries(site.paramAverages)
     .filter(([id]) => !PROFILE_SKIP.has(id))
     .map(([id, value]) => ({ id, value, site: value }))
