@@ -117,29 +117,24 @@ const PARAM_WEIGHTS = {
   liberalism: 1.8
 };
 
-const TIME_WEIGHTS = {
-  gemara: 1.3,
-  emunah: 1.1,
-  tanach: 1.0,
-  training: 1.2,
-  social: 1.0
-};
-
-// A share of the time is placed on the same 1-5 scale as the answers: 0% -> 1, TIME_FULL_SCALE% and up -> 5.
-// So a 15-point gap in a category weighs like a one-step gap in a 1-5 answer.
-const TIME_FULL_SCALE = 60;
-const timeValue = (percent) => 1 + 4 * Math.min(1, Math.max(0, Number(percent) || 0) / TIME_FULL_SCALE);
+// How much the time split counts against the 1-5 answers (the answers' weights above sum to ~8.3).
+const TIME_WEIGHT = 5.6;
 
 // A yeshiva's time split (yeshivot not migrated yet fall back to converting their old 1-5 ratings).
 const yeshivaTime = (yeshiva) => (isValidTime(yeshiva.time) ? yeshiva.time : ratingsToTime(yeshiva.ratings));
+
+// Distance between two time splits, straight on the percents: the share of the week spent differently,
+// i.e. half the sum of the gaps (0 = same split, 1 = nothing in common). 64/6/10/4/16 vs 58/9/20/4/9 -> 0.13.
+export const timeDistance = (a, b) =>
+  TIME_IDS.reduce((sum, id) => sum + Math.abs((Number(a[id]) || 0) - (Number(b[id]) || 0)), 0) / 200;
 
 // "How important is X to you" questions: everyone prefers more of X (the target is always 5), and the answer
 // only sets how much the parameter counts: 1 = doesn't matter at all, 5 = full weight.
 export const IMPORTANCE_PARAMS = new Set(['conditions']);
 const IMPORTANCE_TARGET = 5;
 
-// The user's answers as per-parameter targets and weights (weight 0 = parameter not counted).
-// Order: PARAM_DEFINITIONS, then TIME_IDS (same order as yeshivaValues).
+// The user's answers as per-parameter targets and weights in PARAM_DEFINITIONS order (weight 0 = not counted),
+// plus the time split (null when the user has none).
 const userProfile = (ratings = {}, ignoreParams = {}, time = null) => {
   const targets = [];
   const weights = [];
@@ -157,24 +152,16 @@ const userProfile = (ratings = {}, ignoreParams = {}, time = null) => {
       weights.push(baseWeight);
     }
   });
-  const hasTime = isValidTime(time);
-  TIME_IDS.forEach(id => {
-    targets.push(hasTime ? timeValue(time[id]) : 0);
-    weights.push(hasTime ? TIME_WEIGHTS[id] : 0);
-  });
-  return { targets, weights };
+  return { targets, weights, time: isValidTime(time) ? time : null };
 };
 
-const yeshivaValues = (yeshiva) => {
-  const time = yeshivaTime(yeshiva);
-  return [
-    ...PARAM_DEFINITIONS.map(p => Number(yeshiva.ratings ? yeshiva.ratings[p.id] : 3) || 3),
-    ...TIME_IDS.map(id => timeValue(time[id]))
-  ];
-};
+const yeshivaValues = (yeshiva) => ({
+  values: PARAM_DEFINITIONS.map(p => Number(yeshiva.ratings ? yeshiva.ratings[p.id] : 3) || 3),
+  time: yeshivaTime(yeshiva)
+});
 
-// Hybrid distance: 85% weighted normalized Euclidean (RMS) + 15% cosine angular alignment.
-const profileDistance = ({ targets, weights }, values) => {
+// Distance on the 1-5 answers: 85% weighted normalized Euclidean (RMS) + 15% cosine angular alignment.
+const answersDistance = (targets, weights, values) => {
   let dotProduct = 0;
   let normU = 0;
   let normV = 0;
@@ -198,7 +185,17 @@ const profileDistance = ({ targets, weights }, values) => {
 
   const cosineSim = (normU > 0 && normV > 0) ? (dotProduct / (Math.sqrt(normU) * Math.sqrt(normV))) : 1.0;
   const rmsDistance = totalWeight > 0 ? Math.sqrt(weightedDistSq / totalWeight) : 0;
-  return (0.85 * rmsDistance) + (0.15 * (1 - Math.min(1.0, cosineSim)));
+  return { distance: (0.85 * rmsDistance) + (0.15 * (1 - Math.min(1.0, cosineSim))), weight: totalWeight };
+};
+
+// Weighted average of the answers distance and the time distance (each 0-1).
+const profileDistance = ({ targets, weights, time }, yeshiva) => {
+  const answers = answersDistance(targets, weights, yeshiva.values);
+  const timeW = time ? TIME_WEIGHT : 0;
+  const total = answers.weight + timeW;
+  if (total === 0) return 0;
+  const timeD = time ? timeDistance(time, yeshiva.time) : 0;
+  return (answers.distance * answers.weight + timeD * timeW) / total;
 };
 
 // Penalty for Type & Region mismatch
