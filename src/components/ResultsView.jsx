@@ -395,7 +395,7 @@ export default function ResultsView({ results, userPreferences, yeshivotList, te
                   style={{ width: '100%', justifyContent: 'center' }}
                 >
                   <Save style={{ width: 18, height: 18 }} />
-                  {isSubmitting ? 'שומר במאגר...' : studentTimeComplete ? 'שמור תשובות במאגר' : `נשארו ${TIME_TOTAL_HOURS - hoursUsed(studentHours)} שעות לחלק`}
+                  {isSubmitting ? 'שומר במאגר...' : studentTimeComplete ? 'שמור תשובות במאגר' : (TIME_TOTAL_HOURS - hoursUsed(studentHours) === 1 ? 'נשארה שעה אחת לחלק' : `נשארו ${TIME_TOTAL_HOURS - hoursUsed(studentHours)} שעות לחלק`)}
                 </button>
               </form>
             )}

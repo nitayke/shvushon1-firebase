@@ -277,7 +277,7 @@ export default function Questionnaire({ onStartQuiz, onCalculateMatches, onReque
         )}
         {currentStep === TIME_STEP && (
           <button onClick={handleNext} className="btn-primary" disabled={!timeComplete}>
-            {timeComplete ? 'הבא' : `עוד ${TIME_TOTAL_HOURS - hoursUsed(hours)} שעות לחלק`}
+            {timeComplete ? 'הבא' : (TIME_TOTAL_HOURS - hoursUsed(hours) === 1 ? 'עוד שעה אחת לחלק' : `עוד ${TIME_TOTAL_HOURS - hoursUsed(hours)} שעות לחלק`)}
             {timeComplete && <ChevronLeft style={{ width: 18, height: 18 }} />}
           </button>
         )}
